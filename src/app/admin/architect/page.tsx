@@ -1,0 +1,16 @@
+import { Bot, CirclePause, Clock3, Play, RotateCcw, ShieldAlert, Square } from "lucide-react";
+
+import { AdminShell } from "@/components/admin/admin-shell";
+import { IntegrationBadge, OperationsMetric, OperationsTable } from "@/components/admin/operations-ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const workflow = ["Trigger", "출처 검증", "직원 배정", "생성", "자동 QA", "검수 큐", "승인", "저장", "발행"];
+
+export default function AdminArchitectPage() {
+  const rows = [
+    { id: "run-demo-001", cells: [<span className="font-mono text-zinc-300" key="id">RUN-DEMO-001</span>, "Manual", <Badge key="status" variant="outline">Review Required</Badge>, "3명", "Mock", "2026-07-21 14:20"] },
+    { id: "run-demo-002", cells: [<span className="font-mono text-zinc-300" key="id">RUN-DEMO-002</span>, "Schedule", <Badge key="status" variant="outline">Published</Badge>, "3명", "Mock", "2026-07-20 09:00"] },
+  ];
+  return <AdminShell title="아키텍트 제어" description="AI Employee의 업무를 배정하고 생성·검수·발행 흐름을 관제하는 중앙 AI Workforce Orchestrator입니다."><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2"><span className="grid size-9 place-items-center rounded-md border border-cyan-300/20 bg-cyan-300/10"><Bot className="size-4 text-cyan-200" /></span><div><p className="text-sm font-medium">ARCHITECT</p><p className="text-[10px] text-zinc-600">중앙 운영 시스템 · AI Employee 아님</p></div></div><IntegrationBadge state="Integration Ready" /></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><OperationsMetric detail="실제 Worker 미연결" label="현재 상태" tone="warning" value="PAUSED" /><OperationsMetric detail="검수 단계 대기" label="최근 Run" value="2건" /><OperationsMetric detail="실제 Token 계측 미연결" label="오늘 비용" value="미집계" /><OperationsMetric detail="실패 Run" label="오류" tone="success" value="0건" /></div><section aria-label="아키텍트 작업 제어" className="flex flex-wrap items-center gap-2 border-y border-white/8 py-4"><Button disabled><Play />수동 Run</Button><Button disabled variant="outline"><CirclePause />일시정지</Button><Button disabled variant="outline"><RotateCcw />재시도</Button><Button disabled variant="outline"><Square />취소</Button><Button disabled className="ml-auto border-rose-400/30 text-rose-200" variant="outline"><ShieldAlert />Kill Switch</Button></section><section><p className="text-[10px] font-semibold uppercase text-zinc-600">Workflow</p><div className="mt-3 flex gap-2 overflow-x-auto pb-2">{workflow.map((step, index) => <div className="flex min-w-28 items-center gap-2 border border-white/8 bg-white/[0.02] px-3 py-3" key={step}><span className="font-mono text-[9px] text-cyan-300">{String(index + 1).padStart(2, "0")}</span><span className="text-[11px] text-zinc-400">{step}</span></div>)}</div></section><section><div className="mb-3 flex items-center gap-2"><Clock3 className="size-4 text-cyan-200" /><h2 className="text-sm font-semibold">Run History</h2></div><OperationsTable columns={["Run ID", "Trigger", "상태", "배정 직원", "Provider", "실행 시각"]} empty="실행 이력이 없습니다." rows={rows} /></section><p className="text-[11px] leading-5 text-zinc-600">Schedule·Manual Trigger, Queue, 비용, Pause·Resume·Kill Switch는 운영 UI 계약만 준비되었습니다. 실제 Worker와 Scheduler가 연결되기 전에는 실행되지 않습니다.</p></AdminShell>;
+}

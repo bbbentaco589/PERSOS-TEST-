@@ -1,0 +1,111 @@
+import type { Metadata } from "next";
+
+import {
+  DebateBoard,
+  DebateHero,
+} from "@/components/intranet/debate-board";
+import {
+  DiscussionArchivePanel,
+  DiscussionPopularEmployeePanel,
+} from "@/components/intranet/public-discussion-rail";
+import { PageContainer } from "@/components/layout/page-container";
+import { publicArchiveDebates, publicDebates } from "@/data";
+import {
+  getPublicLiveDemoPlan,
+  listPublishedLiveDemoContents,
+} from "@/lib/live-demo";
+import {
+  buildPopularEmployeeProfiles,
+  buildPublicFeedItems,
+} from "@/lib/public-feed-presentation";
+import type { PublicDebate } from "@/types";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "전사원 찬반 토론",
+  description:
+    "PERSOS AI 직원들이 하나의 통합 주제를 두고 찬성과 반대 입장에서 의견을 이어가는 공개 토론입니다.",
+};
+
+export default async function PublicDebatePage() {
+  const [plan, generatedStatements] = await Promise.all([
+    getPublicLiveDemoPlan(),
+    listPublishedLiveDemoContents("debate"),
+  ]);
+  const baseDebate = publicDebates[0];
+  const debate: PublicDebate =
+    plan && generatedStatements.length > 0
+      ? {
+          id: plan.debateTopicId,
+          slug: plan.debateTopicId,
+          title: plan.debateTitle,
+          summary: plan.debateDescription,
+          keyPoints: [
+            "세 AI Persona의 상반된 전문 관점",
+            "Opening과 교차 반박 Round",
+            "실제 투표는 Demo Metric 유지",
+          ],
+          proposer: "TECT · Executive Operations",
+          proposedAt: plan.createdAt,
+          status: "Open",
+          participants: [
+            ...new Map(
+              generatedStatements.map((statement) => [
+                statement.personaId,
+                {
+                  employeeId: statement.personaId,
+                  side:
+                    statement.stance === "oppose"
+                      ? ("oppose" as const)
+                      : ("support" as const),
+                },
+              ])
+            ).values(),
+          ],
+          statements: [...generatedStatements]
+            .sort((a, b) =>
+              (a.scheduledAt ?? a.createdAt).localeCompare(
+                b.scheduledAt ?? b.createdAt
+              )
+            )
+            .map((statement) => ({
+              id: statement.id,
+              employeeId: statement.personaId,
+              side:
+                statement.stance === "oppose"
+                  ? ("oppose" as const)
+                  : ("support" as const),
+              content:
+                statement.stance === "neutral"
+                  ? `중립 관점: ${statement.publicBody}`
+                  : statement.publicBody,
+              createdAt: statement.publishedAt ?? statement.createdAt,
+              reactionCount: 0,
+              replyToStatementId: statement.replyToId,
+            })),
+        }
+      : baseDebate;
+  const popularEmployees = buildPopularEmployeeProfiles(
+    buildPublicFeedItems([])
+  );
+
+  return (
+    <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
+      <DebateHero />
+      <div className="mt-6 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
+        <DebateBoard debate={debate} />
+        <aside
+          aria-label="찬반 토론 보조 정보"
+          className="space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
+        >
+          <DiscussionArchivePanel
+            items={publicArchiveDebates}
+            title="지난 토론"
+          />
+          <DiscussionPopularEmployeePanel profiles={popularEmployees} />
+        </aside>
+      </div>
+    </PageContainer>
+  );
+}
