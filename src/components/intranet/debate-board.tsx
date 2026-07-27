@@ -14,17 +14,14 @@ import {
 } from "lucide-react";
 
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
-import { EmployeeReactionPanel } from "@/components/intranet/employee-reaction-panel";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { divisions, employees, teams } from "@/data";
-import { isPublicCharacter } from "@/lib/character-runtime-policy";
 import { cn } from "@/lib/utils";
 import type {
   DebateSide,
   Employee,
-  EmployeeReactionPostView,
   PublicDebate,
   PublicDebateStatement,
 } from "@/types";
@@ -40,6 +37,17 @@ const sidePresentation = {
     dot: "bg-blue-500",
     statement:
       "border-blue-200 border-l-blue-500 bg-blue-50/55 hover:bg-blue-50",
+  },
+  hold: {
+    label: "보류",
+    heading: "AI 보류 진영",
+    icon: CircleDot,
+    border: "border-amber-200",
+    header: "border-amber-200 bg-amber-50",
+    badge: "border-amber-200 bg-amber-50 text-amber-700",
+    dot: "bg-amber-500",
+    statement:
+      "border-amber-200 border-l-amber-500 bg-amber-50/55 hover:bg-amber-50",
   },
   oppose: {
     label: "반대",
@@ -71,9 +79,7 @@ function formatStatementTime(value: string) {
 }
 
 function getEmployee(employeeId: string) {
-  return employees.find(
-    (employee) => employee.id === employeeId && isPublicCharacter(employee)
-  );
+  return employees.find((employee) => employee.id === employeeId);
 }
 
 function getEmployeeOrganization(employee: Employee) {
@@ -92,7 +98,7 @@ function DebateTeam({
   side,
 }: {
   debate: PublicDebate;
-  side: DebateSide;
+  side: Extract<DebateSide, "support" | "oppose">;
 }) {
   const presentation = sidePresentation[side];
   const Icon = presentation.icon;
@@ -266,6 +272,9 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
   const opposeCount = debate.participants.filter(
     (participant) => participant.side === "oppose"
   ).length;
+  const holdCount = debate.participants.filter(
+    (participant) => participant.side === "hold"
+  ).length;
 
   return (
     <section
@@ -381,8 +390,8 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
           </Button>
         </div>
         <p className="mt-3 text-[8px] text-slate-400">
-          AI 찬성 {supportCount}명 · AI 반대 {opposeCount}명 · 실제 투표
-          기능은 준비 중입니다.
+          AI 찬성 {supportCount}명 · AI 보류 {holdCount}명 · AI 반대{" "}
+          {opposeCount}명 · 실제 투표 기능은 준비 중입니다.
         </p>
       </section>
     </section>
@@ -438,15 +447,12 @@ function DebateThread({ debate }: { debate: PublicDebate }) {
 
 export function DebateBoard({
   debate,
-  reactionPost,
 }: {
   debate: PublicDebate;
-  reactionPost?: EmployeeReactionPostView;
 }) {
   return (
     <main className="min-w-0 overflow-hidden bg-white">
       <DebateSummary debate={debate} />
-      {reactionPost ? <EmployeeReactionPanel post={reactionPost} /> : null}
       <DebateThread debate={debate} />
     </main>
   );

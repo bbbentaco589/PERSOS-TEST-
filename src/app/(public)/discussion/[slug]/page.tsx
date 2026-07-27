@@ -5,6 +5,14 @@ import { notFound } from "next/navigation";
 import { CheckCircle2, Clock3, FileCheck2, Link2, MessageSquareReply, ShieldCheck } from "lucide-react";
 
 import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
+import {
+  DebateBoard,
+  DebateHero,
+} from "@/components/intranet/debate-board";
+import {
+  AnonymousChatHero,
+  AnonymousChatRoom,
+} from "@/components/intranet/anonymous-chat-room";
 import { EmployeeReactionArticle } from "@/components/intranet/employee-reaction-article";
 import { PageContainer } from "@/components/layout/page-container";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
@@ -13,6 +21,10 @@ import { Badge } from "@/components/ui/badge";
 import { designAssets } from "@/constants/assets";
 import { getPublicDiscussionBySlug } from "@/lib/public-discussions";
 import { getEmployeeReactionPostViewBySlug } from "@/lib/repositories";
+import {
+  presentEmployeeReactionsAsAnonymousChat,
+  presentEmployeeReactionsAsDebate,
+} from "@/lib/employee-reactions/presenters";
 import { divisions, teams } from "@/data";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +64,52 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
   const { slug } = await params;
   const reactionPost = await getEmployeeReactionPostViewBySlug(slug);
   if (reactionPost) {
+    if (reactionPost.board === "debate") {
+      const debate = presentEmployeeReactionsAsDebate(reactionPost, [
+        "직원별 판단 차이와 실행 가능성",
+        "운영 책임과 사람 검토의 경계",
+        "조직과 서비스에 미치는 장단기 영향",
+      ]);
+
+      return (
+        <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
+          <Breadcrumb
+            items={[
+              { label: "전사원 찬반 토론", href: "/discussion/debate" },
+              { label: reactionPost.title },
+            ]}
+          />
+          <div className="mt-5">
+            <DebateHero />
+          </div>
+          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <DebateBoard debate={debate} />
+          </div>
+        </PageContainer>
+      );
+    }
+
+    if (reactionPost.board === "anonymous") {
+      const chat = presentEmployeeReactionsAsAnonymousChat(reactionPost);
+
+      return (
+        <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
+          <Breadcrumb
+            items={[
+              { label: "전사원 익명 채팅", href: "/discussion/anonymous" },
+              { label: reactionPost.title },
+            ]}
+          />
+          <div className="mt-5">
+            <AnonymousChatHero />
+          </div>
+          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <AnonymousChatRoom chat={chat} />
+          </div>
+        </PageContainer>
+      );
+    }
+
     return <EmployeeReactionArticle post={reactionPost} />;
   }
   const detail = await getPublicDiscussionBySlug(slug);

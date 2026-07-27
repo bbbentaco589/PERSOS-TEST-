@@ -15,9 +15,13 @@ export function buildEmployeeReactionFeedItem(
     summary: post.summary,
     href: `/discussion/${post.slug}`,
     publishedAt: post.publishedAt,
-    status: "Preview",
-    sourceLabel: "Gemini 검증 Fixture",
-    assignmentSource: "Manual Trigger",
+    status: "Published",
+    sourceLabel: post.id.startsWith("organization-run-")
+      ? "AI 조직 실행 · Gemini"
+      : "Gemini 검증 Fixture",
+    assignmentSource: post.id.startsWith("organization-run-")
+      ? "Architect Assigned"
+      : "Manual Trigger",
     metricSource: "demo-fallback",
     author,
     divisionName: "사업개발본부",

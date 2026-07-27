@@ -1,0 +1,177 @@
+import { GoogleGenAI } from "@google/genai";
+
+import {
+  buildEmployeeReactionSystemInstruction,
+  createEmployeeReactionResponseSchema,
+  parseEmployeeReactions,
+} from "@/lib/ai/employee-reaction-prompt-builder";
+import type { OrganizationRunTopic } from "@/types";
+
+import type { OrganizationRunGenerator } from "./types";
+
+const DEFAULT_MODEL = "gemini-3.5-flash-lite";
+const BOARD_TYPES = ["public", "debate", "anonymous"] as const;
+
+const topicSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "boardType",
+    "title",
+    "body",
+    "topicSummary",
+    "reasonForBoardSelection",
+    "relevantEmployeeIds",
+  ],
+  properties: {
+    boardType: { type: "string", enum: [...BOARD_TYPES] },
+    title: { type: "string", minLength: 12, maxLength: 120 },
+    body: { type: "string", minLength: 80, maxLength: 1800 },
+    topicSummary: { type: "string", minLength: 20, maxLength: 300 },
+    reasonForBoardSelection: { type: "string", minLength: 10, maxLength: 300 },
+    relevantEmployeeIds: {
+      type: "array",
+      minItems: 2,
+      maxItems: 3,
+      uniqueItems: true,
+      items: {
+        type: "string",
+        enum: ["tect", "char-003", "char-002"],
+      },
+    },
+  },
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseTopic(value: string): OrganizationRunTopic {
+  const parsed: unknown = JSON.parse(value);
+  if (
+    !isRecord(parsed) ||
+    !BOARD_TYPES.includes(parsed.boardType as never) ||
+    typeof parsed.title !== "string" ||
+    typeof parsed.body !== "string" ||
+    typeof parsed.topicSummary !== "string" ||
+    typeof parsed.reasonForBoardSelection !== "string" ||
+    !Array.isArray(parsed.relevantEmployeeIds) ||
+    !parsed.relevantEmployeeIds.every((id) => typeof id === "string")
+  ) {
+    throw new Error("Gemini Topic 응답 구조가 올바르지 않습니다.");
+  }
+  return {
+    boardType: parsed.boardType as OrganizationRunTopic["boardType"],
+    title: parsed.title.trim(),
+    body: parsed.body.trim(),
+    topicSummary: parsed.topicSummary.trim(),
+    reasonForBoardSelection: parsed.reasonForBoardSelection.trim(),
+    relevantEmployeeIds: parsed.relevantEmployeeIds,
+  };
+}
+
+function getTimeoutMs() {
+  const value = Number(process.env.GEMINI_TIMEOUT_MS ?? 30_000);
+  return Number.isFinite(value) && value >= 1_000 && value <= 120_000
+    ? value
+    : 30_000;
+}
+
+export class GeminiOrganizationRunGenerator
+  implements OrganizationRunGenerator
+{
+  private readonly client: GoogleGenAI;
+  private readonly model: string;
+
+  constructor(apiKey: string) {
+    this.client = new GoogleGenAI({ apiKey });
+    this.model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
+  }
+
+  private async generateJson(input: {
+    prompt: string;
+    systemInstruction: string;
+    schema: Record<string, unknown>;
+    maxOutputTokens: number;
+  }) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), getTimeoutMs());
+    try {
+      const result = await this.client.models.generateContent({
+        model: this.model,
+        contents: input.prompt,
+        config: {
+          abortSignal: controller.signal,
+          systemInstruction: input.systemInstruction,
+          responseMimeType: "application/json",
+          responseJsonSchema: input.schema,
+          temperature: 0.62,
+          maxOutputTokens: input.maxOutputTokens,
+        },
+      });
+      const text = result.text?.trim();
+      if (!text) throw new Error("Gemini가 빈 응답을 반환했습니다.");
+      return text;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  async generateTopic({
+    existingSummaries,
+    forcedBoardType,
+  }: Parameters<OrganizationRunGenerator["generateTopic"]>[0]) {
+    const forcedRule = forcedBoardType
+      ? `내부 QA 검증을 위해 boardType은 반드시 "${forcedBoardType}"으로 선택하세요.`
+      : "주제 성격에 가장 적합한 boardType을 스스로 선택하세요.";
+    const recentTopics = existingSummaries.length
+      ? existingSummaries.slice(0, 30).map((item) => `- ${item}`).join("\n")
+      : "- 아직 동적 발행 주제가 없습니다.";
+
+    const text = await this.generateJson({
+      prompt: [
+        "PERSOS 공개형 AI Company 인트라넷에 지금 발행할 신규 주제 1건을 작성하세요.",
+        forcedRule,
+        "",
+        "최근 공개 주제:",
+        recentTopics,
+      ].join("\n"),
+      systemInstruction: [
+        "당신은 PERSOS의 중앙 System Persona인 Architect입니다.",
+        "직원 반응 참여자가 아니라 주제의 품질, 게시판 적합성, 중복 여부만 조정합니다.",
+        "public은 조직 정책·운영 현황·투명성·서비스 방향의 전사 공유 콘텐츠입니다.",
+        "debate는 찬반 또는 판단 차이가 가치 있는 의사결정 안건입니다.",
+        "anonymous는 조직 내부 고민·갈등·업무 불편처럼 공개적으로 말하기 어려운 주제입니다.",
+        "PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
+        "테스트, 샘플, 임시 문구와 기존 주제의 반복을 금지합니다.",
+        "참여 직원은 tect, char-003, char-002 중 주제와 관련된 2~3명만 선택하세요.",
+        "Architect를 참여 직원으로 선택하지 마세요.",
+        "지정된 JSON Schema 이외의 설명은 반환하지 마세요.",
+      ].join("\n"),
+      schema: topicSchema,
+      maxOutputTokens: 1_400,
+    });
+
+    return parseTopic(text);
+  }
+
+  async generateReactions({
+    topic,
+    employees,
+  }: Parameters<OrganizationRunGenerator["generateReactions"]>[0]) {
+    const board = topic.boardType === "public" ? "public-feed" : topic.boardType;
+    const employeeIds = employees.map(({ employee }) => employee.id);
+    const text = await this.generateJson({
+      prompt: `게시글 제목:\n${topic.title}\n\n게시글 본문:\n${topic.body}`,
+      systemInstruction: buildEmployeeReactionSystemInstruction({
+        board,
+        title: topic.title,
+        body: topic.body,
+        employees,
+      }),
+      schema: createEmployeeReactionResponseSchema(employeeIds),
+      maxOutputTokens: 2_200,
+    });
+    return parseEmployeeReactions(text, employeeIds);
+  }
+}

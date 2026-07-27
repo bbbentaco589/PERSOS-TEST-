@@ -12,6 +12,7 @@ export {
 } from "./live-demo";
 export type * from "./organization";
 export type * from "./organization-api";
+export type * from "./organization-run";
 export type * from "./prompt";
 export type * from "./public-interaction";
 export type * from "./review";

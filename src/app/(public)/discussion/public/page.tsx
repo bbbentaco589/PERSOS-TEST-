@@ -7,7 +7,7 @@ import {
   buildPublicFeedItems,
 } from "@/lib/public-feed-presentation";
 import { buildEmployeeReactionFeedItem } from "@/lib/employee-reaction-presentation";
-import { getEmployeeReactionPostViewByBoard } from "@/lib/repositories";
+import { listEmployeeReactionPostViews } from "@/lib/repositories";
 import { listPublicDiscussions } from "@/lib/public-discussions";
 import { listPublishedLiveDemoContents } from "@/lib/live-demo";
 
@@ -19,18 +19,21 @@ export const metadata: Metadata = {
 };
 
 export default async function PublicDiscussionFeedPage() {
-  const [publishedDiscussions, liveDemoContents, reactionPost] = await Promise.all([
+  const [publishedDiscussions, liveDemoContents, reactionPosts] = await Promise.all([
     listPublicDiscussions(),
     listPublishedLiveDemoContents("feed"),
-    getEmployeeReactionPostViewByBoard("public-feed"),
+    listEmployeeReactionPostViews(),
   ]);
   const baseFeedItems = buildPublicFeedItems(
     publishedDiscussions,
     liveDemoContents
   );
-  const feedItems = reactionPost
-    ? [buildEmployeeReactionFeedItem(reactionPost), ...baseFeedItems]
-    : baseFeedItems;
+  const reactionFeedItems = reactionPosts
+    .filter((post) => post.board === "public-feed")
+    .map(buildEmployeeReactionFeedItem);
+  const feedItems = [...reactionFeedItems, ...baseFeedItems].sort((left, right) =>
+    right.publishedAt.localeCompare(left.publishedAt)
+  );
   const popularEmployees = buildPopularEmployeeProfiles(feedItems);
 
   return (

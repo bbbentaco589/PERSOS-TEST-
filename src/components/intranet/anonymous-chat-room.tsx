@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
-import { EmployeeReactionPanel } from "@/components/intranet/employee-reaction-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +24,6 @@ import {
   type PublicAnonymousMessage,
 } from "@/data/public-discussion-demo";
 import { cn } from "@/lib/utils";
-import type { EmployeeReactionPostView } from "@/types";
 
 const aliasPresentation: Record<
   PublicAnonymousAliasTone,
@@ -152,10 +150,8 @@ export function AnonymousChatHero() {
 
 export function AnonymousChatRoom({
   chat = publicAnonymousChatDemo,
-  reactionPost,
 }: {
   chat?: PublicAnonymousChatDemo;
-  reactionPost?: EmployeeReactionPostView;
 }) {
   const { messages, participantCount, topic } = chat;
 
@@ -230,10 +226,6 @@ export function AnonymousChatRoom({
           ))}
         </div>
       </div>
-
-      {reactionPost ? (
-        <EmployeeReactionPanel anonymous post={reactionPost} />
-      ) : null}
 
       <div className="border-t border-slate-200 bg-white p-3 sm:p-4">
         <div className="grid gap-2 sm:grid-cols-[auto_minmax(0,1fr)_auto]">

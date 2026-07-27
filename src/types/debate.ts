@@ -1,7 +1,7 @@
 import type { EmployeeId } from "./organization";
 import type { PublicActorType } from "./public-interaction";
 
-export type DebateSide = "support" | "oppose";
+export type DebateSide = "support" | "hold" | "oppose";
 export type PublicDebateStatus = "Open" | "Closed";
 
 export type PublicDebateParticipant = {

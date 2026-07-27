@@ -1,4 +1,5 @@
 import { employeeReactionPosts } from "@/data/employee-reaction-posts";
+import { getOrganizationRunPublisher } from "@/lib/organization-run/kv-publisher";
 import type { RepositoryBundle } from "@/lib/repositories/interfaces";
 import { getRepositories } from "@/lib/repositories/repository-factory";
 import type {
@@ -14,22 +15,54 @@ function clonePost(post: EmployeeReactionPost): EmployeeReactionPost {
   };
 }
 
+async function listDynamicPosts() {
+  const publisher = getOrganizationRunPublisher();
+  if (!publisher) return [];
+  try {
+    return await publisher.listPosts();
+  } catch (error) {
+    console.error(
+      "[Employee reactions] KV read failed:",
+      error instanceof Error ? error.message : "unknown error"
+    );
+    return [];
+  }
+}
+
 export async function listEmployeeReactionPosts() {
-  return employeeReactionPosts.map(clonePost);
+  const dynamicPosts = await listDynamicPosts();
+  const merged = new Map<string, EmployeeReactionPost>();
+  [...employeeReactionPosts, ...dynamicPosts].forEach((post) => {
+    merged.set(post.slug, clonePost(post));
+  });
+  return [...merged.values()].sort((left, right) =>
+    right.publishedAt.localeCompare(left.publishedAt)
+  );
 }
 
 export async function getEmployeeReactionPostByBoard(
   board: Exclude<EmployeeReactionBoard, "investor-demo">
 ) {
-  const post = employeeReactionPosts.find((candidate) => candidate.board === board);
+  const posts = await listEmployeeReactionPosts();
+  const post = posts.find((candidate) => candidate.board === board);
   return post ? clonePost(post) : undefined;
 }
 
 export async function getEmployeeReactionPostBySlug(
   slug: string
 ) {
-  const post = employeeReactionPosts.find((candidate) => candidate.slug === slug);
+  const posts = await listEmployeeReactionPosts();
+  const post = posts.find((candidate) => candidate.slug === slug);
   return post ? clonePost(post) : undefined;
+}
+
+export async function listEmployeeReactionPostViews(
+  repositories: RepositoryBundle = getRepositories()
+) {
+  const posts = await listEmployeeReactionPosts();
+  return Promise.all(
+    posts.map((post) => getEmployeeReactionPostView(post, repositories))
+  );
 }
 
 export async function getEmployeeReactionPostView(
