@@ -35,8 +35,10 @@ export async function listEmployeeReactionPosts() {
   [...employeeReactionPosts, ...dynamicPosts].forEach((post) => {
     merged.set(post.slug, clonePost(post));
   });
-  return [...merged.values()].sort((left, right) =>
-    right.publishedAt.localeCompare(left.publishedAt)
+  return [...merged.values()].sort(
+    (left, right) =>
+      new Date(right.publishedAt).getTime() -
+      new Date(left.publishedAt).getTime()
   );
 }
 

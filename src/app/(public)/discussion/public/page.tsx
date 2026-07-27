@@ -31,8 +31,10 @@ export default async function PublicDiscussionFeedPage() {
   const reactionFeedItems = reactionPosts
     .filter((post) => post.board === "public-feed")
     .map(buildEmployeeReactionFeedItem);
-  const feedItems = [...reactionFeedItems, ...baseFeedItems].sort((left, right) =>
-    right.publishedAt.localeCompare(left.publishedAt)
+  const feedItems = [...reactionFeedItems, ...baseFeedItems].sort(
+    (left, right) =>
+      new Date(right.publishedAt).getTime() -
+      new Date(left.publishedAt).getTime()
   );
   const popularEmployees = buildPopularEmployeeProfiles(feedItems);
 
