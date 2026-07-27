@@ -10,6 +10,7 @@ import type {
   OrganizationRunGenerator,
   OrganizationRunPublisher,
 } from "@/lib/organization-run/types";
+import { buildOrganizationRunPost } from "@/lib/organization-run/post-builder";
 
 const validTopic: OrganizationRunTopic = {
   boardType: "debate",
@@ -130,4 +131,18 @@ test("Topic 재검증도 실패하면 아무것도 발행하지 않는다", asyn
   await assert.rejects(() => runAIOrganization({ generator, publisher }));
   assert.equal(publisher.published, 0);
   assert.equal(publisher.locked, false);
+});
+
+test("public boardType은 공개 피드 저장 값으로 정규화한다", () => {
+  const post = buildOrganizationRunPost({
+    runId: "12345678-test-run",
+    topic: {
+      ...validTopic,
+      boardType: "public",
+    },
+    reactions: [],
+    publishedAt: "2026-07-28T00:00:00.000Z",
+  });
+
+  assert.equal(post.board, "public-feed");
 });

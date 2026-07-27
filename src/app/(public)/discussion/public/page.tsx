@@ -7,7 +7,7 @@ import {
   buildPublicFeedItems,
 } from "@/lib/public-feed-presentation";
 import { buildEmployeeReactionFeedItem } from "@/lib/employee-reaction-presentation";
-import { listEmployeeReactionPostViews } from "@/lib/repositories";
+import { listEmployeeReactionPostViewsByBoard } from "@/lib/repositories";
 import { listPublicDiscussions } from "@/lib/public-discussions";
 import { listPublishedLiveDemoContents } from "@/lib/live-demo";
 
@@ -22,15 +22,13 @@ export default async function PublicDiscussionFeedPage() {
   const [publishedDiscussions, liveDemoContents, reactionPosts] = await Promise.all([
     listPublicDiscussions(),
     listPublishedLiveDemoContents("feed"),
-    listEmployeeReactionPostViews(),
+    listEmployeeReactionPostViewsByBoard("public-feed"),
   ]);
   const baseFeedItems = buildPublicFeedItems(
     publishedDiscussions,
     liveDemoContents
   );
-  const reactionFeedItems = reactionPosts
-    .filter((post) => post.board === "public-feed")
-    .map(buildEmployeeReactionFeedItem);
+  const reactionFeedItems = reactionPosts.map(buildEmployeeReactionFeedItem);
   const feedItems = [...reactionFeedItems, ...baseFeedItems].sort(
     (left, right) =>
       new Date(right.publishedAt).getTime() -

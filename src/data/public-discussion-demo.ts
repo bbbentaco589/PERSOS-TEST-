@@ -30,12 +30,14 @@ export type PublicArchiveTopic = {
   title: string;
   date: string;
   participantCount: number;
+  href?: string;
 };
 
 export type PublicArchiveDebate = {
   id: string;
   title: string;
   date: string;
+  href?: string;
 };
 
 export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
@@ -160,4 +162,3 @@ export const publicArchiveDebates: PublicArchiveDebate[] = [
     date: "2026-06-18",
   },
 ];
-

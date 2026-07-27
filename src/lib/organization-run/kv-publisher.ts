@@ -1,12 +1,19 @@
 import { Redis } from "@upstash/redis";
 
-import type { EmployeeReactionPost } from "@/types";
+import type {
+  EmployeeReactionBoard,
+  EmployeeReactionPost,
+} from "@/types";
 
 import type { OrganizationRunPublisher } from "./types";
+
+type PublishedBoard = Exclude<EmployeeReactionBoard, "investor-demo">;
 
 const KEY = {
   post: (slug: string) => `persos:org-run:post:${slug}`,
   posts: "persos:org-run:posts:all",
+  boardPosts: (board: PublishedBoard) =>
+    `persos:org-run:posts:board:${board}`,
   summaries: "persos:org-run:topic-summaries",
   run: (runId: string) => `persos:org-run:run:${runId}`,
   lock: "persos:org-run:execution-lock",
@@ -18,6 +25,19 @@ function readKVConfig() {
   const token = process.env.KV_REST_API_TOKEN?.trim();
   if (!url || !token) return undefined;
   return { url, token };
+}
+
+function normalizeStoredPost(post: EmployeeReactionPost) {
+  const storedBoard = (post as unknown as { board: string }).board;
+  if (storedBoard !== "public") return post;
+  return {
+    ...post,
+    board: "public-feed" as const,
+  };
+}
+
+function uniqueSlugs(slugs: string[]) {
+  return [...new Set(slugs)];
 }
 
 export function isOrganizationRunKVConfigured() {
@@ -36,20 +56,42 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     this.redis = new Redis(config);
   }
 
-  async listPosts() {
-    const slugs = (await this.redis.get<string[]>(KEY.posts)) ?? [];
+  async listPosts(board?: PublishedBoard) {
+    const [allSlugs, boardSlugs] = await Promise.all([
+      this.redis.get<string[]>(KEY.posts),
+      board
+        ? this.redis.get<string[]>(KEY.boardPosts(board))
+        : Promise.resolve(undefined),
+    ]);
+    const slugs = uniqueSlugs([
+      ...(boardSlugs ?? []),
+      ...(allSlugs ?? []),
+    ]);
     const posts = await Promise.all(
       slugs.map((slug) =>
         this.redis.get<EmployeeReactionPost>(KEY.post(slug))
       )
     );
-    return posts.filter((post): post is EmployeeReactionPost => Boolean(post));
+    const availablePosts = posts
+      .filter((post): post is EmployeeReactionPost => Boolean(post))
+      .map(normalizeStoredPost);
+    if (!board) return availablePosts;
+
+    const boardPosts = availablePosts.filter((post) => post.board === board);
+    const expectedSlugs = boardPosts.map((post) => post.slug);
+    if (
+      expectedSlugs.length !== (boardSlugs ?? []).length ||
+      expectedSlugs.some((slug, index) => slug !== boardSlugs?.[index])
+    ) {
+      await this.redis.set(KEY.boardPosts(board), expectedSlugs);
+    }
+    return boardPosts;
   }
 
   async getPost(slug: string) {
-    return (
-      (await this.redis.get<EmployeeReactionPost>(KEY.post(slug))) ?? undefined
-    );
+    const post =
+      (await this.redis.get<EmployeeReactionPost>(KEY.post(slug))) ?? undefined;
+    return post ? normalizeStoredPost(post) : undefined;
   }
 
   async listTopicSummaries() {
@@ -57,13 +99,19 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   }
 
   async publish(post: EmployeeReactionPost, runId: string) {
-    const [currentSlugs, currentSummaries] = await Promise.all([
-      this.redis.get<string[]>(KEY.posts),
-      this.redis.get<string[]>(KEY.summaries),
-    ]);
+    const [currentSlugs, currentBoardSlugs, currentSummaries] =
+      await Promise.all([
+        this.redis.get<string[]>(KEY.posts),
+        this.redis.get<string[]>(KEY.boardPosts(post.board)),
+        this.redis.get<string[]>(KEY.summaries),
+      ]);
     const slugs = [
       post.slug,
       ...(currentSlugs ?? []).filter((slug) => slug !== post.slug),
+    ].slice(0, 200);
+    const boardSlugs = [
+      post.slug,
+      ...(currentBoardSlugs ?? []).filter((slug) => slug !== post.slug),
     ].slice(0, 200);
     const summaries = [
       post.summary,
@@ -74,6 +122,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
       .multi()
       .set(KEY.post(post.slug), post)
       .set(KEY.posts, slugs)
+      .set(KEY.boardPosts(post.board), boardSlugs)
       .set(KEY.summaries, summaries)
       .set(KEY.run(runId), {
         runId,
@@ -83,6 +132,21 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         publishedAt: post.publishedAt,
       })
       .exec();
+
+    const [storedPost, storedSlugs, storedBoardSlugs] = await Promise.all([
+      this.getPost(post.slug),
+      this.redis.get<string[]>(KEY.posts),
+      this.redis.get<string[]>(KEY.boardPosts(post.board)),
+    ]);
+    if (
+      !storedPost ||
+      !storedSlugs?.includes(post.slug) ||
+      !storedBoardSlugs?.includes(post.slug)
+    ) {
+      throw new Error(
+        "게시글 상세 데이터 또는 목록 인덱스 저장을 확인하지 못했습니다."
+      );
+    }
   }
 
   async acquireExecutionLock(token: string, ttlSeconds: number) {

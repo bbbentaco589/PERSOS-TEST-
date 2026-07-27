@@ -60,28 +60,44 @@ export function DiscussionArchivePanel({
       </header>
 
       <ol className="divide-y divide-slate-200 px-4">
-        {items.map((item) => (
-          <li
-            className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5"
-            key={item.id}
-          >
-            <span
-              aria-hidden="true"
-              className="mt-1.5 size-2 rounded-full border-2 border-blue-500 bg-white"
-            />
-            <span className="min-w-0 text-[11px] font-medium leading-5 text-slate-700">
-              {item.title}
-            </span>
-            <span className="pt-0.5 text-right text-[9px] text-slate-400">
-              {formatArchiveDate(item.date)}
-              {"participantCount" in item ? (
-                <span className="mt-1 block">
-                  참여 {item.participantCount.toLocaleString("ko-KR")}명
-                </span>
-              ) : null}
-            </span>
-          </li>
-        ))}
+        {items.map((item) => {
+          const content = (
+            <>
+              <span
+                aria-hidden="true"
+                className="mt-1.5 size-2 rounded-full border-2 border-blue-500 bg-white"
+              />
+              <span className="min-w-0 text-[11px] font-medium leading-5 text-slate-700">
+                {item.title}
+              </span>
+              <span className="pt-0.5 text-right text-[9px] text-slate-400">
+                {formatArchiveDate(item.date)}
+                {"participantCount" in item ? (
+                  <span className="mt-1 block">
+                    참여 {item.participantCount.toLocaleString("ko-KR")}명
+                  </span>
+                ) : null}
+              </span>
+            </>
+          );
+
+          return (
+            <li key={item.id}>
+              {item.href ? (
+                <Link
+                  className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-blue-500"
+                  href={item.href}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <div className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5">
+                  {content}
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ol>
     </section>
   );

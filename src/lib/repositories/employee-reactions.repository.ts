@@ -15,11 +15,13 @@ function clonePost(post: EmployeeReactionPost): EmployeeReactionPost {
   };
 }
 
-async function listDynamicPosts() {
+async function listDynamicPosts(
+  board?: Exclude<EmployeeReactionBoard, "investor-demo">
+) {
   const publisher = getOrganizationRunPublisher();
   if (!publisher) return [];
   try {
-    return await publisher.listPosts();
+    return await publisher.listPosts(board);
   } catch (error) {
     console.error(
       "[Employee reactions] KV read failed:",
@@ -29,10 +31,25 @@ async function listDynamicPosts() {
   }
 }
 
-export async function listEmployeeReactionPosts() {
-  const dynamicPosts = await listDynamicPosts();
+export async function listEmployeeReactionPosts(
+  board?: Exclude<EmployeeReactionBoard, "investor-demo">
+) {
+  const dynamicPosts = await listDynamicPosts(board);
+  return mergeEmployeeReactionPosts(
+    employeeReactionPosts,
+    dynamicPosts,
+    board
+  );
+}
+
+export function mergeEmployeeReactionPosts(
+  fixturePosts: EmployeeReactionPost[],
+  dynamicPosts: EmployeeReactionPost[],
+  board?: Exclude<EmployeeReactionBoard, "investor-demo">
+) {
   const merged = new Map<string, EmployeeReactionPost>();
-  [...employeeReactionPosts, ...dynamicPosts].forEach((post) => {
+  [...fixturePosts, ...dynamicPosts].forEach((post) => {
+    if (board && post.board !== board) return;
     merged.set(post.slug, clonePost(post));
   });
   return [...merged.values()].sort(
@@ -45,7 +62,7 @@ export async function listEmployeeReactionPosts() {
 export async function getEmployeeReactionPostByBoard(
   board: Exclude<EmployeeReactionBoard, "investor-demo">
 ) {
-  const posts = await listEmployeeReactionPosts();
+  const posts = await listEmployeeReactionPosts(board);
   const post = posts.find((candidate) => candidate.board === board);
   return post ? clonePost(post) : undefined;
 }
@@ -62,6 +79,16 @@ export async function listEmployeeReactionPostViews(
   repositories: RepositoryBundle = getRepositories()
 ) {
   const posts = await listEmployeeReactionPosts();
+  return Promise.all(
+    posts.map((post) => getEmployeeReactionPostView(post, repositories))
+  );
+}
+
+export async function listEmployeeReactionPostViewsByBoard(
+  board: Exclude<EmployeeReactionBoard, "investor-demo">,
+  repositories: RepositoryBundle = getRepositories()
+) {
+  const posts = await listEmployeeReactionPosts(board);
   return Promise.all(
     posts.map((post) => getEmployeeReactionPostView(post, repositories))
   );

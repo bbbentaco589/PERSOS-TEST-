@@ -1,4 +1,5 @@
 import type {
+  EmployeeReactionBoard,
   EmployeeReactionPost,
   OrganizationRunTopic,
 } from "@/types";
@@ -19,7 +20,9 @@ export interface OrganizationRunGenerator {
 }
 
 export interface OrganizationRunPublisher {
-  listPosts(): Promise<EmployeeReactionPost[]>;
+  listPosts(
+    board?: Exclude<EmployeeReactionBoard, "investor-demo">
+  ): Promise<EmployeeReactionPost[]>;
   getPost(slug: string): Promise<EmployeeReactionPost | undefined>;
   listTopicSummaries(): Promise<string[]>;
   publish(post: EmployeeReactionPost, runId: string): Promise<void>;

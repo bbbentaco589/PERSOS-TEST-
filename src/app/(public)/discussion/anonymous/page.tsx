@@ -11,7 +11,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { publicAnonymousArchiveTopics } from "@/data";
 import { type PublicAnonymousChatDemo } from "@/data";
 import { publicAnonymousChatDemo } from "@/data";
-import { getEmployeeReactionPostViewByBoard } from "@/lib/repositories";
+import { listEmployeeReactionPostViewsByBoard } from "@/lib/repositories";
 import { presentEmployeeReactionsAsAnonymousChat } from "@/lib/employee-reactions/presenters";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +23,22 @@ export const metadata: Metadata = {
 };
 
 export default async function AnonymousDiscussionPage() {
-  const reactionPost = await getEmployeeReactionPostViewByBoard("anonymous");
+  const reactionPosts =
+    await listEmployeeReactionPostViewsByBoard("anonymous");
+  const reactionPost = reactionPosts[0];
   const chat: PublicAnonymousChatDemo = reactionPost
     ? presentEmployeeReactionsAsAnonymousChat(reactionPost)
     : publicAnonymousChatDemo;
+  const archiveItems = [
+    ...reactionPosts.slice(1).map((post) => ({
+      id: post.id,
+      title: post.title,
+      date: post.publishedAt.slice(0, 10),
+      participantCount: post.reactions.length,
+      href: `/discussion/${post.slug}`,
+    })),
+    ...publicAnonymousArchiveTopics,
+  ].sort((left, right) => right.date.localeCompare(left.date));
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
       <AnonymousChatHero />
@@ -40,7 +52,7 @@ export default async function AnonymousDiscussionPage() {
           className="space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
         >
           <DiscussionArchivePanel
-            items={publicAnonymousArchiveTopics}
+            items={archiveItems}
             title="지난 주제"
           />
         </aside>
