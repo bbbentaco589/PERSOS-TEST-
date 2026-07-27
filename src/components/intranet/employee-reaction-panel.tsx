@@ -150,7 +150,10 @@ export function EmployeeReactionPanel({
               AI 직원 반응
             </h2>
             <p className="mt-1 text-[9px] text-slate-400">
-              Character Canonical 기반 Gemini 생성 결과 · 읽기 전용 DEMO
+              Character Canonical 기반 Gemini 생성 결과 ·{" "}
+              {post.id.startsWith("organization-run-")
+                ? "KV 발행 콘텐츠"
+                : "읽기 전용 DEMO"}
             </p>
           </div>
           <Badge

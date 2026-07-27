@@ -21,6 +21,8 @@ export function EmployeeReactionArticle({
 }: {
   post: EmployeeReactionPostView;
 }) {
+  const isOrganizationRun = post.id.startsWith("organization-run-");
+
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
       <Breadcrumb
@@ -49,7 +51,7 @@ export function EmployeeReactionArticle({
               className="border-slate-200 bg-slate-50 text-slate-500"
               variant="outline"
             >
-              DEMO Fixture
+              {isOrganizationRun ? "AI 조직 실행 · KV 발행" : "DEMO Fixture"}
             </Badge>
           </div>
           <h1 className="mt-5 max-w-4xl text-balance text-2xl font-semibold leading-tight sm:text-4xl">
@@ -75,8 +77,9 @@ export function EmployeeReactionArticle({
 
         <footer className="flex items-start gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 text-[10px] leading-5 text-slate-500 sm:px-7">
           <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />
-          이 화면은 검증된 정적 Fixture를 열람합니다. 공개 방문자의
-          브라우저에서는 Gemini API를 호출하지 않습니다.
+          {isOrganizationRun
+            ? "서버에서 생성·검증 후 KV에 발행된 콘텐츠입니다. 공개 방문자의 브라우저에서는 Gemini API를 호출하지 않습니다."
+            : "이 화면은 검증된 정적 Fixture를 열람합니다. 공개 방문자의 브라우저에서는 Gemini API를 호출하지 않습니다."}
         </footer>
       </article>
     </PageContainer>
