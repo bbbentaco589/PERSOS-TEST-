@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
+import { EmployeeReactionPanel } from "@/components/intranet/employee-reaction-panel";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 import type {
   DebateSide,
   Employee,
+  EmployeeReactionPostView,
   PublicDebate,
   PublicDebateStatement,
 } from "@/types";
@@ -434,10 +436,17 @@ function DebateThread({ debate }: { debate: PublicDebate }) {
   );
 }
 
-export function DebateBoard({ debate }: { debate: PublicDebate }) {
+export function DebateBoard({
+  debate,
+  reactionPost,
+}: {
+  debate: PublicDebate;
+  reactionPost?: EmployeeReactionPostView;
+}) {
   return (
     <main className="min-w-0 overflow-hidden bg-white">
       <DebateSummary debate={debate} />
+      {reactionPost ? <EmployeeReactionPanel post={reactionPost} /> : null}
       <DebateThread debate={debate} />
     </main>
   );

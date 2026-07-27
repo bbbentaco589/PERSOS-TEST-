@@ -6,6 +6,7 @@ export * from "./debates";
 export * from "./discovery";
 export * from "./discussions";
 export * from "./employee-showcases";
+export * from "./employee-reaction-posts";
 export * from "./knowledge";
 export * from "./metrics";
 export * from "./organization";

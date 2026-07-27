@@ -4,6 +4,7 @@ export type * from "./content";
 export type * from "./discussion";
 export type * from "./debate";
 export type * from "./discovery";
+export type * from "./employee-reaction";
 export type * from "./live-demo";
 export {
   LiveDemoContentType,

@@ -1,86 +1,29 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
+import {
+  buildEmployeeReactionSystemInstruction,
+  createEmployeeReactionResponseSchema,
+  EMPLOYEE_REACTION_IDS,
+  parseEmployeeReactions,
+  StructuredEmployeeReactionError,
+} from "@/lib/ai/employee-reaction-prompt-builder";
+import { getRepositories } from "@/lib/repositories";
+import type {
+  EmployeeReactionBoard,
+} from "@/types";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const MAX_MESSAGE_LENGTH = 4_000;
-const STANCES = ["찬성", "보류", "반대"] as const;
-const EMPLOYEES = [
-  {
-    id: "tect",
-    name: "TECT",
-    role: "사업개발 및 제휴 담당",
-    direction:
-      "현실적이며 사업성, 실행 가능성, 수익 구조와 외부 협력 조건을 중심으로 판단한다.",
-  },
-  {
-    id: "architect",
-    name: "Architect",
-    role: "시스템 및 조직 설계 담당",
-    direction:
-      "구조적이며 장기 확장성, 정책 일관성, 시스템 경계와 아키텍처 영향을 중심으로 판단한다.",
-  },
-  {
-    id: "park-bongnam",
-    name: "박봉남",
-    role: "일반 직원 관점의 실무 피드백 담당",
-    direction:
-      "직설적이며 실제 사용성, 현장 업무 부담, 반복되는 불편과 운영 현실을 중심으로 판단한다.",
-  },
-] as const;
-
-type EmployeeId = (typeof EMPLOYEES)[number]["id"];
-type Stance = (typeof STANCES)[number];
-type GeneratedReaction = {
-  employeeId: EmployeeId;
-  stance: Stance;
-  coreOpinion: string;
-  concerns: string;
-  suggestion: string;
-};
-
-class StructuredResponseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "StructuredResponseError";
-  }
-}
-
-const responseSchema = {
-  type: "object",
-  additionalProperties: false,
-  required: ["reactions"],
-  properties: {
-    reactions: {
-      type: "array",
-      minItems: 3,
-      maxItems: 3,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: [
-          "employeeId",
-          "stance",
-          "coreOpinion",
-          "concerns",
-          "suggestion",
-        ],
-        properties: {
-          employeeId: {
-            type: "string",
-            enum: EMPLOYEES.map((employee) => employee.id),
-          },
-          stance: { type: "string", enum: [...STANCES] },
-          coreOpinion: { type: "string", minLength: 1 },
-          concerns: { type: "string", minLength: 1 },
-          suggestion: { type: "string", minLength: 1 },
-        },
-      },
-    },
-  },
-};
+const VALID_BOARDS: EmployeeReactionBoard[] = [
+  "investor-demo",
+  "public-feed",
+  "debate",
+  "anonymous",
+];
 
 function getTimeoutMs() {
   const value = Number(process.env.GEMINI_TIMEOUT_MS ?? 30_000);
@@ -93,75 +36,39 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isEmployeeId(value: unknown): value is EmployeeId {
-  return EMPLOYEES.some((employee) => employee.id === value);
+function isBoard(value: unknown): value is EmployeeReactionBoard {
+  return VALID_BOARDS.includes(value as EmployeeReactionBoard);
 }
 
-function isStance(value: unknown): value is Stance {
-  return STANCES.includes(value as Stance);
-}
+async function getCanonicalEmployees() {
+  const repositories = getRepositories();
+  const [employees, divisions, teams] = await Promise.all([
+    Promise.all(
+      EMPLOYEE_REACTION_IDS.map((employeeId) =>
+        repositories.characters.getCharacterById(employeeId)
+      )
+    ),
+    repositories.organization.listDivisions(),
+    repositories.organization.listTeams(),
+  ]);
 
-function hasText(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function parseReactions(value: string): GeneratedReaction[] {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(value);
-  } catch {
-    throw new StructuredResponseError(
-      "Gemini 구조화 응답의 JSON을 해석하지 못했습니다."
-    );
-  }
-
-  if (
-    !isRecord(parsed) ||
-    !Array.isArray(parsed.reactions) ||
-    parsed.reactions.length !== EMPLOYEES.length
-  ) {
-    throw new StructuredResponseError(
-      "Gemini 구조화 응답에 직원 반응 3개가 필요합니다."
-    );
-  }
-
-  const reactions = parsed.reactions.map((reaction): GeneratedReaction => {
-    if (
-      !isRecord(reaction) ||
-      !isEmployeeId(reaction.employeeId) ||
-      !isStance(reaction.stance) ||
-      !hasText(reaction.coreOpinion) ||
-      !hasText(reaction.concerns) ||
-      !hasText(reaction.suggestion)
-    ) {
-      throw new StructuredResponseError(
-        "Gemini 직원 반응의 필수 필드가 누락됐습니다."
+  return EMPLOYEE_REACTION_IDS.map((employeeId, index) => {
+    const employee = employees[index];
+    if (!employee) {
+      throw new StructuredEmployeeReactionError(
+        `${employeeId} Character Canonical을 찾지 못했습니다.`
       );
     }
 
     return {
-      employeeId: reaction.employeeId,
-      stance: reaction.stance,
-      coreOpinion: reaction.coreOpinion.trim(),
-      concerns: reaction.concerns.trim(),
-      suggestion: reaction.suggestion.trim(),
+      employee,
+      divisionName:
+        divisions.find((division) => division.id === employee.divisionId)
+          ?.nameKo ?? employee.divisionId,
+      teamName:
+        teams.find((team) => team.id === employee.teamId)?.nameKo ??
+        employee.teamId,
     };
-  });
-
-  if (new Set(reactions.map((reaction) => reaction.employeeId)).size !== EMPLOYEES.length) {
-    throw new StructuredResponseError(
-      "Gemini 직원 반응에 직원 ID 중복 또는 누락이 있습니다."
-    );
-  }
-
-  return EMPLOYEES.map((employee) => {
-    const reaction = reactions.find((item) => item.employeeId === employee.id);
-    if (!reaction) {
-      throw new StructuredResponseError(
-        `${employee.name}의 반응이 누락됐습니다.`
-      );
-    }
-    return reaction;
   });
 }
 
@@ -176,13 +83,16 @@ export async function POST(request: Request) {
     );
   }
 
+  const requestBody = isRecord(body) ? body : {};
   const message =
-    typeof body === "object" &&
-    body !== null &&
-    "message" in body &&
-    typeof body.message === "string"
-      ? body.message.trim()
-      : "";
+    typeof requestBody.message === "string" ? requestBody.message.trim() : "";
+  const title =
+    typeof requestBody.title === "string" && requestBody.title.trim()
+      ? requestBody.title.trim()
+      : "내부 검토 안건";
+  const board = isBoard(requestBody.board)
+    ? requestBody.board
+    : "investor-demo";
 
   if (!message) {
     return NextResponse.json(
@@ -191,9 +101,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (message.length > MAX_MESSAGE_LENGTH) {
+  if (message.length > MAX_MESSAGE_LENGTH || title.length > 300) {
     return NextResponse.json(
-      { error: `메시지는 ${MAX_MESSAGE_LENGTH.toLocaleString("ko-KR")}자 이하여야 합니다.` },
+      {
+        error: `본문은 ${MAX_MESSAGE_LENGTH.toLocaleString("ko-KR")}자, 제목은 300자 이하여야 합니다.`,
+      },
       { status: 400 }
     );
   }
@@ -211,28 +123,23 @@ export async function POST(request: Request) {
   const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
 
   try {
+    const canonicalEmployees = await getCanonicalEmployees();
     const client = new GoogleGenAI({ apiKey });
     const result = await client.models.generateContent({
       model,
-      contents: `검토 안건:\n${message}`,
+      contents: `게시글 제목:\n${title}\n\n게시글 본문:\n${message}`,
       config: {
         abortSignal: controller.signal,
-        systemInstruction: [
-          "당신은 PERSOS Investor Live Demo의 직원 반응 생성기입니다.",
-          "입력된 하나의 안건을 아래 세 직원이 각자의 직무와 성향에 따라 독립적으로 검토하게 하세요.",
-          ...EMPLOYEES.map(
-            (employee) =>
-              `- ${employee.id} / ${employee.name} / ${employee.role}: ${employee.direction}`
-          ),
-          "세 반응은 서로 다른 관점과 어조를 보여야 합니다.",
-          "확인되지 않은 수치나 실제 계약·시장 사실을 만들어내지 마세요.",
-          "각 직원에 대해 찬성·보류·반대 중 하나, 핵심 의견, 우려 사항, 실행 가능한 제안을 간결한 한국어로 작성하세요.",
-          "요청된 JSON Schema 이외의 설명은 반환하지 마세요.",
-        ].join("\n"),
+        systemInstruction: buildEmployeeReactionSystemInstruction({
+          board,
+          title,
+          body: message,
+          employees: canonicalEmployees,
+        }),
         responseMimeType: "application/json",
-        responseJsonSchema: responseSchema,
+        responseJsonSchema: createEmployeeReactionResponseSchema(),
         temperature: 0.65,
-        maxOutputTokens: 1_800,
+        maxOutputTokens: 2_200,
       },
     });
     const responseText = result.text?.trim();
@@ -244,32 +151,36 @@ export async function POST(request: Request) {
       );
     }
 
-    const reactions = parseReactions(responseText).map((reaction) => {
-      const employee = EMPLOYEES.find(
-        (item) => item.id === reaction.employeeId
+    const reactions = parseEmployeeReactions(responseText).map((reaction) => {
+      const canonical = canonicalEmployees.find(
+        ({ employee }) => employee.id === reaction.employeeId
       );
-      if (!employee) {
-        throw new StructuredResponseError(
-          "직원 Canonical 정보를 찾지 못했습니다."
+      if (!canonical) {
+        throw new StructuredEmployeeReactionError(
+          `${reaction.employeeId} Canonical 결합에 실패했습니다.`
         );
       }
+
       return {
         ...reaction,
-        name: employee.name,
-        role: employee.role,
+        name: canonical.employee.nameKo,
+        role: canonical.employee.jobTitleKo,
+        profileImage: canonical.employee.profileImage,
+        divisionName: canonical.divisionName,
+        teamName: canonical.teamName,
       };
     });
 
-    return NextResponse.json({ reactions });
+    return NextResponse.json({ board, title, reactions });
   } catch (error) {
     const isTimeout =
       error instanceof Error &&
       (error.name === "AbortError" || /abort|timeout/i.test(error.message));
-
-    const isStructuredResponseError = error instanceof StructuredResponseError;
+    const isStructuredResponseError =
+      error instanceof StructuredEmployeeReactionError;
 
     console.error(
-      "[Gemini chat] request failed:",
+      "[Gemini employee reactions] request failed:",
       isTimeout
         ? "request timeout"
         : isStructuredResponseError
@@ -285,7 +196,7 @@ export async function POST(request: Request) {
           ? "Gemini 응답 시간이 초과되었습니다."
           : isStructuredResponseError
             ? error.message
-          : "Gemini 응답을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+            : "Gemini 응답을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
       },
       { status: isTimeout ? 504 : 502 }
     );

@@ -1,11 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useState } from "react";
 import {
-  BriefcaseBusiness,
-  Building2,
   LoaderCircle,
-  Network,
   Send,
   TriangleAlert,
   UsersRound,
@@ -14,9 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 
 type EmployeeReaction = {
-  employeeId: "tect" | "architect" | "park-bongnam";
+  employeeId: "tect" | "char-003" | "char-002";
   name: string;
   role: string;
+  profileImage: string;
+  divisionName: string;
+  teamName: string;
   stance: "찬성" | "보류" | "반대";
   coreOpinion: string;
   concerns: string;
@@ -27,12 +28,6 @@ type ReactionResponse = {
   reactions?: EmployeeReaction[];
   error?: string;
 };
-
-const employeeIcons = {
-  tect: BriefcaseBusiness,
-  architect: Network,
-  "park-bongnam": Building2,
-} as const;
 
 const stanceStyles = {
   찬성: "border-cyan-300/30 bg-cyan-300/10 text-cyan-200",
@@ -101,7 +96,7 @@ export function EmployeeReactionTest() {
               PERSOS 직원 3인 반응
             </h2>
             <p className="mt-1 text-xs text-zinc-500">
-              TECT, Architect, 박봉남이 서로 다른 업무 관점으로 검토합니다.
+              TECT, 루미, 박봉남이 Character Canonical에 따라 검토합니다.
             </p>
           </div>
         </div>
@@ -154,7 +149,6 @@ export function EmployeeReactionTest() {
         ) : reactions.length === 3 ? (
           <div className="grid gap-4 xl:grid-cols-3">
             {reactions.map((reaction) => {
-              const Icon = employeeIcons[reaction.employeeId];
               return (
                 <article
                   className="overflow-hidden rounded-md border border-white/10 bg-black/15"
@@ -163,15 +157,22 @@ export function EmployeeReactionTest() {
                   <header className="border-b border-white/8 px-4 py-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="grid size-9 shrink-0 place-items-center rounded-md border border-white/10 bg-white/[0.04] text-cyan-200">
-                          <Icon className="size-4" />
-                        </span>
+                        <Image
+                          alt={`${reaction.name} 프로필`}
+                          className="size-10 shrink-0 rounded-full border border-white/10 object-cover"
+                          height={40}
+                          src={reaction.profileImage}
+                          width={40}
+                        />
                         <div className="min-w-0">
                           <h3 className="truncate text-sm font-semibold text-zinc-100">
                             {reaction.name}
                           </h3>
                           <p className="mt-1 text-xs leading-5 text-zinc-500">
                             {reaction.role}
+                          </p>
+                          <p className="mt-0.5 truncate text-[10px] text-zinc-600">
+                            {reaction.divisionName} · {reaction.teamName}
                           </p>
                         </div>
                       </div>

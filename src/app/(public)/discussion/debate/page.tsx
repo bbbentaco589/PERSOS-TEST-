@@ -10,10 +10,7 @@ import {
 } from "@/components/intranet/public-discussion-rail";
 import { PageContainer } from "@/components/layout/page-container";
 import { publicArchiveDebates, publicDebates } from "@/data";
-import {
-  getPublicLiveDemoPlan,
-  listPublishedLiveDemoContents,
-} from "@/lib/live-demo";
+import { getEmployeeReactionPostViewByBoard } from "@/lib/repositories";
 import {
   buildPopularEmployeeProfiles,
   buildPublicFeedItems,
@@ -29,60 +26,44 @@ export const metadata: Metadata = {
 };
 
 export default async function PublicDebatePage() {
-  const [plan, generatedStatements] = await Promise.all([
-    getPublicLiveDemoPlan(),
-    listPublishedLiveDemoContents("debate"),
-  ]);
+  const reactionPost = await getEmployeeReactionPostViewByBoard("debate");
   const baseDebate = publicDebates[0];
   const debate: PublicDebate =
-    plan && generatedStatements.length > 0
+    reactionPost
       ? {
-          id: plan.debateTopicId,
-          slug: plan.debateTopicId,
-          title: plan.debateTitle,
-          summary: plan.debateDescription,
+          id: reactionPost.id,
+          slug: reactionPost.slug,
+          title: reactionPost.title,
+          summary: reactionPost.body,
           keyPoints: [
-            "세 AI Persona의 상반된 전문 관점",
-            "Opening과 교차 반박 Round",
-            "실제 투표는 Demo Metric 유지",
+            "구독 상품의 이용자 가치와 사업성",
+            "Human Review와 책임 경계",
+            "실제 운영 부담과 실패 가능성",
           ],
-          proposer: "TECT · Executive Operations",
-          proposedAt: plan.createdAt,
+          proposer: "PERSOS Founder",
+          proposedAt: reactionPost.publishedAt,
           status: "Open",
-          participants: [
-            ...new Map(
-              generatedStatements.map((statement) => [
-                statement.personaId,
-                {
-                  employeeId: statement.personaId,
-                  side:
-                    statement.stance === "oppose"
-                      ? ("oppose" as const)
-                      : ("support" as const),
-                },
-              ])
-            ).values(),
-          ],
-          statements: [...generatedStatements]
-            .sort((a, b) =>
-              (a.scheduledAt ?? a.createdAt).localeCompare(
-                b.scheduledAt ?? b.createdAt
-              )
-            )
-            .map((statement) => ({
-              id: statement.id,
-              employeeId: statement.personaId,
+          participants: reactionPost.reactions
+            .filter((reaction) => reaction.stance !== "보류")
+            .map((reaction) => ({
+              employeeId: reaction.employeeId,
               side:
-                statement.stance === "oppose"
+                reaction.stance === "반대"
                   ? ("oppose" as const)
                   : ("support" as const),
-              content:
-                statement.stance === "neutral"
-                  ? `중립 관점: ${statement.publicBody}`
-                  : statement.publicBody,
-              createdAt: statement.publishedAt ?? statement.createdAt,
+            })),
+          statements: reactionPost.reactions
+            .filter((reaction) => reaction.stance !== "보류")
+            .map((reaction) => ({
+              id: `${reaction.id}-statement`,
+              employeeId: reaction.employeeId,
+              side:
+                reaction.stance === "반대"
+                  ? ("oppose" as const)
+                  : ("support" as const),
+              content: reaction.coreOpinion,
+              createdAt: reaction.createdAt,
               reactionCount: 0,
-              replyToStatementId: statement.replyToId,
             })),
         }
       : baseDebate;
@@ -94,7 +75,7 @@ export default async function PublicDebatePage() {
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
       <DebateHero />
       <div className="mt-6 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
-        <DebateBoard debate={debate} />
+        <DebateBoard debate={debate} reactionPost={reactionPost} />
         <aside
           aria-label="찬반 토론 보조 정보"
           className="space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"

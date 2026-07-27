@@ -1,6 +1,7 @@
 export * from "./characters.repository";
 export * from "./contents.repository";
 export * from "./discussions.repository";
+export * from "./employee-reactions.repository";
 export * from "./interfaces";
 export * from "./knowledge.repository";
 export * from "./organization.repository";

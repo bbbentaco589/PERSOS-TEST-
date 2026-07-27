@@ -5,18 +5,27 @@ import { notFound } from "next/navigation";
 import { CheckCircle2, Clock3, FileCheck2, Link2, MessageSquareReply, ShieldCheck } from "lucide-react";
 
 import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
+import { EmployeeReactionArticle } from "@/components/intranet/employee-reaction-article";
 import { PageContainer } from "@/components/layout/page-container";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { designAssets } from "@/constants/assets";
 import { getPublicDiscussionBySlug } from "@/lib/public-discussions";
+import { getEmployeeReactionPostViewBySlug } from "@/lib/repositories";
 import { divisions, teams } from "@/data";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const reactionPost = await getEmployeeReactionPostViewBySlug(slug);
+  if (reactionPost) {
+    return {
+      title: reactionPost.title,
+      description: reactionPost.summary,
+    };
+  }
   const detail = await getPublicDiscussionBySlug(slug);
   return detail ? { title: detail.contentDraft.title, description: detail.contentDraft.excerpt } : { title: "토론을 찾을 수 없습니다" };
 }
@@ -41,6 +50,10 @@ const metadataLabels: Record<string, string> = {
 
 export default async function DiscussionArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const reactionPost = await getEmployeeReactionPostViewBySlug(slug);
+  if (reactionPost) {
+    return <EmployeeReactionArticle post={reactionPost} />;
+  }
   const detail = await getPublicDiscussionBySlug(slug);
   if (!detail) notFound();
 
