@@ -20,13 +20,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <div className="min-h-svh bg-[#090a0d] text-foreground">
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-white/8 bg-[#090a0d]/95 px-4 backdrop-blur md:px-6">
         <div className="flex min-w-0 items-center gap-2.5">
-          <Link aria-label="PERSOS 어드민 홈" className="flex min-w-0 shrink-0 items-end gap-1.5 sm:gap-2" href="/admin">
-            <span className="relative h-8 w-16 shrink-0 sm:h-9 sm:w-[72px]">
-              <Image alt="PERSOS" className="object-contain" fill priority sizes="(max-width: 639px) 64px, 72px" src="/brand/ptudio-wordmark-header.png" unoptimized />
+          <Link aria-label="PERSOS 어드민 홈" className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2" href="/admin">
+            <span className="relative h-8 w-24 shrink-0 overflow-hidden sm:h-9 sm:w-[108px]">
+              <Image alt="PERSOS Persona Operating System" className="scale-125 object-cover object-center" fill priority sizes="(max-width: 639px) 96px, 108px" src="/brand/persos-horizontal-transparent.png" unoptimized />
             </span>
-            <span className="hidden shrink-0 flex-col items-start pb-0.5 sm:flex">
+            <span className="hidden shrink-0 flex-col items-start sm:flex">
               <span className="text-[7px] font-medium uppercase leading-none text-zinc-400">AI COMPANY</span>
-              <span className="mt-1 whitespace-nowrap text-[6px] font-medium uppercase leading-none text-zinc-600">AI PERSONA OPERATING SYSTEM · INTRANET</span>
+              <span className="mt-1 whitespace-nowrap text-[6px] font-medium uppercase leading-none text-zinc-600">INTRANET</span>
             </span>
           </Link>
           <span className="inline-flex h-6 shrink-0 items-center rounded-md border border-cyan-300/35 bg-cyan-300/10 px-2 text-[9px] font-semibold tracking-wide text-cyan-100 shadow-[inset_0_0_16px_rgba(34,211,238,0.06)]">

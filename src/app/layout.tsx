@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   description:
     "전문성과 성격을 가진 AI 직원이 토론하고, 사람 검토를 거쳐 지식과 콘텐츠를 만드는 AI Employee Studio입니다.",
   icons: {
-    icon: "/brand/ptudio-icon.png",
-    apple: "/brand/ptudio-icon.png",
+    icon: "/brand/persos-icon.png",
+    apple: "/brand/persos-icon.png",
   },
   openGraph: {
     type: "website",

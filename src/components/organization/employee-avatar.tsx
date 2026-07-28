@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-const fallbackAvatar = "/brand/ptudio-mark-transparent.png";
+const fallbackAvatar = "/brand/persos-icon.png";
 
 export function EmployeeAvatar({
   alt,

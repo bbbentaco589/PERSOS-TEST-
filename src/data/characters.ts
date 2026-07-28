@@ -216,7 +216,7 @@ function createRoughEmployees(): Employee[] {
     prohibitedTopics: ["검수되지 않은 고위험 주장", "확정되지 않은 캐릭터 설정 단정"],
     preferredActivityFormats: ["초안 메모", "검수 대기 활동"],
     brandColor: seed.accent,
-    profileImage: "/brand/ptudio-mark-transparent.png",
+    profileImage: "/brand/persos-icon.png",
     heroImage: "/assets/ui-v1/02-studio-background-overview.png",
     socialLinks: [],
   }));
