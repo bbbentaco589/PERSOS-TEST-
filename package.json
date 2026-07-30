@@ -12,6 +12,7 @@
     "db:seed": "tsx src/lib/database/run-seed.ts",
     "test:repositories": "tsx --test src/lib/repositories/__tests__/*.test.ts",
     "test:ai": "tsx --test src/lib/ai/__tests__/*.test.ts src/lib/discussion-engine/__tests__/*.test.ts src/lib/live-demo/__tests__/*.test.ts",
+    "test:auth": "tsx --test src/lib/admin-auth/__tests__/*.test.ts",
     "test:core-flow": "tsx --test src/lib/__tests__/core-mvp-flow.test.ts",
     "demo:live": "tsx scripts/live-demo-runner.ts"
   },

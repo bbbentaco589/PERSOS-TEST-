@@ -5,12 +5,15 @@ import type { ReactNode } from "react";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 
 import { AdminNavigation } from "@/components/admin/admin-navigation";
+import { AdminLogoutButton } from "@/components/auth/admin-logout-button";
 import { getAIProviderName } from "@/lib/ai";
+import { requireAdminSession } from "@/lib/admin-auth/server";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: { default: "운영 콘솔", template: "%s | PERSOS Admin" }, robots: { index: false, follow: false } };
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  await requireAdminSession("/admin");
   const aiProvider = getAIProviderName();
   const persistenceProvider = process.env.PERSISTENCE_PROVIDER === "postgres"
     ? "postgres"
@@ -36,6 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="hidden items-center gap-1.5 sm:flex"><ShieldCheck className="size-3.5 text-emerald-300" />AI {aiProvider} · 저장 {persistenceProvider}</span>
           <Link className="flex items-center gap-1.5 hover:text-white" href="/"><span className="hidden sm:inline">공개 웹</span><ExternalLink className="size-3.5" /></Link>
+          <AdminLogoutButton nextPath="/admin" />
         </div>
       </header>
       <div className="mx-auto flex w-full max-w-[1800px]">
