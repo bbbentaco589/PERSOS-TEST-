@@ -3,14 +3,19 @@ import test from "node:test";
 
 import type {
   EmployeeReactionPost,
+  ManualOrganizationRunInput,
   OrganizationRunTopic,
 } from "@/types";
-import { runAIOrganization } from "@/lib/organization-run/service";
+import {
+  runAIOrganization,
+  runManualAIOrganization,
+} from "@/lib/organization-run/service";
 import type {
   OrganizationRunGenerator,
   OrganizationRunPublisher,
 } from "@/lib/organization-run/types";
 import { buildOrganizationRunPost } from "@/lib/organization-run/post-builder";
+import { parseManualOrganizationRunInput } from "@/lib/organization-run/manual-input";
 
 const validTopic: OrganizationRunTopic = {
   boardType: "debate",
@@ -145,4 +150,78 @@ test("public boardType은 공개 피드 저장 값으로 정규화한다", () =>
   });
 
   assert.equal(post.board, "public-feed");
+});
+
+const manualInput: ManualOrganizationRunInput = {
+  boardType: "public",
+  title: "AI 직원 외부 협업 제안을 운영자가 수동으로 검토하는 절차",
+  body:
+    "PERSOS 운영자가 외부 협업 제안의 배경과 판단 기준을 직접 작성하고, 관련 AI 직원을 선택해 각자의 전문 관점으로 검토하도록 합니다. 자동 생성 주제 대신 운영자가 입력한 안건을 기준으로 반응을 생성하되, 직원 Canonical과 공개 정책 검증은 기존 자동 파이프라인을 그대로 적용해야 합니다.",
+  employeeIds: ["tect", "char-003"],
+  publish: false,
+};
+
+test("수동 실행은 주제를 생성하지 않고 반응과 검증만 수행한다", async () => {
+  const publisher = new MemoryPublisher();
+  const { generator, getTopicCalls } = createGenerator([validTopic]);
+  const result = await runManualAIOrganization({
+    generator,
+    publisher,
+    manualInput,
+  });
+
+  assert.equal(getTopicCalls(), 0);
+  assert.equal(result.geminiCallCount, 1);
+  assert.equal(result.published, false);
+  assert.equal(result.publicUrl, undefined);
+  assert.equal(result.post.reactions.length, 2);
+  assert.equal(publisher.published, 0);
+});
+
+test("수동 발행 선택 시 이미지와 게시글을 함께 저장한다", async () => {
+  const publisher = new MemoryPublisher();
+  const { generator } = createGenerator([validTopic]);
+  const result = await runManualAIOrganization({
+    generator,
+    publisher,
+    manualInput: {
+      ...manualInput,
+      imageUrl: "https://assets.example.com/persos/manual-topic.png",
+      publish: true,
+    },
+  });
+
+  assert.equal(result.published, true);
+  assert.match(result.publicUrl ?? "", /^\/discussion\//);
+  assert.equal(publisher.published, 1);
+  assert.equal(
+    publisher.posts[0].imageUrl,
+    "https://assets.example.com/persos/manual-topic.png"
+  );
+});
+
+test("수동 입력은 게시판, 본문, 직원과 이미지 URL 정책을 검증한다", () => {
+  assert.deepEqual(
+    parseManualOrganizationRunInput({
+      ...manualInput,
+      imageUrl: "/assets/content/manual-topic.png",
+    }),
+    {
+      ...manualInput,
+      imageUrl: "/assets/content/manual-topic.png",
+    }
+  );
+
+  assert.throws(() =>
+    parseManualOrganizationRunInput({
+      ...manualInput,
+      employeeIds: ["tect"],
+    })
+  );
+  assert.throws(() =>
+    parseManualOrganizationRunInput({
+      ...manualInput,
+      imageUrl: "http://insecure.example.com/image.png",
+    })
+  );
 });

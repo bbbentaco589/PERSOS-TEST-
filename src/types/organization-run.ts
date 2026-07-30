@@ -6,9 +6,19 @@ export type OrganizationRunTopic = {
   boardType: OrganizationRunBoardType;
   title: string;
   body: string;
+  imageUrl?: string;
   topicSummary: string;
   reasonForBoardSelection: string;
   relevantEmployeeIds: string[];
+};
+
+export type ManualOrganizationRunInput = {
+  boardType: OrganizationRunBoardType;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  employeeIds: string[];
+  publish: boolean;
 };
 
 export type OrganizationRunStage =
@@ -39,4 +49,12 @@ export type OrganizationRunFailure = {
   stage: Exclude<OrganizationRunStage, "idle" | "completed">;
   message: string;
   retryable: boolean;
+};
+
+export type ManualOrganizationRunResult = Omit<
+  OrganizationRunResult,
+  "publicUrl"
+> & {
+  published: boolean;
+  publicUrl?: string;
 };

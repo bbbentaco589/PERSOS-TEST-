@@ -27,6 +27,7 @@ export type EmployeeReactionPost = {
   title: string;
   summary: string;
   body: string;
+  imageUrl?: string;
   publishedAt: string;
   reactions: EmployeeReaction[];
 };

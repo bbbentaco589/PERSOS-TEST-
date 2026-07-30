@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 
 import type {
+  ManualOrganizationRunInput,
+  ManualOrganizationRunResult,
   OrganizationRunBoardType,
   OrganizationRunResult,
   OrganizationRunStage,
@@ -9,6 +11,7 @@ import type {
 import { getOrganizationRunCanonicalEmployees } from "./canonical-employees";
 import { GeminiOrganizationRunGenerator } from "./gemini-generator";
 import { getOrganizationRunPublisher } from "./kv-publisher";
+import { createManualOrganizationRunTopic } from "./manual-input";
 import { buildOrganizationRunPost } from "./post-builder";
 import { validateOrganizationRunTopic } from "./topic-validation";
 import type {
@@ -193,6 +196,152 @@ export async function runAIOrganizationFromEnvironment(input?: {
     generator: new GeminiOrganizationRunGenerator(apiKey),
     publisher,
     forcedBoardType: input?.forcedBoardType,
+  });
+}
+
+export async function runManualAIOrganization(input: {
+  generator: OrganizationRunGenerator;
+  publisher: OrganizationRunPublisher;
+  manualInput: ManualOrganizationRunInput;
+  onProgress?: OrganizationRunProgress;
+}): Promise<ManualOrganizationRunResult> {
+  const runId = randomUUID();
+  const lockToken = randomUUID();
+  let stage: OrganizationRunError["stage"] = "topic";
+
+  const allowed = await input.publisher.consumeRateLimit(
+    RATE_LIMIT,
+    RATE_WINDOW_SECONDS
+  );
+  if (!allowed) {
+    throw new OrganizationRunError(
+      "시간당 실행 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.",
+      "topic",
+      429,
+      true
+    );
+  }
+  const locked = await input.publisher.acquireExecutionLock(
+    lockToken,
+    LOCK_TTL_SECONDS
+  );
+  if (!locked) {
+    throw new OrganizationRunError(
+      "다른 조직 실행이 진행 중입니다.",
+      "topic",
+      409,
+      true
+    );
+  }
+
+  try {
+    const existingPosts = await input.publisher.listPosts();
+    const existingSummaries = [
+      ...existingPosts.map((post) => post.summary),
+      ...(await input.publisher.listTopicSummaries()),
+    ];
+
+    input.onProgress?.("topic");
+    const topic = createManualOrganizationRunTopic(input.manualInput);
+    const validation = validateOrganizationRunTopic(topic, existingSummaries);
+    if (!validation.valid) {
+      throw new OrganizationRunError(
+        `주제 검증 실패: ${validation.errors.join(" ")}`,
+        "validation",
+        422,
+        false
+      );
+    }
+
+    stage = "employees";
+    input.onProgress?.("employees");
+    const employees = await getOrganizationRunCanonicalEmployees(
+      topic.relevantEmployeeIds
+    );
+
+    stage = "reactions";
+    input.onProgress?.("reactions");
+    const reactions = await input.generator.generateReactions({
+      topic,
+      employees,
+    });
+
+    stage = "validation";
+    input.onProgress?.("validation");
+    if (
+      reactions.length !== topic.relevantEmployeeIds.length ||
+      reactions.some(
+        (reaction) =>
+          !topic.relevantEmployeeIds.includes(reaction.employeeId)
+      )
+    ) {
+      throw new OrganizationRunError(
+        "직원 반응 검증에 실패했습니다.",
+        "validation",
+        422,
+        false
+      );
+    }
+
+    const post = buildOrganizationRunPost({ runId, topic, reactions });
+    if (input.manualInput.publish) {
+      stage = "publishing";
+      input.onProgress?.("publishing");
+      await input.publisher.publish(post, runId);
+    }
+
+    return {
+      runId,
+      status: "completed",
+      stage: "completed",
+      boardType: topic.boardType,
+      title: topic.title,
+      participantIds: topic.relevantEmployeeIds,
+      publicUrl: input.manualInput.publish
+        ? `/discussion/${post.slug}`
+        : undefined,
+      geminiCallCount: 1,
+      post,
+      published: input.manualInput.publish,
+    };
+  } catch (error) {
+    if (error instanceof OrganizationRunError) throw error;
+    throw new OrganizationRunError(
+      error instanceof Error ? error.message : "수동 조직 실행에 실패했습니다.",
+      stage,
+      500,
+      true
+    );
+  } finally {
+    await input.publisher.releaseExecutionLock(lockToken);
+  }
+}
+
+export async function runManualAIOrganizationFromEnvironment(
+  manualInput: ManualOrganizationRunInput
+) {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (!apiKey) {
+    throw new OrganizationRunError(
+      "GEMINI_API_KEY가 설정되지 않았습니다.",
+      "reactions",
+      503,
+      true
+    );
+  }
+  const publisher = getOrganizationRunPublisher();
+  if (!publisher) {
+    throw new OrganizationRunError(
+      "KV 저장소 환경변수가 설정되지 않았습니다.",
+      "publishing",
+      503,
+      true
+    );
+  }
+  return runManualAIOrganization({
+    generator: new GeminiOrganizationRunGenerator(apiKey),
+    publisher,
+    manualInput,
   });
 }
 

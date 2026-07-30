@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  ManualOrganizationRunForm,
+  type ManualOrganizationRunEmployee,
+} from "@/components/live-demo/manual-organization-run-form";
 
 type RunResult = {
   status: "completed";
@@ -37,9 +41,14 @@ const boardLabels = {
   anonymous: "전사원 익명 채팅",
 } as const;
 
-export function OrganizationRunConsole() {
+export function OrganizationRunConsole({
+  manualEmployees,
+}: {
+  manualEmployees?: ManualOrganizationRunEmployee[];
+} = {}) {
   const [secret, setSecret] = useState("");
   const [unlocked, setUnlocked] = useState(false);
+  const [mode, setMode] = useState<"automatic" | "manual">("automatic");
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [stageIndex, setStageIndex] = useState(0);
@@ -132,6 +141,25 @@ export function OrganizationRunConsole() {
         </p>
       </header>
 
+      {unlocked && manualEmployees?.length ? (
+        <div className="grid grid-cols-2 border-b border-white/8 p-2">
+          <Button
+            onClick={() => setMode("automatic")}
+            type="button"
+            variant={mode === "automatic" ? "secondary" : "ghost"}
+          >
+            자동 트리거
+          </Button>
+          <Button
+            onClick={() => setMode("manual")}
+            type="button"
+            variant={mode === "manual" ? "secondary" : "ghost"}
+          >
+            수동 트리거
+          </Button>
+        </div>
+      ) : null}
+
       {!unlocked ? (
         <form className="space-y-4 p-5 sm:p-6" onSubmit={unlock}>
           <label className="block text-xs font-medium text-zinc-400" htmlFor="run-secret">
@@ -151,6 +179,14 @@ export function OrganizationRunConsole() {
             운영 잠금 해제
           </Button>
         </form>
+      ) : mode === "manual" && manualEmployees?.length ? (
+        <ManualOrganizationRunForm
+          employees={manualEmployees}
+          onSessionExpired={() => {
+            setUnlocked(false);
+            setMode("automatic");
+          }}
+        />
       ) : (
         <div className="p-5 sm:p-6">
           <Button
@@ -182,7 +218,11 @@ export function OrganizationRunConsole() {
         </div>
       )}
 
-      <div aria-live="polite" className="border-t border-white/8 px-5 py-5 sm:px-6">
+      {mode === "automatic" ? (
+        <div
+          aria-live="polite"
+          className="border-t border-white/8 px-5 py-5 sm:px-6"
+        >
         {error ? (
           <div className="flex gap-3 rounded-md border border-red-400/20 bg-red-400/[0.05] p-4 text-sm text-red-200">
             <TriangleAlert className="mt-0.5 size-4 shrink-0" />
@@ -237,7 +277,8 @@ export function OrganizationRunConsole() {
             실행 전에는 공개 콘텐츠가 생성되지 않습니다.
           </p>
         )}
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -40,6 +40,7 @@ export function buildOrganizationRunPost(input: {
     title: input.topic.title,
     summary: input.topic.topicSummary,
     body: input.topic.body,
+    imageUrl: input.topic.imageUrl,
     publishedAt,
     reactions: input.reactions.map((reaction, index) => ({
       ...reaction,

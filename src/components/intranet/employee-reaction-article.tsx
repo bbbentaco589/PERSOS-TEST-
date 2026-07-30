@@ -66,6 +66,20 @@ export function EmployeeReactionArticle({
           </p>
         </header>
 
+        {post.imageUrl ? (
+          <figure className="border-b border-slate-200 bg-slate-50 px-5 py-5 sm:px-7">
+            {/* User-selected remote media cannot use next/image without a fixed host allowlist. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt={`${post.title} 첨부 이미지`}
+              className="max-h-[560px] w-full rounded-md border border-slate-200 bg-white object-contain"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              src={post.imageUrl}
+            />
+          </figure>
+        ) : null}
+
         <section className="border-b border-slate-200 px-5 py-6 sm:px-7">
           <h2 className="text-xs font-semibold text-slate-900">검토 안건</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-700">
