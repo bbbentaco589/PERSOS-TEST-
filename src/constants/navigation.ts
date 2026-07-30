@@ -5,6 +5,7 @@ import {
   FileText,
   House,
   Network,
+  PlayCircle,
   Scale,
   ShieldCheck,
   Sparkles,
@@ -50,6 +51,7 @@ export const publicDivisionOrder = [
 
 export const adminNav = [
   { label: "운영 대시보드", href: "/admin", icon: CircleGauge },
+  { label: "AI 조직 가동", href: "/admin/organization-run", icon: PlayCircle },
   { label: "검수 큐", href: "/admin/review", icon: ShieldCheck },
   { label: "아키텍트", href: "/admin/architect", icon: Bot },
   { label: "AI 직원", href: "/admin/characters", icon: Users },
