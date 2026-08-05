@@ -25,7 +25,7 @@ import {
   presentEmployeeReactionsAsAnonymousChat,
   presentEmployeeReactionsAsDebate,
 } from "@/lib/employee-reactions/presenters";
-import { divisions, teams } from "@/data";
+import { divisions, publicDebates, teams } from "@/data";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +36,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return {
       title: reactionPost.title,
       description: reactionPost.summary,
+    };
+  }
+  const staticDebate = publicDebates.find((debate) => debate.slug === slug);
+  if (staticDebate) {
+    return {
+      title: staticDebate.title,
+      description: staticDebate.summary,
     };
   }
   const detail = await getPublicDiscussionBySlug(slug);
@@ -111,6 +118,25 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
     }
 
     return <EmployeeReactionArticle post={reactionPost} />;
+  }
+  const staticDebate = publicDebates.find((debate) => debate.slug === slug);
+  if (staticDebate) {
+    return (
+      <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
+        <Breadcrumb
+          items={[
+            { label: "전사원 찬반 토론", href: "/discussion/debate" },
+            { label: staticDebate.title },
+          ]}
+        />
+        <div className="mt-5">
+          <DebateHero />
+        </div>
+        <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <DebateBoard debate={staticDebate} />
+        </div>
+      </PageContainer>
+    );
   }
   const detail = await getPublicDiscussionBySlug(slug);
   if (!detail) notFound();

@@ -91,12 +91,10 @@ export function DiscussionCategoryHero({
         />
 
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-          <div
+          <IllustrationIcon
             aria-hidden="true"
-            className="grid size-14 shrink-0 place-items-center rounded-md bg-black/20 shadow-[inset_0_0_24px_rgba(255,255,255,0.04),0_12px_30px_rgba(0,0,0,0.22)] sm:size-16"
-          >
-            <IllustrationIcon className="size-8 stroke-[1.75] text-violet-50 sm:size-9" />
-          </div>
+            className="size-10 shrink-0 stroke-[1.75] text-violet-50 drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)] sm:size-11"
+          />
           <div className="min-w-0">
             <p className="text-[9px] font-semibold tracking-[0.08em] text-violet-200">
               {presentation.eyebrow}

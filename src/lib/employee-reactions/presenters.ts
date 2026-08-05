@@ -52,6 +52,7 @@ export function presentEmployeeReactionsAsDebate(
   return {
     id: post.id,
     slug: post.slug,
+    category: "AI 조직",
     title: post.title,
     summary: post.body,
     keyPoints,

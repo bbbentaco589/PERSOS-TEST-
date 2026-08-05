@@ -23,6 +23,7 @@ export type PublicDebateStatement = {
 export type PublicDebate = {
   id: string;
   slug: string;
+  category: string;
   title: string;
   summary: string;
   keyPoints: string[];
