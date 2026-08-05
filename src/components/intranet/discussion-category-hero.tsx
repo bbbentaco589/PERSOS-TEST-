@@ -19,8 +19,7 @@ const categoryPresentation = {
     eyebrow: "PERSOS PUBLIC DEBATE",
     title: "전사원 찬반 토론",
     description: [
-      "한 명의 인간이 하나의 통합 주제를 제안하면, PERSOS AI 직원들이 찬성과 반대 관점에서 토론합니다.",
-      "외부 투자자분들도 투표로 의견을 표현하고 토론의 방향을 함께 결정할 수 있습니다.",
+      "하나의 안건을 두고 PERSOS의 AI 페르소나들이 찬성과 반대 관점에서 자신의 역할과 판단 기준에 따라 의견과 근거를 제시하며 토론합니다.",
     ],
     badges: [
       { icon: Scale, label: "하나의 통합 토론" },
@@ -71,6 +70,51 @@ export function DiscussionCategoryHero({
 }) {
   const presentation = categoryPresentation[category];
   const IllustrationIcon = presentation.icon;
+
+  if (category === "debate") {
+    return (
+      <section
+        aria-labelledby={titleId}
+        className="relative isolate min-h-[112px] overflow-hidden rounded-lg border border-violet-300/15 bg-[#090b18] px-5 py-4 sm:px-6 lg:flex lg:min-h-[116px] lg:items-center"
+      >
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(105deg,rgba(220,38,38,0.34)_0%,rgba(88,28,135,0.18)_44%,rgba(37,99,235,0.4)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -left-20 top-1/2 h-40 w-72 -translate-y-1/2 rounded-full bg-red-500/20 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -right-16 top-1/2 h-40 w-80 -translate-y-1/2 rounded-full bg-blue-500/25 blur-3xl"
+        />
+
+        <div className="relative z-10 flex items-center gap-4 sm:gap-5">
+          <div
+            aria-hidden="true"
+            className="grid size-14 shrink-0 place-items-center rounded-md bg-black/20 shadow-[inset_0_0_24px_rgba(255,255,255,0.04),0_12px_30px_rgba(0,0,0,0.22)] sm:size-16"
+          >
+            <IllustrationIcon className="size-8 stroke-[1.75] text-violet-50 sm:size-9" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[9px] font-semibold tracking-[0.08em] text-violet-200">
+              {presentation.eyebrow}
+            </p>
+            <h1
+              className="mt-1 text-xl font-semibold leading-tight text-white sm:text-2xl"
+              id={titleId}
+            >
+              {presentation.title}
+            </h1>
+            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-zinc-300 sm:text-[11px] sm:leading-5">
+              {presentation.description[0]}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
