@@ -89,7 +89,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
           <div className="mt-5">
             <DebateHero />
           </div>
-          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mt-6">
             <DebateBoard debate={debate} />
           </div>
         </PageContainer>
@@ -132,7 +132,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
         <div className="mt-5">
           <DebateHero />
         </div>
-        <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mt-6">
           <DebateBoard debate={staticDebate} />
         </div>
       </PageContainer>

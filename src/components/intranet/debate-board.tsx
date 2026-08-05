@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowDownRight,
   CalendarDays,
@@ -13,11 +12,18 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import {
+  DebateBackButton,
+  DebateEmployeeProfileButton,
+} from "@/components/intranet/debate-detail-interactions";
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
-import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { divisions, employees, teams } from "@/data";
+import {
+  buildPopularEmployeeProfiles,
+  buildPublicFeedItems,
+} from "@/lib/public-feed-presentation";
 import { cn } from "@/lib/utils";
 import type {
   DebateSide,
@@ -31,35 +37,38 @@ const sidePresentation = {
     label: "찬성",
     heading: "AI 찬성 진영",
     icon: ThumbsUp,
-    border: "border-blue-200",
-    header: "border-blue-200 bg-blue-50",
-    badge: "border-blue-200 bg-blue-50 text-blue-700",
-    dot: "bg-blue-500",
+    border: "border-blue-300/15",
+    header: "border-blue-300/15 bg-blue-400/[0.055]",
+    badge: "border-blue-300/20 bg-blue-400/[0.08] text-blue-200",
     statement:
-      "border-blue-200 border-l-blue-500 bg-blue-50/55 hover:bg-blue-50",
+      "border-blue-300/15 bg-blue-400/[0.05] hover:border-blue-300/25 hover:bg-blue-400/[0.075]",
   },
   hold: {
     label: "보류",
     heading: "AI 보류 진영",
     icon: CircleDot,
-    border: "border-amber-200",
-    header: "border-amber-200 bg-amber-50",
-    badge: "border-amber-200 bg-amber-50 text-amber-700",
-    dot: "bg-amber-500",
+    border: "border-amber-300/15",
+    header: "border-amber-300/15 bg-amber-400/[0.05]",
+    badge: "border-amber-300/20 bg-amber-400/[0.07] text-amber-200",
     statement:
-      "border-amber-200 border-l-amber-500 bg-amber-50/55 hover:bg-amber-50",
+      "border-amber-300/15 bg-amber-400/[0.045] hover:border-amber-300/25 hover:bg-amber-400/[0.07]",
   },
   oppose: {
     label: "반대",
     heading: "AI 반대 진영",
     icon: ThumbsDown,
-    border: "border-red-200",
-    header: "border-red-200 bg-red-50",
-    badge: "border-red-200 bg-red-50 text-red-700",
-    dot: "bg-red-500",
-    statement: "border-red-200 border-l-red-500 bg-red-50/55 hover:bg-red-50",
+    border: "border-red-300/15",
+    header: "border-red-300/15 bg-red-400/[0.05]",
+    badge: "border-red-300/20 bg-red-400/[0.075] text-red-200",
+    statement:
+      "border-red-300/15 bg-red-400/[0.045] hover:border-red-300/25 hover:bg-red-400/[0.07]",
   },
 } as const;
+
+const debateEmployeeProfiles = buildPopularEmployeeProfiles(
+  buildPublicFeedItems([]),
+  employees.length
+);
 
 function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -80,6 +89,12 @@ function formatStatementTime(value: string) {
 
 function getEmployee(employeeId: string) {
   return employees.find((employee) => employee.id === employeeId);
+}
+
+function getEmployeeProfile(employeeId: string) {
+  return debateEmployeeProfiles.find(
+    (profile) => profile.employee.id === employeeId
+  );
 }
 
 function getEmployeeOrganization(employee: Employee) {
@@ -111,7 +126,7 @@ function DebateTeam({
     <section
       aria-labelledby={`debate-team-${side}`}
       className={cn(
-        "overflow-hidden rounded-md border bg-white",
+        "overflow-hidden rounded-md border bg-[#0d1120]",
         presentation.border
       )}
     >
@@ -122,7 +137,7 @@ function DebateTeam({
         )}
       >
         <h3
-          className="flex items-center gap-2 text-xs font-semibold text-slate-900"
+          className="flex items-center gap-2 text-xs font-semibold text-zinc-200"
           id={`debate-team-${side}`}
         >
           <Icon className="size-3.5" />
@@ -132,38 +147,32 @@ function DebateTeam({
           {presentation.label} {members.length}명
         </Badge>
       </header>
-      <div className="divide-y divide-slate-200 px-4">
-        {members.map((employee) => (
-          <div
-            className="grid min-h-14 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 py-2.5"
-            key={employee.id}
-          >
-            <EmployeeAvatar
-              alt={`${employee.nameKo} 프로필`}
-              className={
-                employee.slug === "tect"
-                  ? "size-8 rounded-full object-[center_28%]"
-                  : "size-8 rounded-full"
-              }
-              size={32}
-              src={employee.profileImage}
-            />
-            <span className="min-w-0">
-              <Link
-                className="block truncate text-[11px] font-semibold text-slate-800 transition hover:text-blue-600"
-                href={`/characters/${employee.slug}`}
-              >
-                {employee.nameKo}
-              </Link>
-              <span className="mt-0.5 block truncate font-mono text-[8px] text-slate-400">
-                @{employee.slug}
-              </span>
-            </span>
-            <Badge className={presentation.badge} variant="outline">
-              {presentation.label}
-            </Badge>
-          </div>
-        ))}
+      <div className="divide-y divide-white/[0.065] px-4">
+        {members.map((employee) => {
+          const profile = getEmployeeProfile(employee.id);
+
+          return (
+            <div
+              className="flex min-h-14 items-center gap-2 py-2.5"
+              key={employee.id}
+            >
+              {profile ? (
+                <DebateEmployeeProfileButton
+                  className="min-w-0 flex-1"
+                  compact
+                  profile={profile}
+                />
+              ) : (
+                <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-zinc-200">
+                  {employee.nameKo}
+                </span>
+              )}
+              <Badge className={presentation.badge} variant="outline">
+                {presentation.label}
+              </Badge>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -180,79 +189,72 @@ function DebateStatementRow({
     ? getEmployee(statement.replyToEmployeeId)
     : undefined;
   const organization = getEmployeeOrganization(employee);
+  const profile = getEmployeeProfile(employee.id);
   const presentation = sidePresentation[statement.side];
   const Icon = presentation.icon;
 
   return (
-    <article
+    <div
       className={cn(
-        "relative grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3 rounded-md border border-l-[3px] p-4 transition sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]",
-        presentation.statement
+        "flex",
+        statement.side === "support"
+          ? "justify-start"
+          : statement.side === "oppose"
+            ? "justify-end"
+            : "justify-center"
       )}
     >
-      <span
-        aria-hidden="true"
+      <article
         className={cn(
-          "absolute -left-[1.35rem] top-6 size-2.5 rounded-full ring-4 ring-white",
-          presentation.dot
+          "w-full rounded-md border p-4 transition sm:w-[86%] lg:w-[78%]",
+          presentation.statement
         )}
-      />
-      <EmployeeAvatar
-        alt={`${employee.nameKo} 프로필`}
-        className={
-          employee.slug === "tect"
-            ? "size-9 rounded-full object-[center_28%]"
-            : "size-9 rounded-full"
-        }
-        size={36}
-        src={employee.profileImage}
-      />
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <Link
-            className="text-xs font-semibold text-slate-900 transition hover:text-blue-600"
-            href={`/characters/${employee.slug}`}
-          >
-            {employee.nameKo}
-          </Link>
-          <span className="font-mono text-[8px] text-slate-400">
-            @{employee.slug}
-          </span>
-          <Badge className={presentation.badge} variant="outline">
-            <Icon className="mr-1 size-2.5" />
-            {presentation.label}
-          </Badge>
-          <time
-            className="text-[8px] text-slate-400"
-            dateTime={statement.createdAt}
-          >
-            {formatStatementTime(statement.createdAt)}
-          </time>
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          {profile ? (
+            <DebateEmployeeProfileButton profile={profile} />
+          ) : (
+            <span className="text-xs font-semibold text-zinc-200">
+              {employee.nameKo}
+            </span>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className={presentation.badge} variant="outline">
+              <Icon className="mr-1 size-2.5" />
+              {presentation.label}
+            </Badge>
+            <time
+              className="text-[8px] text-zinc-600"
+              dateTime={statement.createdAt}
+            >
+              {formatStatementTime(statement.createdAt)}
+            </time>
+          </div>
         </div>
-        <p className="mt-1 text-[9px] text-slate-500">
+        <p className="mt-2 text-[9px] text-zinc-500">
           {organization.team} · {employee.jobTitleKo}
         </p>
         {replyEmployee ? (
-          <p className="mt-2 flex items-center gap-1 text-[9px] text-slate-500">
+          <p className="mt-3 flex items-center gap-1 text-[9px] text-zinc-500">
             <ArrowDownRight className="size-3" />
             {replyEmployee.nameKo}의 발언에 답변
           </p>
         ) : null}
-        <p className="mt-2 text-xs leading-6 text-slate-700">
+        <p className="mt-3 text-xs leading-6 text-zinc-300">
           {statement.content}
         </p>
-      </div>
-      <div className="col-start-2 flex items-center gap-4 self-end text-[9px] text-slate-500 sm:col-start-auto">
-        <span className="flex items-center gap-1">
-          <MessageCircleReply className="size-3" />
-          답글
-        </span>
-        <span className="flex items-center gap-1">
-          <ThumbsUp className="size-3" />
-          {statement.reactionCount}
-        </span>
-      </div>
-    </article>
+        <div className="mt-3 flex items-center justify-end gap-4 text-[9px] text-zinc-600">
+          <span className="flex items-center gap-1">
+            <MessageCircleReply className="size-3" />
+            답글
+          </span>
+          <span className="flex items-center gap-1">
+            <ThumbsUp className="size-3" />
+            {statement.reactionCount}
+          </span>
+        </div>
+      </article>
+    </div>
   );
 }
 
@@ -279,48 +281,53 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
   return (
     <section
       aria-labelledby="active-debate-title"
-      className="bg-white text-slate-950"
+      className="relative overflow-hidden border-b border-white/[0.07] bg-[#0b0e1a] text-zinc-100"
     >
-      <header className="px-5 py-5">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_12%_0%,rgba(177,62,77,0.12),transparent_43%),radial-gradient(circle_at_88%_0%,rgba(73,82,187,0.14),transparent_43%)]"
+      />
+      <header className="relative px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <DebateBackButton />
           <Badge
-            className="border-emerald-200 bg-emerald-50 text-emerald-700"
+            className="border-emerald-300/20 bg-emerald-300/[0.07] text-emerald-200"
             variant="outline"
           >
             <CircleDot className="mr-1 size-3" />
             진행 중
           </Badge>
-          <span className="flex items-center gap-1 text-[9px] text-slate-500">
+          <span className="flex items-center gap-1 text-[9px] text-zinc-500">
             <CalendarDays className="size-3" />
             {formatDateTime(debate.proposedAt)} 시작
           </span>
-          <span className="flex items-center gap-1 text-[9px] text-slate-500">
+          <span className="flex items-center gap-1 text-[9px] text-zinc-500">
             <UserRound className="size-3" />
             제안자 {debate.proposer}
           </span>
-          <span className="ml-auto flex items-center gap-1 text-[10px] text-slate-600">
+          <span className="ml-auto flex items-center gap-1 text-[10px] text-zinc-400">
             <Clock3 className="size-3.5" />
             남은 시간 02일 18:34:21
           </span>
         </div>
         <h2
-          className="mt-4 text-balance text-lg font-semibold leading-7 text-slate-950 sm:text-xl"
+          className="mt-4 text-balance text-lg font-semibold leading-7 text-white sm:text-xl"
           id="active-debate-title"
         >
           {debate.title}
         </h2>
-        <p className="mt-2 max-w-4xl text-xs leading-6 text-slate-600">
+        <p className="mt-2 max-w-4xl text-xs leading-6 text-zinc-400">
           {debate.summary}
         </p>
       </header>
 
-      <div className="px-5 py-5">
+      <div className="relative px-5 py-5 sm:px-6">
         <section
           aria-labelledby="debate-key-points"
           className="pb-5"
         >
           <h3
-            className="text-xs font-semibold text-slate-900"
+            className="text-xs font-semibold text-zinc-200"
             id="debate-key-points"
           >
             핵심 쟁점
@@ -328,10 +335,10 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {debate.keyPoints.map((point) => (
               <li
-                className="flex gap-2 text-[10px] leading-5 text-slate-600"
+                className="flex gap-2 text-[10px] leading-5 text-zinc-400"
                 key={point}
               >
-                <Check className="mt-0.5 size-3.5 shrink-0 text-blue-600" />
+                <Check className="mt-0.5 size-3.5 shrink-0 text-blue-300/80" />
                 {point}
               </li>
             ))}
@@ -341,7 +348,7 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
         <div className="mt-5 grid items-stretch gap-3 sm:grid-cols-[minmax(0,1fr)_2.5rem_minmax(0,1fr)]">
           <DebateTeam debate={debate} side="support" />
           <div className="grid place-items-center">
-            <span className="grid size-10 place-items-center rounded-full border border-slate-300 bg-white text-[10px] font-semibold text-slate-700 shadow-sm">
+            <span className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-[10px] font-semibold text-zinc-400">
               VS
             </span>
           </div>
@@ -351,37 +358,37 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
 
       <section
         aria-labelledby="static-investor-vote"
-        className="bg-slate-50 px-5 py-4"
+        className="relative border-t border-white/[0.07] bg-black/10 px-5 py-4 sm:px-6"
       >
         <div className="grid gap-4 min-[1400px]:grid-cols-[12rem_minmax(0,1fr)_8rem] min-[1400px]:items-center">
           <div>
             <h3
-              className="flex items-center gap-2 text-xs font-semibold text-slate-900"
+              className="flex items-center gap-2 text-xs font-semibold text-zinc-200"
               id="static-investor-vote"
             >
-              <UsersRound className="size-3.5 text-violet-600" />
+              <UsersRound className="size-3.5 text-violet-300/80" />
               외부 투자자 투표
             </h3>
-            <p className="mt-1 text-[8px] text-slate-500">
+            <p className="mt-1 text-[8px] text-zinc-600">
               AI 진영과 별도로 집계된 고정 Demo 비율
             </p>
           </div>
           <div>
             <div className="flex items-center justify-between text-[10px]">
-              <span className="font-semibold text-blue-700">찬성 56%</span>
-              <span className="font-semibold text-red-700">반대 44%</span>
+              <span className="font-semibold text-blue-200">찬성 56%</span>
+              <span className="font-semibold text-red-200">반대 44%</span>
             </div>
             <div
               aria-label="찬성 56%, 반대 44%"
-              className="mt-2 flex h-2 overflow-hidden rounded-full bg-slate-200"
+              className="mt-2 flex h-2 overflow-hidden rounded-full bg-white/10"
             >
-              <span className="w-[56%] bg-blue-500" />
-              <span className="w-[44%] bg-red-500" />
+              <span className="w-[56%] bg-blue-400/75" />
+              <span className="w-[44%] bg-red-400/70" />
             </div>
           </div>
           <Button
             aria-disabled="true"
-            className="min-h-11 border-slate-300 bg-white text-slate-500 disabled:opacity-70"
+            className="min-h-11 border-white/10 bg-white/[0.035] text-zinc-500 disabled:opacity-70"
             disabled
             type="button"
             variant="outline"
@@ -389,7 +396,7 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
             투표 참여하기
           </Button>
         </div>
-        <p className="mt-3 text-[8px] text-slate-400">
+        <p className="mt-3 text-[8px] text-zinc-600">
           AI 찬성 {supportCount}명 · AI 보류 {holdCount}명 · AI 반대{" "}
           {opposeCount}명 · 실제 투표 기능은 준비 중입니다.
         </p>
@@ -406,35 +413,31 @@ function DebateThread({ debate }: { debate: PublicDebate }) {
   return (
     <section
       aria-labelledby="debate-thread-title"
-      className="bg-white text-slate-950"
+      className="bg-[#090c17] text-zinc-100"
     >
-      <header className="flex min-h-14 items-center justify-between bg-slate-50 px-5">
+      <header className="flex min-h-14 items-center justify-between border-b border-white/[0.07] bg-black/10 px-5 sm:px-6">
         <h2
           className="flex items-center gap-2 text-sm font-semibold"
           id="debate-thread-title"
         >
-          <MessageCircleReply className="size-4 text-violet-600" />
+          <MessageCircleReply className="size-4 text-violet-300/80" />
           토론 진행
         </h2>
-        <span className="text-[9px] text-slate-400">시간 순 · DEMO</span>
+        <span className="text-[9px] text-zinc-600">시간 순 · DEMO</span>
       </header>
-      <div className="relative space-y-3 px-5 py-4 pl-7" role="feed">
-        <span
-          aria-hidden="true"
-          className="absolute bottom-7 left-[0.65rem] top-7 w-px bg-slate-300"
-        />
+      <div className="space-y-3 px-5 py-5 sm:px-6" role="feed">
         {statements.map((statement) => (
           <DebateStatementRow key={statement.id} statement={statement} />
         ))}
       </div>
-      <div className="grid gap-3 bg-slate-50 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_7rem] sm:items-center">
-        <p className="flex items-center gap-2 text-[10px] text-slate-500">
+      <div className="grid gap-3 border-t border-white/[0.07] bg-black/10 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_7rem] sm:items-center sm:px-6">
+        <p className="flex items-center gap-2 text-[10px] text-zinc-500">
           <LogIn className="size-3.5" />
           토론에 참여하려면 로그인하세요.
         </p>
         <Button
           aria-disabled="true"
-          className="min-h-10 bg-slate-200 text-slate-500 disabled:opacity-100"
+          className="min-h-10 bg-white/[0.07] text-zinc-500 disabled:opacity-100"
           disabled
           type="button"
         >
@@ -451,7 +454,7 @@ export function DebateBoard({
   debate: PublicDebate;
 }) {
   return (
-    <main className="min-w-0 overflow-hidden bg-white">
+    <main className="min-w-0 overflow-hidden rounded-lg border border-white/10 bg-[#090c17] shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
       <DebateSummary debate={debate} />
       <DebateThread debate={debate} />
     </main>
