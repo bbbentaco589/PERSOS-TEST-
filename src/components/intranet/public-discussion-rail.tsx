@@ -19,6 +19,7 @@ import type {
   PublicArchiveTopic,
 } from "@/data/public-discussion-demo";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
+import { cn } from "@/lib/utils";
 
 function formatArchiveDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -33,11 +34,15 @@ function formatArchiveDate(value: string) {
 }
 
 export function DiscussionArchivePanel({
+  anchorPrefix,
   items,
   title,
+  variant = "light",
 }: {
+  anchorPrefix?: string;
   items: Array<PublicArchiveDebate | PublicArchiveTopic>;
   title: "지난 토론" | "지난 주제";
+  variant?: "light" | "anonymous";
 }) {
   const headingId =
     title === "지난 주제" ? "anonymous-topic-archive" : "debate-archive";
@@ -46,31 +51,77 @@ export function DiscussionArchivePanel({
   return (
     <section
       aria-labelledby={headingId}
-      className="overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-sm"
+      className={cn(
+        "overflow-hidden rounded-lg border shadow-sm",
+        variant === "anonymous"
+          ? "border-yellow-300/15 bg-[#0b121d] text-zinc-100"
+          : "border-slate-200 bg-white text-slate-950"
+      )}
     >
-      <header className="flex min-h-14 items-center justify-between gap-3 border-b border-slate-200 px-4">
+      <header
+        className={cn(
+          "flex min-h-14 items-center justify-between gap-3 border-b px-4",
+          variant === "anonymous"
+            ? "border-yellow-300/12"
+            : "border-slate-200"
+        )}
+      >
         <h2
           className="flex items-center gap-2 text-sm font-semibold"
           id={headingId}
         >
-          <Icon className="size-4 text-blue-600" />
+          <Icon
+            className={cn(
+              "size-4",
+              variant === "anonymous" ? "text-yellow-300" : "text-blue-600"
+            )}
+          />
           {title}
         </h2>
-        <span className="text-[10px] text-slate-500">더 보기</span>
+        <span
+          className={cn(
+            "text-[10px]",
+            variant === "anonymous" ? "text-zinc-600" : "text-slate-500"
+          )}
+        >
+          {variant === "anonymous" ? "최근 5개" : "더 보기"}
+        </span>
       </header>
 
-      <ol className="divide-y divide-slate-200 px-4">
+      <ol
+        className={cn(
+          "divide-y px-4",
+          variant === "anonymous"
+            ? "divide-yellow-300/10"
+            : "divide-slate-200"
+        )}
+      >
         {items.map((item) => {
           const content = (
             <>
               <span
                 aria-hidden="true"
-                className="mt-1.5 size-2 rounded-full border-2 border-blue-500 bg-white"
+                className={cn(
+                  "mt-1.5 size-2 rounded-full border-2",
+                  variant === "anonymous"
+                    ? "border-yellow-300 bg-[#0b121d]"
+                    : "border-blue-500 bg-white"
+                )}
               />
-              <span className="min-w-0 text-[11px] font-medium leading-5 text-slate-700">
+              <span
+                className={cn(
+                  "min-w-0 text-[11px] font-medium leading-5",
+                  variant === "anonymous" ? "text-zinc-300" : "text-slate-700"
+                )}
+              >
                 {item.title}
               </span>
-              <span className="pt-0.5 text-right text-[9px] text-slate-400">
+              <span
+                className={cn(
+                  "pt-0.5 text-right text-[9px]",
+                  variant === "anonymous" ? "text-zinc-600" : "text-slate-400"
+                )}
+              >
                 {formatArchiveDate(item.date)}
                 {"participantCount" in item ? (
                   <span className="mt-1 block">
@@ -83,7 +134,19 @@ export function DiscussionArchivePanel({
 
           return (
             <li key={item.id}>
-              {item.href ? (
+              {anchorPrefix ? (
+                <a
+                  className={cn(
+                    "grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 transition focus-visible:outline-2",
+                    variant === "anonymous"
+                      ? "hover:text-yellow-200 focus-visible:outline-yellow-300"
+                      : "hover:text-blue-600 focus-visible:outline-blue-500"
+                  )}
+                  href={`#${anchorPrefix}-${item.id}`}
+                >
+                  {content}
+                </a>
+              ) : item.href ? (
                 <Link
                   className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-blue-500"
                   href={item.href}
@@ -99,6 +162,11 @@ export function DiscussionArchivePanel({
           );
         })}
       </ol>
+      {variant === "anonymous" ? (
+        <p className="border-t border-yellow-300/10 px-4 py-3 text-[9px] leading-4 text-zinc-600">
+          주제를 선택하면 같은 채팅방의 최초 공지 위치로 이동합니다.
+        </p>
+      ) : null}
     </section>
   );
 }

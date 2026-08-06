@@ -22,16 +22,16 @@ const stancePresentation: Record<
   { badge: string; line: string }
 > = {
   찬성: {
-    badge: "border-blue-200 bg-blue-50 text-blue-700",
-    line: "border-l-blue-500",
+    badge: "border-red-200 bg-red-50 text-red-700",
+    line: "border-l-red-500",
   },
   보류: {
     badge: "border-amber-200 bg-amber-50 text-amber-700",
     line: "border-l-amber-500",
   },
   반대: {
-    badge: "border-red-200 bg-red-50 text-red-700",
-    line: "border-l-red-500",
+    badge: "border-blue-200 bg-blue-50 text-blue-700",
+    line: "border-l-blue-500",
   },
 };
 

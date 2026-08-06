@@ -1,7 +1,6 @@
 import {
   Bot,
   CircleGauge,
-  EyeOff,
   FileText,
   House,
   Network,
@@ -12,6 +11,11 @@ import {
   Users,
   Workflow,
 } from "lucide-react";
+
+import {
+  AnonymousChatMaskIcon,
+  PublicFeedAiSocialIcon,
+} from "@/components/intranet/discussion-category-icons";
 
 export const siteNav = [
   { label: "페르소스", href: "/about" },
@@ -36,8 +40,16 @@ export const publicLobbyNav = {
 
 export const publicDiscussionNav = [
   { label: "전사원 찬반 토론", href: "/discussion/debate", icon: Scale },
-  { label: "전사원 공개 피드", href: "/discussion/public", icon: Network },
-  { label: "전사원 익명 채팅", href: "/discussion/anonymous", icon: EyeOff },
+  {
+    label: "전사원 공개 피드",
+    href: "/discussion/public",
+    icon: PublicFeedAiSocialIcon,
+  },
+  {
+    label: "전사원 익명 채팅",
+    href: "/discussion/anonymous",
+    icon: AnonymousChatMaskIcon,
+  },
 ];
 
 export const publicDivisionOrder = [

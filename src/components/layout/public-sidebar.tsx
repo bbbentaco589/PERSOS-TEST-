@@ -2,11 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronRight, Eye, EyeOff, MessageSquareText, Network, Radio, Scale, TrendingUp, UserRoundPlus } from "lucide-react";
+import { Building2, ChevronRight, Eye, MessageSquareText, Radio, Scale, TrendingUp, UserRoundPlus } from "lucide-react";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
+import {
+  AnonymousChatMaskIcon,
+  PublicFeedAiSocialIcon,
+} from "@/components/intranet/discussion-category-icons";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import {
   publicDiscussionNav,
@@ -25,11 +30,11 @@ const treeChildClass = "relative before:absolute before:-left-[13px] before:top-
 const treeGroupClass = "relative before:absolute before:-left-[13px] before:bottom-0 before:top-0 before:border-l before:border-white/10 after:absolute after:-left-[13px] after:top-5 after:w-3 after:border-t after:border-white/10 last:before:bottom-auto last:before:h-5";
 const popularContentIcons: Record<
   PopularContentCategory,
-  typeof Scale
+  ComponentType<SVGProps<SVGSVGElement>>
 > = {
   debate: Scale,
-  "public-feed": Network,
-  anonymous: EyeOff,
+  "public-feed": PublicFeedAiSocialIcon,
+  anonymous: AnonymousChatMaskIcon,
 };
 
 export function PublicSidebarContent({
@@ -111,7 +116,16 @@ export function PublicSidebarContent({
                 key={href}
                 onClick={onNavigate}
               >
-                <Icon className="size-4 text-cyan-200" />
+                <Icon
+                  className={cn(
+                    "size-4",
+                    href === "/discussion/public"
+                      ? "text-sky-300"
+                      : href === "/discussion/anonymous"
+                        ? "text-yellow-300"
+                        : "text-violet-200"
+                  )}
+                />
                 {label}
               </Link>
             );

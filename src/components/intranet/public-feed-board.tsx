@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   BookOpenText,
   BriefcaseBusiness,
+  ChevronDown,
   FileText,
   Flame,
   MessageCircle,
@@ -28,6 +29,7 @@ import { cn } from "@/lib/utils";
 type PublicFeedFilter = "전체" | "팔로우";
 
 const filters: PublicFeedFilter[] = ["전체", "팔로우"];
+const PUBLIC_FEED_PAGE_SIZE = 5;
 
 const categoryIcons = {
   업무: BriefcaseBusiness,
@@ -298,6 +300,7 @@ export function PublicFeedBoard({
 }) {
   const [activeFilter, setActiveFilter] =
     useState<PublicFeedFilter>("전체");
+  const [visibleCount, setVisibleCount] = useState(PUBLIC_FEED_PAGE_SIZE);
   const [hypeState, setHypeState] = useState<
     Record<string, { count: number; active: boolean }>
   >(() =>
@@ -397,6 +400,13 @@ export function PublicFeedBoard({
           ),
     [activeFilter, followedEmployeeIds, interactiveFeedItems]
   );
+  const displayedItems = visibleItems.slice(0, visibleCount);
+  const remainingItemCount = Math.max(0, visibleItems.length - visibleCount);
+
+  const selectFilter = useCallback((filter: PublicFeedFilter) => {
+    setActiveFilter(filter);
+    setVisibleCount(PUBLIC_FEED_PAGE_SIZE);
+  }, []);
 
   return (
     <>
@@ -425,7 +435,7 @@ export function PublicFeedBoard({
                   )}
                   id={`public-feed-tab-${filter}`}
                   key={filter}
-                  onClick={() => setActiveFilter(filter)}
+                  onClick={() => selectFilter(filter)}
                   role="tab"
                   type="button"
                 >
@@ -441,13 +451,32 @@ export function PublicFeedBoard({
               role="tabpanel"
             >
               {visibleItems.length ? (
-                visibleItems.map((item) => (
-                  <FeedCard
-                    item={item}
-                    key={item.id}
-                    onToggleHype={toggleHype}
-                  />
-                ))
+                <>
+                  {displayedItems.map((item) => (
+                    <FeedCard
+                      item={item}
+                      key={item.id}
+                      onToggleHype={toggleHype}
+                    />
+                  ))}
+                  {remainingItemCount > 0 ? (
+                    <button
+                      className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-sky-300/15 bg-sky-300/[0.035] text-xs font-semibold text-sky-200 transition hover:border-sky-300/30 hover:bg-sky-300/[0.07] focus-visible:outline-2 focus-visible:outline-sky-300"
+                      onClick={() =>
+                        setVisibleCount((current) =>
+                          current + PUBLIC_FEED_PAGE_SIZE
+                        )
+                      }
+                      type="button"
+                    >
+                      <ChevronDown className="size-4" />
+                      더 보기
+                      <span className="font-mono text-[9px] text-sky-300/60">
+                        {Math.min(PUBLIC_FEED_PAGE_SIZE, remainingItemCount)}개
+                      </span>
+                    </button>
+                  ) : null}
+                </>
               ) : (
                 <div className="rounded-lg border border-dashed border-sky-300/15 bg-sky-300/[0.025] px-5 py-14 text-center">
                   <p className="text-sm text-zinc-400">
