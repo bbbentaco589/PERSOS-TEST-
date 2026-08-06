@@ -1,21 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import {
   BookOpenText,
-  BriefcaseBusiness,
   ChevronDown,
-  FileText,
   Flame,
   MessageCircle,
-  MessagesSquare,
   Quote,
   Repeat2,
   UsersRound,
 } from "lucide-react";
 
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
+import { EmployeeProfileDialog } from "@/components/intranet/employee-profile-dialog";
 import { DiscussionPopularEmployeePanel } from "@/components/intranet/public-discussion-rail";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,13 +30,6 @@ type PublicFeedFilter = "전체" | "팔로우";
 const filters: PublicFeedFilter[] = ["전체", "팔로우"];
 const PUBLIC_FEED_PAGE_SIZE = 5;
 
-const categoryIcons = {
-  업무: BriefcaseBusiness,
-  "의견·토론": MessagesSquare,
-  콘텐츠: FileText,
-  Knowledge: BookOpenText,
-} as const;
-
 function formatFeedDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "short",
@@ -45,37 +37,16 @@ function formatFeedDate(value: string) {
   }).format(new Date(value));
 }
 
-function RuntimeBadge({
-  status,
-}: {
-  status: PublicFeedItem["runtimeStatus"];
-}) {
-  return (
-    <Badge
-      className={cn(
-        "text-[9px]",
-        status === "Approved" &&
-          "border-emerald-300/20 bg-emerald-300/[0.07] text-emerald-200",
-        status === "Rough" &&
-          "border-amber-300/20 bg-amber-300/[0.07] text-amber-200",
-        status === "Draft" &&
-          "border-violet-300/20 bg-violet-300/[0.07] text-violet-200"
-      )}
-      variant="outline"
-    >
-      {status}
-    </Badge>
-  );
-}
-
 function FeedCard({
   item,
+  onOpenProfile,
   onToggleHype,
 }: {
   item: PublicFeedItem;
+  onOpenProfile: (employeeId: string) => void;
   onToggleHype: (feedId: string) => void;
 }) {
-  const CategoryIcon = categoryIcons[item.category];
+  const router = useRouter();
   const metrics = [
     { icon: MessageCircle, label: "의견", value: item.opinionCount },
     { icon: Repeat2, label: "반론", value: item.rebuttalCount },
@@ -85,70 +56,83 @@ function FeedCard({
 
   return (
     <article
-      className="rounded-lg border border-sky-300/12 bg-[#0b121d] p-4 transition hover:border-sky-300/25 hover:bg-sky-300/[0.035] sm:p-5"
+      className="group cursor-pointer rounded-lg border border-sky-300/12 bg-[#0b121d] p-4 transition hover:border-sky-300/30 hover:bg-sky-300/[0.045] focus-visible:outline-2 focus-visible:outline-sky-300"
       id={`feed-${item.id}`}
+      onClick={() => router.push(item.href)}
+      onKeyDown={(event) => {
+        if (
+          event.target === event.currentTarget &&
+          (event.key === "Enter" || event.key === " ")
+        ) {
+          event.preventDefault();
+          router.push(item.href);
+        }
+      }}
+      role="link"
+      tabIndex={0}
     >
-      <div className="flex min-w-0 items-start gap-3">
-        <EmployeeAvatar
-          alt={`${item.author.nameKo} 프로필`}
-          className={
-            item.author.slug === "tect"
-              ? "size-11 rounded-full object-[center_28%]"
-              : "size-11 rounded-full"
-          }
-          size={44}
-          src={item.author.profileImage}
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <Link
-              className="text-sm font-semibold text-zinc-100 transition hover:text-sky-300"
-              href={`/characters/${item.author.slug}`}
-            >
-              {item.author.nameKo}
-            </Link>
-            <span className="font-mono text-[9px] text-zinc-600">
-              @{item.author.slug}
-            </span>
-            <span className="text-[9px] text-zinc-700">·</span>
-            <span className="truncate text-[10px] text-zinc-500">
-              {item.teamName}
-            </span>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <RuntimeBadge status={item.runtimeStatus} />
-            <Badge
-              className="border-sky-300/20 bg-sky-300/[0.08] text-[9px] text-sky-200"
-              variant="outline"
-            >
-              <CategoryIcon className="mr-1 size-2.5" />
-              {item.category}
-            </Badge>
-            <Badge
-              className="border-white/10 bg-white/[0.035] text-[9px] text-zinc-500"
-              variant="outline"
-            >
-              {item.assignmentSource}
-            </Badge>
-            <span className="ml-auto text-[9px] text-zinc-600">
-              {formatFeedDate(item.publishedAt)}
-            </span>
-          </div>
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          aria-label={`${item.author.nameKo} 프로필 열기`}
+          className="shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-sky-300"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenProfile(item.author.id);
+          }}
+          onKeyDown={(event) => event.stopPropagation()}
+          type="button"
+        >
+          <EmployeeAvatar
+            alt={`${item.author.nameKo} 프로필`}
+            className={
+              item.author.slug === "tect"
+                ? "size-10 rounded-full object-[center_28%]"
+                : "size-10 rounded-full"
+            }
+            size={40}
+            src={item.author.profileImage}
+          />
+        </button>
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+          <button
+            className="shrink-0 text-left text-sm font-semibold text-zinc-100 transition hover:text-sky-300 focus-visible:outline-2 focus-visible:outline-sky-300"
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenProfile(item.author.id);
+            }}
+            onKeyDown={(event) => event.stopPropagation()}
+            type="button"
+          >
+            {item.author.nameKo}
+          </button>
+          <span className="truncate font-mono text-[9px] text-zinc-600">
+            {item.author.nameEn}
+          </span>
+          <span className="shrink-0 text-[9px] text-zinc-700">·</span>
+          <time
+            className="shrink-0 text-[9px] text-zinc-500"
+            dateTime={item.publishedAt}
+          >
+            {formatFeedDate(item.publishedAt)}
+          </time>
+          <Badge
+            className="ml-auto max-w-[42%] shrink truncate border-sky-300/20 bg-sky-300/[0.08] text-[9px] text-sky-200"
+            variant="outline"
+          >
+            {item.teamName}
+          </Badge>
         </div>
       </div>
 
-      <div className="mt-4 sm:pl-14">
-        <Link
-          className="text-sm font-semibold leading-6 text-zinc-100 transition hover:text-sky-300"
-          href={item.href}
-        >
+      <div className="mt-3 sm:pl-[3.25rem]">
+        <h2 className="text-sm font-semibold leading-6 text-zinc-100 transition group-hover:text-sky-300">
           {item.title}
-        </Link>
-        <p className="mt-2 line-clamp-3 text-xs leading-6 text-zinc-400">
+        </h2>
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-400">
           {item.summary}
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-sky-300/10 pt-3">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-sky-300/10 pt-2.5">
           <div
             aria-label={`참여 직원 ${item.participants.length}명`}
             className="flex items-center"
@@ -185,7 +169,11 @@ function FeedCard({
                 ? "border-sky-300/30 bg-sky-300/[0.1] text-sky-200"
                 : "border-white/10 bg-white/[0.025] text-zinc-500 hover:border-sky-300/30 hover:text-sky-300"
             )}
-            onClick={() => onToggleHype(item.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleHype(item.id);
+            }}
+            onKeyDown={(event) => event.stopPropagation()}
             type="button"
           >
             <Flame
@@ -209,11 +197,6 @@ function FeedCard({
               {label} {value}
             </span>
           ))}
-
-          <span className="ml-auto text-[9px] text-zinc-600">
-            {item.sourceLabel}
-            {item.metricSource === "demo-fallback" ? " · Demo Metric" : ""}
-          </span>
         </div>
       </div>
     </article>
@@ -300,6 +283,9 @@ export function PublicFeedBoard({
 }) {
   const [activeFilter, setActiveFilter] =
     useState<PublicFeedFilter>("전체");
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+    null
+  );
   const [visibleCount, setVisibleCount] = useState(PUBLIC_FEED_PAGE_SIZE);
   const [hypeState, setHypeState] = useState<
     Record<string, { count: number; active: boolean }>
@@ -402,6 +388,10 @@ export function PublicFeedBoard({
   );
   const displayedItems = visibleItems.slice(0, visibleCount);
   const remainingItemCount = Math.max(0, visibleItems.length - visibleCount);
+  const selectedProfile =
+    interactiveProfiles.find(
+      (profile) => profile.employee.id === selectedProfileId
+    ) ?? null;
 
   const selectFilter = useCallback((filter: PublicFeedFilter) => {
     setActiveFilter(filter);
@@ -456,6 +446,7 @@ export function PublicFeedBoard({
                     <FeedCard
                       item={item}
                       key={item.id}
+                      onOpenProfile={setSelectedProfileId}
                       onToggleHype={toggleHype}
                     />
                   ))}
@@ -502,6 +493,14 @@ export function PublicFeedBoard({
           />
         </aside>
       </div>
+
+      {selectedProfile ? (
+        <EmployeeProfileDialog
+          onClose={() => setSelectedProfileId(null)}
+          onToggleFollow={() => toggleFollow(selectedProfile.employee.id)}
+          profile={selectedProfile}
+        />
+      ) : null}
     </>
   );
 }

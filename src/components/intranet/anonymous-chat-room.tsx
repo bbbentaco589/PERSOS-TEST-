@@ -1,19 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import {
-  Cherry,
-  Flower2,
-  Leaf,
   LockKeyhole,
   MessageCircleMore,
   Pin,
   Smile,
-  Sun,
   ThumbsUp,
   UserRoundCheck,
-  Waves,
-  type LucideIcon,
 } from "lucide-react";
 
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
@@ -24,40 +19,43 @@ import {
   type PublicAnonymousChatDemo,
   type PublicAnonymousAliasTone,
   type PublicAnonymousMessage,
-  type PublicArchiveTopic,
 } from "@/data/public-discussion-demo";
 import { cn } from "@/lib/utils";
 
 const aliasPresentation: Record<
   PublicAnonymousAliasTone,
-  { icon: LucideIcon; avatar: string; name: string }
+  { image: string; name: string; nameClass: string }
 > = {
   green: {
-    icon: Leaf,
-    avatar: "border-lime-300/25 bg-lime-300/10 text-lime-200",
-    name: "text-lime-200",
+    image: "/assets/anonymous/mask-raccoon.jpg",
+    name: "퇴근한밤의너구리",
+    nameClass: "text-lime-200",
   },
   lavender: {
-    icon: Flower2,
-    avatar: "border-violet-300/25 bg-violet-300/10 text-violet-200",
-    name: "text-violet-200",
+    image: "/assets/anonymous/mask-rabbit.jpg",
+    name: "회의실유령토끼",
+    nameClass: "text-violet-200",
   },
   peach: {
-    icon: Cherry,
-    avatar: "border-rose-300/25 bg-rose-300/10 text-rose-200",
-    name: "text-rose-200",
+    image: "/assets/anonymous/mask-fox.jpg",
+    name: "야근먹는여우",
+    nameClass: "text-rose-200",
   },
   lemon: {
-    icon: Sun,
-    avatar: "border-yellow-300/30 bg-yellow-300/10 text-yellow-200",
-    name: "text-yellow-200",
+    image: "/assets/anonymous/mask-black-cat.jpg",
+    name: "비밀많은검은고양이",
+    nameClass: "text-yellow-200",
   },
   soda: {
-    icon: Waves,
-    avatar: "border-cyan-300/25 bg-cyan-300/10 text-cyan-200",
-    name: "text-cyan-200",
+    image: "/assets/anonymous/mask-owl.jpg",
+    name: "정체불명올빼미",
+    nameClass: "text-cyan-200",
   },
 };
+
+function getAnonymousAlias(message: PublicAnonymousMessage) {
+  return aliasPresentation[message.aliasTone].name;
+}
 
 function formatChatTime(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -84,7 +82,6 @@ function AnonymousMessageRow({
   replyTarget?: PublicAnonymousMessage;
 }) {
   const presentation = aliasPresentation[message.aliasTone];
-  const Icon = presentation.icon;
 
   return (
     <article
@@ -99,23 +96,23 @@ function AnonymousMessageRow({
           className="absolute -left-4 top-0 h-5 w-3 rounded-bl-md border-b border-l border-yellow-200/15 sm:-left-7 sm:w-6"
         />
       ) : null}
-      <span
-        aria-hidden="true"
-        className={cn(
-          "grid size-9 shrink-0 place-items-center rounded-full border",
-          presentation.avatar
-        )}
-      >
-        <Icon className="size-4" />
-      </span>
+      <Image
+        alt={`${presentation.name} 동물 가면 프로필`}
+        className="size-9 shrink-0 rounded-full border border-yellow-200/20 object-cover"
+        height={36}
+        src={presentation.image}
+        width={36}
+      />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className={cn("text-xs font-semibold", presentation.name)}>
-            {message.alias}
+          <span
+            className={cn("text-xs font-semibold", presentation.nameClass)}
+          >
+            {presentation.name}
           </span>
           {replyTarget ? (
             <span className="text-[9px] text-zinc-600">
-              → {replyTarget.alias}에게
+              → {getAnonymousAlias(replyTarget)}에게
             </span>
           ) : null}
           <time
@@ -152,14 +149,11 @@ export function AnonymousChatHero() {
 }
 
 export function AnonymousChatRoom({
-  archiveTopics = [],
   chat = publicAnonymousChatDemo,
 }: {
-  archiveTopics?: PublicArchiveTopic[];
   chat?: PublicAnonymousChatDemo;
 }) {
   const { messages, participantCount, topic } = chat;
-  const chronologicalArchiveTopics = [...archiveTopics].reverse();
   const chatViewportRef = useRef<HTMLDivElement>(null);
   const currentTopicRef = useRef<HTMLElement>(null);
 
@@ -175,7 +169,7 @@ export function AnonymousChatRoom({
         viewport.getBoundingClientRect().top -
         16
     );
-  }, [archiveTopics.length, topic.updatedAt]);
+  }, [topic.updatedAt]);
 
   return (
     <section
@@ -227,25 +221,8 @@ export function AnonymousChatRoom({
         />
 
         <div className="relative space-y-4">
-          {chronologicalArchiveTopics.map((archiveTopic) => (
-            <section
-              aria-label={`지난 주제 ${archiveTopic.title}`}
-              className="scroll-mt-4 rounded-lg border border-yellow-300/10 bg-yellow-300/[0.025] px-4 py-3"
-              id={`anonymous-topic-${archiveTopic.id}`}
-              key={archiveTopic.id}
-            >
-              <div className="flex items-center gap-2 text-[9px] font-semibold text-yellow-200/60">
-                <Pin className="size-3" />
-                지난 주 공지 · {archiveTopic.date}
-              </div>
-              <p className="mt-1.5 text-[11px] leading-5 text-zinc-500">
-                {archiveTopic.title}
-              </p>
-            </section>
-          ))}
-
           <aside
-            className="scroll-mt-4 rounded-lg border border-yellow-300/45 bg-yellow-300/[0.14] px-4 py-3 text-yellow-50 shadow-[0_8px_28px_rgba(254,229,0,0.06)]"
+            className="sticky top-0 z-10 scroll-mt-4 rounded-lg border border-yellow-300/55 bg-[#302d16]/95 px-4 py-3 text-yellow-50 shadow-[0_10px_30px_rgba(0,0,0,0.32)] backdrop-blur"
             id="anonymous-topic-current"
             ref={currentTopicRef}
           >

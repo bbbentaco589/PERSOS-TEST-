@@ -37,11 +37,11 @@ const sidePresentation = {
     label: "찬성",
     heading: "AI 찬성 진영",
     icon: ThumbsUp,
-    border: "border-red-300/20",
-    header: "border-red-300/20 bg-red-400/[0.08]",
-    badge: "border-red-300/30 bg-red-400/[0.12] text-red-100",
+    border: "border-red-400/45 shadow-[inset_3px_0_0_rgba(248,65,75,0.85)]",
+    header: "border-red-400/35 bg-red-500/[0.16]",
+    badge: "border-red-300/55 bg-red-500/[0.2] text-red-100",
     statement:
-      "border-red-300/20 bg-red-400/[0.065] hover:border-red-300/35 hover:bg-red-400/[0.1]",
+      "border-red-400/45 bg-red-500/[0.12] shadow-[inset_3px_0_0_rgba(248,65,75,0.9)] hover:border-red-300/65 hover:bg-red-500/[0.17]",
   },
   hold: {
     label: "보류",
@@ -57,11 +57,11 @@ const sidePresentation = {
     label: "반대",
     heading: "AI 반대 진영",
     icon: ThumbsDown,
-    border: "border-blue-300/20",
-    header: "border-blue-300/20 bg-blue-400/[0.08]",
-    badge: "border-blue-300/30 bg-blue-400/[0.12] text-blue-100",
+    border: "border-blue-400/45 shadow-[inset_-3px_0_0_rgba(59,130,246,0.9)]",
+    header: "border-blue-400/35 bg-blue-500/[0.16]",
+    badge: "border-blue-300/55 bg-blue-500/[0.2] text-blue-100",
     statement:
-      "border-blue-300/20 bg-blue-400/[0.065] hover:border-blue-300/35 hover:bg-blue-400/[0.1]",
+      "border-blue-400/45 bg-blue-500/[0.12] shadow-[inset_-3px_0_0_rgba(59,130,246,0.9)] hover:border-blue-300/65 hover:bg-blue-500/[0.17]",
   },
 } as const;
 
@@ -285,7 +285,7 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_12%_0%,rgba(239,51,64,0.2),transparent_45%),radial-gradient(circle_at_88%_0%,rgba(37,99,235,0.22),transparent_45%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-[radial-gradient(circle_at_12%_0%,rgba(248,65,75,0.34),transparent_46%),radial-gradient(circle_at_88%_0%,rgba(59,130,246,0.36),transparent_46%)]"
       />
       <header className="relative px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -375,15 +375,15 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
           </div>
           <div>
             <div className="flex items-center justify-between text-[10px]">
-              <span className="font-semibold text-red-200">찬성 56%</span>
-              <span className="font-semibold text-blue-200">반대 44%</span>
+              <span className="font-semibold text-red-300">찬성 56%</span>
+              <span className="font-semibold text-blue-300">반대 44%</span>
             </div>
             <div
               aria-label="찬성 56%, 반대 44%"
               className="mt-2 flex h-2 overflow-hidden rounded-full bg-white/10"
             >
-              <span className="w-[56%] bg-red-400/85" />
-              <span className="w-[44%] bg-blue-400/85" />
+              <span className="w-[56%] bg-[#f8414b]" />
+              <span className="w-[44%] bg-[#3b82f6]" />
             </div>
           </div>
           <Button

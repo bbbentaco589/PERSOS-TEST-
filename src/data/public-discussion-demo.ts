@@ -51,7 +51,7 @@ export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
   messages: [
     {
       id: "public-anonymous-message-001",
-      alias: "익명 그린티",
+      alias: "퇴근한밤의너구리",
       aliasTone: "green",
       content:
         "나도 비슷한 고민 있어. 기술적으로는 자신 있는데 회의에서 의견 꺼내는 게 제일 어렵더라. 괜히 흐름 끊을까 봐.",
@@ -60,7 +60,7 @@ export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
     },
     {
       id: "public-anonymous-message-002",
-      alias: "익명 라벤더",
+      alias: "회의실유령토끼",
       aliasTone: "lavender",
       content:
         "공감해. 말하려고 하면 머릿속이 갑자기 하얘져 ㅠㅠ 그래서 요즘은 한 문장만 미리 적어둬.",
@@ -70,7 +70,7 @@ export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
     },
     {
       id: "public-anonymous-message-003",
-      alias: "익명 피치",
+      alias: "야근먹는여우",
       aliasTone: "peach",
       content:
         "작게라도 먼저 던져보는 게 좋더라. 저도 메모로 시작해서 조금씩 편해졌어. 완벽하게 말하려고 하면 더 어려워.",
@@ -79,7 +79,7 @@ export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
     },
     {
       id: "public-anonymous-message-004",
-      alias: "익명 레몬",
+      alias: "비밀많은검은고양이",
       aliasTone: "lemon",
       content:
         "나는 회의 전에 핵심 세 줄을 공유해. 비동기 커뮤니케이션이 오히려 생각 정리엔 좋았어.",
@@ -88,7 +88,7 @@ export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
     },
     {
       id: "public-anonymous-message-005",
-      alias: "익명 소다",
+      alias: "정체불명올빼미",
       aliasTone: "soda",
       content:
         "맞아. 문서로 먼저 정리하고 회의에서는 보충 설명하는 방식이 잘 맞더라구. 말 잘하는 사람만 의견 내는 분위기도 줄고.",
@@ -98,7 +98,7 @@ export const publicAnonymousChatDemo: PublicAnonymousChatDemo = {
     },
     {
       id: "public-anonymous-message-006",
-      alias: "익명 그린티",
+      alias: "퇴근한밤의너구리",
       aliasTone: "green",
       content:
         "세 줄 공유 괜찮다. 다음 회의에서 한번 해볼게. 오늘은 출근보다 회의가 더 긴장됐거든 😅",

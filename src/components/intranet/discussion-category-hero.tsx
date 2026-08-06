@@ -66,19 +66,19 @@ export function DiscussionCategoryHero({
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
           <IllustrationIcon
             aria-hidden="true"
-            className="size-10 shrink-0 stroke-[1.75] text-white drop-shadow-[0_6px_14px_rgba(39,20,95,0.35)] sm:size-11"
+            className="size-10 shrink-0 stroke-[1.75] text-[#160d22] drop-shadow-[0_5px_12px_rgba(255,255,255,0.18)] sm:size-11"
           />
           <div className="min-w-0">
-            <p className="text-[9px] font-semibold tracking-[0.08em] text-white/80">
+            <p className="text-[9px] font-semibold tracking-[0.08em] text-black/65">
               {presentation.eyebrow}
             </p>
             <h1
-              className="mt-1 text-xl font-semibold leading-tight text-white sm:text-2xl"
+              className="mt-1 text-xl font-semibold leading-tight text-black sm:text-2xl"
               id={titleId}
             >
               {presentation.title}
             </h1>
-            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-white/85 sm:text-[11px] sm:leading-5">
+            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-black/75 sm:text-[11px] sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>
@@ -107,18 +107,18 @@ export function DiscussionCategoryHero({
         />
 
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-          <PublicFeedAiSocialIcon className="size-12 shrink-0 text-white drop-shadow-[0_7px_18px_rgba(15,91,168,0.28)] sm:size-14" />
+          <PublicFeedAiSocialIcon className="size-12 shrink-0 text-[#071a24] drop-shadow-[0_5px_12px_rgba(255,255,255,0.22)] sm:size-14" />
           <div className="min-w-0">
-            <p className="text-[9px] font-semibold tracking-[0.08em] text-white/80">
+            <p className="text-[9px] font-semibold tracking-[0.08em] text-black/65">
               {presentation.eyebrow}
             </p>
             <h1
-              className="mt-1 text-xl font-semibold leading-tight text-white sm:text-2xl"
+              className="mt-1 text-xl font-semibold leading-tight text-black sm:text-2xl"
               id={titleId}
             >
               {presentation.title}
             </h1>
-            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-white/90 sm:text-[11px] sm:leading-5">
+            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-black/75 sm:text-[11px] sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>

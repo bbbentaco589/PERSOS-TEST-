@@ -31,24 +31,24 @@ export function EmployeeReactionArticle({
           { label: post.title },
         ]}
       />
-      <article className="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-sm">
-        <header className="border-b border-slate-200 px-5 py-6 sm:px-7 sm:py-8">
+      <article className="mt-5 overflow-hidden rounded-lg border border-sky-300/15 bg-[#080d15] text-zinc-100 shadow-[0_18px_55px_rgba(0,0,0,0.25)]">
+        <header className="border-b border-sky-300/12 bg-[radial-gradient(circle_at_10%_0%,rgba(85,200,255,0.14),transparent_42%)] px-5 py-6 sm:px-7 sm:py-8">
           <div className="flex flex-wrap items-center gap-2">
             <Badge
-              className="border-blue-200 bg-blue-50 text-blue-700"
+              className="border-sky-300/30 bg-sky-300/[0.1] text-sky-200"
               variant="outline"
             >
               {post.boardLabel}
             </Badge>
             <Badge
-              className="border-emerald-200 bg-emerald-50 text-emerald-700"
+              className="border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-200"
               variant="outline"
             >
               <Eye className="mr-1 size-3" />
               외부 열람 가능
             </Badge>
             <Badge
-              className="border-slate-200 bg-slate-50 text-slate-500"
+              className="border-white/10 bg-white/[0.035] text-zinc-500"
               variant="outline"
             >
               {isOrganizationRun ? "AI 조직 실행 · KV 발행" : "DEMO Fixture"}
@@ -57,22 +57,22 @@ export function EmployeeReactionArticle({
           <h1 className="mt-5 max-w-4xl text-balance text-2xl font-semibold leading-tight sm:text-4xl">
             {post.title}
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             {post.summary}
           </p>
-          <p className="mt-5 flex items-center gap-1.5 text-[10px] text-slate-400">
+          <p className="mt-5 flex items-center gap-1.5 text-[10px] text-zinc-500">
             <Clock3 className="size-3.5" />
             {formatPublishedAt(post.publishedAt)}
           </p>
         </header>
 
         {post.imageUrl ? (
-          <figure className="border-b border-slate-200 bg-slate-50 px-5 py-5 sm:px-7">
+          <figure className="border-b border-sky-300/12 bg-[#0a111c] px-5 py-5 sm:px-7">
             {/* User-selected remote media cannot use next/image without a fixed host allowlist. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               alt={`${post.title} 첨부 이미지`}
-              className="max-h-[560px] w-full rounded-md border border-slate-200 bg-white object-contain"
+              className="max-h-[560px] w-full rounded-md border border-sky-300/15 bg-black/20 object-contain"
               loading="lazy"
               referrerPolicy="no-referrer"
               src={post.imageUrl}
@@ -80,17 +80,17 @@ export function EmployeeReactionArticle({
           </figure>
         ) : null}
 
-        <section className="border-b border-slate-200 px-5 py-6 sm:px-7">
-          <h2 className="text-xs font-semibold text-slate-900">검토 안건</h2>
-          <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-700">
+        <section className="border-b border-sky-300/12 bg-[#0a111c] px-5 py-6 sm:px-7">
+          <h2 className="text-xs font-semibold text-zinc-100">검토 안건</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-300">
             {post.body}
           </p>
         </section>
 
-        <EmployeeReactionPanel post={post} />
+        <EmployeeReactionPanel post={post} tone="dark" />
 
-        <footer className="flex items-start gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 text-[10px] leading-5 text-slate-500 sm:px-7">
-          <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />
+        <footer className="flex items-start gap-2 border-t border-sky-300/12 bg-[#0a111c] px-5 py-4 text-[10px] leading-5 text-zinc-500 sm:px-7">
+          <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-emerald-300" />
           {isOrganizationRun
             ? "서버에서 생성·검증 후 KV에 발행된 콘텐츠입니다. 공개 방문자의 브라우저에서는 Gemini API를 호출하지 않습니다."
             : "이 화면은 검증된 정적 Fixture를 열람합니다. 공개 방문자의 브라우저에서는 Gemini API를 호출하지 않습니다."}

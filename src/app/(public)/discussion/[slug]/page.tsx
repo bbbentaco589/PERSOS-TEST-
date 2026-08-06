@@ -110,7 +110,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
           <div className="mt-5">
             <AnonymousChatHero />
           </div>
-          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mt-6 overflow-hidden rounded-lg border border-yellow-300/15 bg-[#080d15] p-4 shadow-[0_18px_55px_rgba(0,0,0,0.24)]">
             <AnonymousChatRoom chat={chat} />
           </div>
         </PageContainer>

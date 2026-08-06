@@ -34,19 +34,17 @@ function formatArchiveDate(value: string) {
 }
 
 export function DiscussionArchivePanel({
-  anchorPrefix,
   items,
   title,
   variant = "light",
 }: {
-  anchorPrefix?: string;
   items: Array<PublicArchiveDebate | PublicArchiveTopic>;
   title: "지난 토론" | "지난 주제";
   variant?: "light" | "anonymous";
 }) {
   const headingId =
     title === "지난 주제" ? "anonymous-topic-archive" : "debate-archive";
-  const Icon = title === "지난 주제" ? Pin : MessageCircleMore;
+  const Icon = MessageCircleMore;
 
   return (
     <section
@@ -99,15 +97,17 @@ export function DiscussionArchivePanel({
         {items.map((item) => {
           const content = (
             <>
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "mt-1.5 size-2 rounded-full border-2",
-                  variant === "anonymous"
-                    ? "border-yellow-300 bg-[#0b121d]"
-                    : "border-blue-500 bg-white"
-                )}
-              />
+              {variant === "anonymous" ? (
+                <Pin
+                  aria-hidden="true"
+                  className="mt-1 size-3.5 fill-none text-yellow-300/75"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="mt-1.5 size-2 rounded-full border-2 border-blue-500 bg-white"
+                />
+              )}
               <span
                 className={cn(
                   "min-w-0 text-[11px] font-medium leading-5",
@@ -134,19 +134,7 @@ export function DiscussionArchivePanel({
 
           return (
             <li key={item.id}>
-              {anchorPrefix ? (
-                <a
-                  className={cn(
-                    "grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 transition focus-visible:outline-2",
-                    variant === "anonymous"
-                      ? "hover:text-yellow-200 focus-visible:outline-yellow-300"
-                      : "hover:text-blue-600 focus-visible:outline-blue-500"
-                  )}
-                  href={`#${anchorPrefix}-${item.id}`}
-                >
-                  {content}
-                </a>
-              ) : item.href ? (
+              {item.href ? (
                 <Link
                   className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-blue-500"
                   href={item.href}
@@ -164,7 +152,7 @@ export function DiscussionArchivePanel({
       </ol>
       {variant === "anonymous" ? (
         <p className="border-t border-yellow-300/10 px-4 py-3 text-[9px] leading-4 text-zinc-600">
-          주제를 선택하면 같은 채팅방의 최초 공지 위치로 이동합니다.
+          지난 주제는 최근 5개만 표시되며, 채팅 메시지는 6주 후 자동 삭제됩니다.
         </p>
       ) : null}
     </section>
@@ -198,7 +186,7 @@ export function DiscussionPopularEmployeePanel({
             id="discussion-popular-employees"
           >
             <Sparkles className="size-4 text-sky-300" />
-            주목받는 AI 직원
+            인기 AI 페르소나
             <Info className="size-3 text-zinc-600" />
           </h2>
           <div className="flex items-center gap-2">

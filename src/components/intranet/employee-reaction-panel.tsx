@@ -19,18 +19,21 @@ import { cn } from "@/lib/utils";
 
 const stancePresentation: Record<
   EmployeeReactionStance,
-  { badge: string; line: string }
+  { badge: string; darkBadge: string; line: string }
 > = {
   찬성: {
     badge: "border-red-200 bg-red-50 text-red-700",
+    darkBadge: "border-red-400/40 bg-red-400/15 text-red-200",
     line: "border-l-red-500",
   },
   보류: {
     badge: "border-amber-200 bg-amber-50 text-amber-700",
+    darkBadge: "border-amber-300/30 bg-amber-300/10 text-amber-200",
     line: "border-l-amber-500",
   },
   반대: {
     badge: "border-blue-200 bg-blue-50 text-blue-700",
+    darkBadge: "border-blue-400/40 bg-blue-400/15 text-blue-200",
     line: "border-l-blue-500",
   },
 };
@@ -56,9 +59,11 @@ const anonymousAliases: Record<
 function ReactionIdentity({
   anonymous,
   reaction,
+  tone,
 }: {
   anonymous: boolean;
   reaction: EmployeeReactionView;
+  tone: "light" | "dark";
 }) {
   if (anonymous) {
     const alias = anonymousAliases[reaction.employeeId] ?? {
@@ -78,7 +83,12 @@ function ReactionIdentity({
           <UserRound className="size-4" />
         </span>
         <div className="min-w-0">
-          <h3 className="truncate text-sm font-semibold text-slate-950">
+          <h3
+            className={cn(
+              "truncate text-sm font-semibold",
+              tone === "dark" ? "text-zinc-100" : "text-slate-950"
+            )}
+          >
             {alias.name}
           </h3>
           <p className="mt-0.5 flex items-center gap-1 text-[9px] text-slate-400">
@@ -109,7 +119,12 @@ function ReactionIdentity({
         />
       </Link>
       <div className="min-w-0">
-        <h3 className="truncate text-sm font-semibold text-slate-950">
+        <h3
+          className={cn(
+            "truncate text-sm font-semibold",
+            tone === "dark" ? "text-zinc-100" : "text-slate-950"
+          )}
+        >
           <Link
             className="transition hover:text-blue-600"
             href={`/characters/${reaction.employee.slug}`}
@@ -117,7 +132,12 @@ function ReactionIdentity({
             {reaction.employee.nameKo}
           </Link>
         </h3>
-        <p className="mt-0.5 truncate text-[9px] text-slate-500">
+        <p
+          className={cn(
+            "mt-0.5 truncate text-[9px]",
+            tone === "dark" ? "text-zinc-500" : "text-slate-500"
+          )}
+        >
           {reaction.employee.jobTitleKo}
         </p>
       </div>
@@ -129,18 +149,29 @@ export function EmployeeReactionPanel({
   post,
   anonymous = false,
   showHeading = true,
+  tone = "light",
 }: {
   post: EmployeeReactionPostView;
   anonymous?: boolean;
   showHeading?: boolean;
+  tone?: "light" | "dark";
 }) {
   return (
     <section
       aria-labelledby={`employee-reactions-${post.id}`}
-      className="bg-white text-slate-950"
+      className={cn(
+        tone === "dark"
+          ? "bg-[#0a111c] text-zinc-100"
+          : "bg-white text-slate-950"
+      )}
     >
       {showHeading ? (
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+        <header
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4",
+            tone === "dark" ? "border-sky-300/12" : "border-slate-200"
+          )}
+        >
           <div>
             <h2
               className="flex items-center gap-2 text-sm font-semibold"
@@ -149,7 +180,12 @@ export function EmployeeReactionPanel({
               <MessageSquareText className="size-4 text-violet-600" />
               AI 직원 반응
             </h2>
-            <p className="mt-1 text-[9px] text-slate-400">
+            <p
+              className={cn(
+                "mt-1 text-[9px]",
+                tone === "dark" ? "text-zinc-500" : "text-slate-400"
+              )}
+            >
               Character Canonical 기반 Gemini 생성 결과 ·{" "}
               {post.id.startsWith("organization-run-")
                 ? "KV 발행 콘텐츠"
@@ -157,7 +193,11 @@ export function EmployeeReactionPanel({
             </p>
           </div>
           <Badge
-            className="border-slate-200 bg-slate-50 text-slate-500"
+            className={cn(
+              tone === "dark"
+                ? "border-white/10 bg-white/[0.035] text-zinc-500"
+                : "border-slate-200 bg-slate-50 text-slate-500"
+            )}
             variant="outline"
           >
             {post.reactions.length}명 참여
@@ -165,7 +205,12 @@ export function EmployeeReactionPanel({
         </header>
       ) : null}
 
-      <div className="divide-y divide-slate-200">
+      <div
+        className={cn(
+          "divide-y",
+          tone === "dark" ? "divide-sky-300/10" : "divide-slate-200"
+        )}
+      >
         {post.reactions.map((reaction) => {
           const presentation = stancePresentation[reaction.stance];
           return (
@@ -177,9 +222,17 @@ export function EmployeeReactionPanel({
               key={reaction.id}
             >
               <div className="flex items-start justify-between gap-3">
-                <ReactionIdentity anonymous={anonymous} reaction={reaction} />
+                <ReactionIdentity
+                  anonymous={anonymous}
+                  reaction={reaction}
+                  tone={tone}
+                />
                 <Badge
-                  className={presentation.badge}
+                  className={
+                    tone === "dark"
+                      ? presentation.darkBadge
+                      : presentation.badge
+                  }
                   variant="outline"
                 >
                   {reaction.stance}
@@ -188,29 +241,29 @@ export function EmployeeReactionPanel({
 
               <div className="mt-4 grid gap-4 lg:grid-cols-3">
                 <section>
-                  <h4 className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
+                  <h4 className={cn("flex items-center gap-1.5 text-[10px] font-semibold", tone === "dark" ? "text-zinc-500" : "text-slate-500")}>
                     <CheckCircle2 className="size-3.5 text-blue-500" />
                     핵심 의견
                   </h4>
-                  <p className="mt-2 text-xs leading-6 text-slate-700">
+                  <p className={cn("mt-2 text-xs leading-6", tone === "dark" ? "text-zinc-300" : "text-slate-700")}>
                     {reaction.coreOpinion}
                   </p>
                 </section>
                 <section>
-                  <h4 className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
+                  <h4 className={cn("flex items-center gap-1.5 text-[10px] font-semibold", tone === "dark" ? "text-zinc-500" : "text-slate-500")}>
                     <AlertTriangle className="size-3.5 text-amber-500" />
                     우려 사항
                   </h4>
-                  <p className="mt-2 text-xs leading-6 text-slate-700">
+                  <p className={cn("mt-2 text-xs leading-6", tone === "dark" ? "text-zinc-300" : "text-slate-700")}>
                     {reaction.concerns}
                   </p>
                 </section>
                 <section>
-                  <h4 className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
+                  <h4 className={cn("flex items-center gap-1.5 text-[10px] font-semibold", tone === "dark" ? "text-zinc-500" : "text-slate-500")}>
                     <Lightbulb className="size-3.5 text-violet-500" />
                     제안
                   </h4>
-                  <p className="mt-2 text-xs leading-6 text-slate-700">
+                  <p className={cn("mt-2 text-xs leading-6", tone === "dark" ? "text-zinc-300" : "text-slate-700")}>
                     {reaction.suggestion}
                   </p>
                 </section>
