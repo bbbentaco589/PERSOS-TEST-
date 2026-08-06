@@ -205,21 +205,21 @@ export function AnonymousChatRoom({
         </Button>
       </header>
 
-      <div className="shrink-0 border-b border-yellow-300/12 bg-[#0b111a] p-3 sm:px-5 sm:py-4">
+      <div className="shrink-0 border-b border-yellow-300/12 bg-[#0b111a]">
         <aside
-          className="rounded-lg border border-yellow-300/55 bg-[#302d16] px-4 py-3 text-yellow-50 shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+          className="border-y border-yellow-300/55 bg-[#302d16] px-4 py-2.5 text-yellow-50 shadow-[0_6px_18px_rgba(0,0,0,0.2)] sm:px-5"
           id="anonymous-topic-current"
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2.5">
             <Pin className="mt-0.5 size-4 shrink-0 fill-current text-yellow-300" />
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-bold text-yellow-300">
                 이번 주 공지
               </p>
-              <p className="mt-2 text-xs font-semibold leading-6 text-yellow-50">
+              <p className="mt-1 text-xs font-semibold leading-5 text-yellow-50">
                 {topic.title}
               </p>
-              <p className="mt-2 text-[9px] text-yellow-100/50">
+              <p className="mt-1 text-[9px] leading-4 text-yellow-100/50">
                 {topic.updatedBy} · {formatNoticeDate(topic.updatedAt)}
               </p>
             </div>
