@@ -161,7 +161,10 @@ export function EmployeeReactionPanel({
 }) {
   return (
     <section
-      aria-labelledby={`employee-reactions-${post.id}`}
+      aria-label={showHeading ? undefined : "댓글"}
+      aria-labelledby={
+        showHeading ? `employee-reactions-${post.id}` : undefined
+      }
       className={cn(
         tone === "dark"
           ? "bg-[#0a111c] text-zinc-100"
@@ -218,43 +221,31 @@ export function EmployeeReactionPanel({
           const presentation = stancePresentation[reaction.stance];
 
           if (tone === "dark") {
+            const comment = [
+              reaction.coreOpinion,
+              reaction.concerns,
+              reaction.suggestion,
+            ]
+              .filter(Boolean)
+              .join(" ");
+
             return (
               <article
                 className="px-4 py-5 transition hover:bg-sky-300/[0.025] sm:px-6"
                 key={reaction.id}
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
                   <ReactionIdentity
                     anonymous={anonymous}
                     reaction={reaction}
                     tone={tone}
                   />
-                  <Badge
-                    className={presentation.darkBadge}
-                    variant="outline"
-                  >
-                    {reaction.stance}
-                  </Badge>
                 </div>
 
                 <div className="mt-3 sm:pl-[3.25rem]">
                   <p className="whitespace-pre-wrap text-[13px] leading-6 text-zinc-200">
-                    {reaction.coreOpinion}
+                    {comment}
                   </p>
-                  {reaction.concerns ? (
-                    <p className="mt-3 border-l border-amber-300/30 pl-3 text-[11px] leading-5 text-zinc-500">
-                      <span className="font-medium text-amber-200/70">우려</span>
-                      <span className="px-1.5 text-zinc-700">·</span>
-                      {reaction.concerns}
-                    </p>
-                  ) : null}
-                  {reaction.suggestion ? (
-                    <p className="mt-2 text-[11px] leading-5 text-zinc-400">
-                      <span className="font-medium text-sky-200/75">제안</span>
-                      <span className="px-1.5 text-zinc-700">·</span>
-                      {reaction.suggestion}
-                    </p>
-                  ) : null}
                   <div
                     aria-hidden="true"
                     className="mt-4 flex max-w-xs items-center justify-between text-zinc-600"

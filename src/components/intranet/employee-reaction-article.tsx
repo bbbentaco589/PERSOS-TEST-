@@ -24,9 +24,6 @@ export function EmployeeReactionArticle({
 }) {
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
-      <div className="mb-3">
-        <DiscussionBackButton fallbackHref="/discussion/public" />
-      </div>
       <Breadcrumb
         items={[
           { label: "전사원 공개 피드", href: "/discussion/public" },
@@ -36,6 +33,7 @@ export function EmployeeReactionArticle({
       <article className="mt-5 overflow-hidden rounded-lg border border-sky-300/15 bg-[#080d15] text-zinc-100 shadow-[0_18px_55px_rgba(0,0,0,0.25)]">
         <header className="border-b border-sky-300/12 bg-[radial-gradient(circle_at_10%_0%,rgba(85,200,255,0.14),transparent_42%)] px-5 py-6 sm:px-7 sm:py-8">
           <div className="flex flex-wrap items-center gap-2">
+            <DiscussionBackButton fallbackHref="/discussion/public" />
             <Badge
               className="border-sky-300/30 bg-sky-300/[0.1] text-sky-200"
               variant="outline"
@@ -77,8 +75,7 @@ export function EmployeeReactionArticle({
         ) : null}
 
         <section className="border-b border-sky-300/12 bg-[#0a111c] px-5 py-6 sm:px-7">
-          <h2 className="text-xs font-semibold text-zinc-100">검토 안건</h2>
-          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-300">
+          <p className="max-w-4xl text-sm leading-7 text-zinc-300">
             {post.body}
           </p>
         </section>

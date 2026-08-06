@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, ListFilter, MessageSquareText } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  ListFilter,
+  MessageSquareText,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 export type DebateListItem = {
@@ -19,6 +24,7 @@ const statusLabels = {
   Open: "진행 중",
   Closed: "종료",
 } as const;
+const DEBATE_PAGE_SIZE = 5;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -34,6 +40,7 @@ function formatDate(value: string) {
 export function DebateList({ items }: { items: DebateListItem[] }) {
   const [status, setStatus] = useState<"all" | "Open" | "Closed">("all");
   const [category, setCategory] = useState("all");
+  const [visibleCount, setVisibleCount] = useState(DEBATE_PAGE_SIZE);
   const categories = useMemo(
     () => [...new Set(items.map((item) => item.category))],
     [items]
@@ -47,6 +54,8 @@ export function DebateList({ items }: { items: DebateListItem[] }) {
       ),
     [category, items, status]
   );
+  const displayedItems = visibleItems.slice(0, visibleCount);
+  const remainingItemCount = Math.max(0, visibleItems.length - visibleCount);
 
   return (
     <section aria-label="찬반 토론 목록" className="mt-4 overflow-hidden rounded-lg border border-white/10 bg-[#0c0f1c]">
@@ -64,7 +73,10 @@ export function DebateList({ items }: { items: DebateListItem[] }) {
                   : "border-transparent text-zinc-500 hover:text-zinc-200"
               }`}
               key={item.value}
-              onClick={() => setStatus(item.value as typeof status)}
+              onClick={() => {
+                setStatus(item.value as typeof status);
+                setVisibleCount(DEBATE_PAGE_SIZE);
+              }}
               type="button"
             >
               {item.label}
@@ -77,7 +89,10 @@ export function DebateList({ items }: { items: DebateListItem[] }) {
           <select
             className="h-9 rounded-md border border-white/10 bg-[#0a0d18] px-3 text-[10px] text-zinc-300 outline-none focus:border-cyan-300/50"
             id="debate-category-filter"
-            onChange={(event) => setCategory(event.target.value)}
+            onChange={(event) => {
+              setCategory(event.target.value);
+              setVisibleCount(DEBATE_PAGE_SIZE);
+            }}
             value={category}
           >
             <option value="all">전체 주제</option>
@@ -87,7 +102,10 @@ export function DebateList({ items }: { items: DebateListItem[] }) {
           <select
             className="h-9 rounded-md border border-white/10 bg-[#0a0d18] px-3 text-[10px] text-zinc-300 outline-none focus:border-cyan-300/50"
             id="debate-status-filter"
-            onChange={(event) => setStatus(event.target.value as typeof status)}
+            onChange={(event) => {
+              setStatus(event.target.value as typeof status);
+              setVisibleCount(DEBATE_PAGE_SIZE);
+            }}
             value={status}
           >
             <option value="all">전체 상태</option>
@@ -102,7 +120,7 @@ export function DebateList({ items }: { items: DebateListItem[] }) {
       </div>
 
       <div className="space-y-2 p-2 sm:p-3">
-        {visibleItems.map((item) => (
+        {displayedItems.map((item) => (
           <Link
             className="group grid gap-3 rounded-md border border-white/8 bg-white/[0.025] px-4 py-4 transition hover:border-cyan-300/20 hover:bg-white/[0.045] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
             href={`/discussion/${item.slug}`}
@@ -132,6 +150,21 @@ export function DebateList({ items }: { items: DebateListItem[] }) {
             </div>
           </Link>
         ))}
+        {remainingItemCount > 0 ? (
+          <button
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-cyan-300/15 bg-cyan-300/[0.035] text-xs font-semibold text-cyan-100 transition hover:border-cyan-300/30 hover:bg-cyan-300/[0.07] focus-visible:outline-2 focus-visible:outline-cyan-300"
+            onClick={() =>
+              setVisibleCount((current) => current + DEBATE_PAGE_SIZE)
+            }
+            type="button"
+          >
+            <ChevronDown className="size-4" />
+            더 보기
+            <span className="font-mono text-[9px] text-cyan-200/60">
+              {Math.min(DEBATE_PAGE_SIZE, remainingItemCount)}개
+            </span>
+          </button>
+        ) : null}
         {visibleItems.length === 0 ? (
           <p className="px-4 py-10 text-center text-xs text-zinc-500">조건에 맞는 토론이 없습니다.</p>
         ) : null}
