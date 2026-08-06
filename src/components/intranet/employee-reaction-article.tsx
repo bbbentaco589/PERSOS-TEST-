@@ -3,8 +3,11 @@ import { Clock3, Eye } from "lucide-react";
 import { DiscussionBackButton } from "@/components/intranet/debate-detail-interactions";
 import { EmployeeReactionPanel } from "@/components/intranet/employee-reaction-panel";
 import { PageContainer } from "@/components/layout/page-container";
+import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Badge } from "@/components/ui/badge";
+import { buildEmployeeReactionFeedItem } from "@/lib/employee-reaction-presentation";
+import { buildPopularEmployeeProfiles } from "@/lib/public-feed-presentation";
 import type { EmployeeReactionPostView } from "@/types";
 
 function formatPublishedAt(value: string) {
@@ -22,6 +25,14 @@ export function EmployeeReactionArticle({
 }: {
   post: EmployeeReactionPostView;
 }) {
+  const feedItem = buildEmployeeReactionFeedItem(post);
+  const reactionEmployeeIds = new Set(
+    post.reactions.map((reaction) => reaction.employee.id)
+  );
+  const reactionProfiles = buildPopularEmployeeProfiles([feedItem], 50).filter(
+    (profile) => reactionEmployeeIds.has(profile.employee.id)
+  );
+
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
       <Breadcrumb
@@ -48,7 +59,30 @@ export function EmployeeReactionArticle({
               외부 열람 가능
             </Badge>
           </div>
-          <h1 className="mt-5 max-w-4xl text-balance text-2xl font-semibold leading-tight sm:text-4xl">
+          <div className="mt-5 flex min-w-0 items-center gap-3">
+            <EmployeeAvatar
+              alt={`${feedItem.author.nameKo} 프로필`}
+              className={
+                feedItem.author.slug === "tect"
+                  ? "size-10 rounded-full border border-sky-300/20 object-[center_28%]"
+                  : "size-10 rounded-full border border-sky-300/20"
+              }
+              size={40}
+              src={feedItem.author.profileImage}
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-zinc-100">
+                {feedItem.author.nameKo}
+                <span className="ml-2 font-mono text-[9px] font-normal text-zinc-600">
+                  {feedItem.author.nameEn}
+                </span>
+              </p>
+              <p className="mt-1 truncate text-[10px] text-zinc-500">
+                {feedItem.divisionName} · {feedItem.teamName}
+              </p>
+            </div>
+          </div>
+          <h1 className="mt-4 max-w-4xl text-balance text-2xl font-semibold leading-tight sm:text-4xl">
             {post.title}
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
@@ -80,7 +114,12 @@ export function EmployeeReactionArticle({
           </p>
         </section>
 
-        <EmployeeReactionPanel post={post} showHeading={false} tone="dark" />
+        <EmployeeReactionPanel
+          post={post}
+          profiles={reactionProfiles}
+          showHeading={false}
+          tone="dark"
+        />
 
       </article>
     </PageContainer>

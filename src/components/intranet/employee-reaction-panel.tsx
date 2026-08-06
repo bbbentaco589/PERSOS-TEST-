@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -13,6 +16,8 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { EmployeeProfileDialog } from "@/components/intranet/employee-profile-dialog";
+import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
 import type {
   EmployeeReactionPostView,
   EmployeeReactionStance,
@@ -61,10 +66,12 @@ const anonymousAliases: Record<
 
 function ReactionIdentity({
   anonymous,
+  onOpenProfile,
   reaction,
   tone,
 }: {
   anonymous: boolean;
+  onOpenProfile?: (employeeId: string) => void;
   reaction: EmployeeReactionView;
   tone: "light" | "dark";
 }) {
@@ -103,24 +110,39 @@ function ReactionIdentity({
     );
   }
 
+  const avatar = (
+    <Image
+      alt={`${reaction.employee.nameKo} 프로필`}
+      className={cn(
+        "size-10 rounded-full border border-slate-200 object-cover",
+        reaction.employee.slug === "tect" && "object-[center_28%]"
+      )}
+      height={40}
+      src={reaction.employee.profileImage}
+      width={40}
+    />
+  );
+
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <Link
-        aria-label={`${reaction.employee.nameKo} 프로필 보기`}
-        className="shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-        href={`/characters/${reaction.employee.slug}`}
-      >
-        <Image
-          alt={`${reaction.employee.nameKo} 프로필`}
-          className={cn(
-            "size-10 rounded-full border border-slate-200 object-cover",
-            reaction.employee.slug === "tect" && "object-[center_28%]"
-          )}
-          height={40}
-          src={reaction.employee.profileImage}
-          width={40}
-        />
-      </Link>
+      {onOpenProfile ? (
+        <button
+          aria-label={`${reaction.employee.nameKo} 프로필 팝업 열기`}
+          className="shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          onClick={() => onOpenProfile(reaction.employee.id)}
+          type="button"
+        >
+          {avatar}
+        </button>
+      ) : (
+        <Link
+          aria-label={`${reaction.employee.nameKo} 프로필 보기`}
+          className="shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          href={`/characters/${reaction.employee.slug}`}
+        >
+          {avatar}
+        </Link>
+      )}
       <div className="min-w-0">
         <h3
           className={cn(
@@ -128,12 +150,22 @@ function ReactionIdentity({
             tone === "dark" ? "text-zinc-100" : "text-slate-950"
           )}
         >
-          <Link
-            className="transition hover:text-blue-600"
-            href={`/characters/${reaction.employee.slug}`}
-          >
-            {reaction.employee.nameKo}
-          </Link>
+          {onOpenProfile ? (
+            <button
+              className="text-left transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-blue-500"
+              onClick={() => onOpenProfile(reaction.employee.id)}
+              type="button"
+            >
+              {reaction.employee.nameKo}
+            </button>
+          ) : (
+            <Link
+              className="transition hover:text-blue-600"
+              href={`/characters/${reaction.employee.slug}`}
+            >
+              {reaction.employee.nameKo}
+            </Link>
+          )}
         </h3>
         <p
           className={cn(
@@ -151,26 +183,38 @@ function ReactionIdentity({
 export function EmployeeReactionPanel({
   post,
   anonymous = false,
+  profiles = [],
   showHeading = true,
   tone = "light",
 }: {
   post: EmployeeReactionPostView;
   anonymous?: boolean;
+  profiles?: PopularEmployeeProfile[];
   showHeading?: boolean;
   tone?: "light" | "dark";
 }) {
+  const [selectedProfile, setSelectedProfile] =
+    useState<PopularEmployeeProfile | null>(null);
+
+  function openProfile(employeeId: string) {
+    setSelectedProfile(
+      profiles.find((profile) => profile.employee.id === employeeId) ?? null
+    );
+  }
+
   return (
-    <section
-      aria-label={showHeading ? undefined : "댓글"}
-      aria-labelledby={
-        showHeading ? `employee-reactions-${post.id}` : undefined
-      }
-      className={cn(
-        tone === "dark"
-          ? "bg-[#0a111c] text-zinc-100"
-          : "bg-white text-slate-950"
-      )}
-    >
+    <>
+      <section
+        aria-label={showHeading ? undefined : "댓글"}
+        aria-labelledby={
+          showHeading ? `employee-reactions-${post.id}` : undefined
+        }
+        className={cn(
+          tone === "dark"
+            ? "bg-[#0a111c] text-zinc-100"
+            : "bg-white text-slate-950"
+        )}
+      >
       {showHeading ? (
         <header
           className={cn(
@@ -237,6 +281,7 @@ export function EmployeeReactionPanel({
                 <div className="flex items-start gap-3">
                   <ReactionIdentity
                     anonymous={anonymous}
+                    onOpenProfile={profiles.length ? openProfile : undefined}
                     reaction={reaction}
                     tone={tone}
                   />
@@ -273,6 +318,7 @@ export function EmployeeReactionPanel({
               <div className="flex items-start justify-between gap-3">
                 <ReactionIdentity
                   anonymous={anonymous}
+                  onOpenProfile={profiles.length ? openProfile : undefined}
                   reaction={reaction}
                   tone={tone}
                 />
@@ -317,6 +363,29 @@ export function EmployeeReactionPanel({
           );
         })}
       </div>
-    </section>
+      </section>
+
+      {selectedProfile ? (
+        <EmployeeProfileDialog
+          onClose={() => setSelectedProfile(null)}
+          onToggleFollow={() =>
+            setSelectedProfile((current) =>
+              current
+                ? {
+                    ...current,
+                    viewerIsFollowing: !current.viewerIsFollowing,
+                    followerCount: Math.max(
+                      0,
+                      current.followerCount +
+                        (current.viewerIsFollowing ? -1 : 1)
+                    ),
+                  }
+                : null
+            )
+          }
+          profile={selectedProfile}
+        />
+      ) : null}
+    </>
   );
 }
