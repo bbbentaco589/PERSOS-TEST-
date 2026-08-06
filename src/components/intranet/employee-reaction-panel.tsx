@@ -3,9 +3,12 @@ import Link from "next/link";
 import {
   AlertTriangle,
   CheckCircle2,
+  Heart,
   Lightbulb,
   LockKeyhole,
+  MessageCircle,
   MessageSquareText,
+  Repeat2,
   UserRound,
 } from "lucide-react";
 
@@ -213,6 +216,61 @@ export function EmployeeReactionPanel({
       >
         {post.reactions.map((reaction) => {
           const presentation = stancePresentation[reaction.stance];
+
+          if (tone === "dark") {
+            return (
+              <article
+                className="px-4 py-5 transition hover:bg-sky-300/[0.025] sm:px-6"
+                key={reaction.id}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <ReactionIdentity
+                    anonymous={anonymous}
+                    reaction={reaction}
+                    tone={tone}
+                  />
+                  <Badge
+                    className={presentation.darkBadge}
+                    variant="outline"
+                  >
+                    {reaction.stance}
+                  </Badge>
+                </div>
+
+                <div className="mt-3 sm:pl-[3.25rem]">
+                  <p className="whitespace-pre-wrap text-[13px] leading-6 text-zinc-200">
+                    {reaction.coreOpinion}
+                  </p>
+                  {reaction.concerns ? (
+                    <p className="mt-3 border-l border-amber-300/30 pl-3 text-[11px] leading-5 text-zinc-500">
+                      <span className="font-medium text-amber-200/70">우려</span>
+                      <span className="px-1.5 text-zinc-700">·</span>
+                      {reaction.concerns}
+                    </p>
+                  ) : null}
+                  {reaction.suggestion ? (
+                    <p className="mt-2 text-[11px] leading-5 text-zinc-400">
+                      <span className="font-medium text-sky-200/75">제안</span>
+                      <span className="px-1.5 text-zinc-700">·</span>
+                      {reaction.suggestion}
+                    </p>
+                  ) : null}
+                  <div
+                    aria-hidden="true"
+                    className="mt-4 flex max-w-xs items-center justify-between text-zinc-600"
+                  >
+                    <span className="flex items-center gap-1.5 text-[9px]">
+                      <MessageCircle className="size-3.5" />
+                      답글
+                    </span>
+                    <Repeat2 className="size-3.5" />
+                    <Heart className="size-3.5" />
+                  </div>
+                </div>
+              </article>
+            );
+          }
+
           return (
             <article
               className={cn(
@@ -228,11 +286,7 @@ export function EmployeeReactionPanel({
                   tone={tone}
                 />
                 <Badge
-                  className={
-                    tone === "dark"
-                      ? presentation.darkBadge
-                      : presentation.badge
-                  }
+                  className={presentation.badge}
                   variant="outline"
                 >
                   {reaction.stance}
@@ -241,29 +295,29 @@ export function EmployeeReactionPanel({
 
               <div className="mt-4 grid gap-4 lg:grid-cols-3">
                 <section>
-                  <h4 className={cn("flex items-center gap-1.5 text-[10px] font-semibold", tone === "dark" ? "text-zinc-500" : "text-slate-500")}>
+                  <h4 className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
                     <CheckCircle2 className="size-3.5 text-blue-500" />
                     핵심 의견
                   </h4>
-                  <p className={cn("mt-2 text-xs leading-6", tone === "dark" ? "text-zinc-300" : "text-slate-700")}>
+                  <p className="mt-2 text-xs leading-6 text-slate-700">
                     {reaction.coreOpinion}
                   </p>
                 </section>
                 <section>
-                  <h4 className={cn("flex items-center gap-1.5 text-[10px] font-semibold", tone === "dark" ? "text-zinc-500" : "text-slate-500")}>
+                  <h4 className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
                     <AlertTriangle className="size-3.5 text-amber-500" />
                     우려 사항
                   </h4>
-                  <p className={cn("mt-2 text-xs leading-6", tone === "dark" ? "text-zinc-300" : "text-slate-700")}>
+                  <p className="mt-2 text-xs leading-6 text-slate-700">
                     {reaction.concerns}
                   </p>
                 </section>
                 <section>
-                  <h4 className={cn("flex items-center gap-1.5 text-[10px] font-semibold", tone === "dark" ? "text-zinc-500" : "text-slate-500")}>
+                  <h4 className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
                     <Lightbulb className="size-3.5 text-violet-500" />
                     제안
                   </h4>
-                  <p className={cn("mt-2 text-xs leading-6", tone === "dark" ? "text-zinc-300" : "text-slate-700")}>
+                  <p className="mt-2 text-xs leading-6 text-slate-700">
                     {reaction.suggestion}
                   </p>
                 </section>

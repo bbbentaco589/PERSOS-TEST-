@@ -9,6 +9,7 @@ import {
   DebateBoard,
   DebateHero,
 } from "@/components/intranet/debate-board";
+import { DiscussionBackButton } from "@/components/intranet/debate-detail-interactions";
 import {
   AnonymousChatHero,
   AnonymousChatRoom,
@@ -147,6 +148,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
 
   return (
     <PageContainer className="space-y-7 pt-5 lg:pt-7">
+      <DiscussionBackButton fallbackHref="/discussion/public" />
       <Breadcrumb items={[{ label: "토론", href: "/discussion" }, { label: discussion.title }]} />
       <article className="mx-auto max-w-6xl">
         <header className="overflow-hidden border border-white/10 bg-[#081126]">

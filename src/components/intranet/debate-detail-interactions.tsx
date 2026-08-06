@@ -9,7 +9,11 @@ import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
 import { cn } from "@/lib/utils";
 
-export function DebateBackButton() {
+export function DiscussionBackButton({
+  fallbackHref = "/discussion",
+}: {
+  fallbackHref?: string;
+}) {
   const router = useRouter();
 
   function handleBack() {
@@ -18,7 +22,7 @@ export function DebateBackButton() {
       return;
     }
 
-    router.push("/discussion/debate");
+    router.push(fallbackHref);
   }
 
   return (
@@ -31,6 +35,10 @@ export function DebateBackButton() {
       <ArrowLeft className="size-3.5" />
     </button>
   );
+}
+
+export function DebateBackButton() {
+  return <DiscussionBackButton fallbackHref="/discussion/debate" />;
 }
 
 export function DebateEmployeeProfileButton({

@@ -18,6 +18,7 @@ import {
   publicAnonymousChatDemo,
   type PublicAnonymousChatDemo,
   type PublicAnonymousAliasTone,
+  type PublicArchiveTopic,
   type PublicAnonymousMessage,
 } from "@/data/public-discussion-demo";
 import { cn } from "@/lib/utils";
@@ -149,9 +150,13 @@ export function AnonymousChatHero() {
 }
 
 export function AnonymousChatRoom({
+  archiveTopics = [],
   chat = publicAnonymousChatDemo,
+  scrollRequest = null,
 }: {
+  archiveTopics?: PublicArchiveTopic[];
   chat?: PublicAnonymousChatDemo;
+  scrollRequest?: { nonce: number; topicId: string } | null;
 }) {
   const { messages, participantCount, topic } = chat;
   const chatViewportRef = useRef<HTMLDivElement>(null);
@@ -159,17 +164,19 @@ export function AnonymousChatRoom({
 
   useEffect(() => {
     const viewport = chatViewportRef.current;
-    const currentTopic = currentTopicRef.current;
-    if (!viewport || !currentTopic) return;
+    const target = scrollRequest
+      ? document.getElementById(`anonymous-topic-${scrollRequest.topicId}`)
+      : currentTopicRef.current;
+    if (!viewport || !target) return;
 
     viewport.scrollTop = Math.max(
       0,
       viewport.scrollTop +
-        currentTopic.getBoundingClientRect().top -
+        target.getBoundingClientRect().top -
         viewport.getBoundingClientRect().top -
         16
     );
-  }, [topic.updatedAt]);
+  }, [scrollRequest, topic.updatedAt]);
 
   return (
     <section
@@ -221,6 +228,26 @@ export function AnonymousChatRoom({
         />
 
         <div className="relative space-y-4">
+          {archiveTopics.map((archiveTopic) => (
+            <aside
+              className="scroll-mt-4 border-y border-yellow-300/12 bg-black/15 px-4 py-3"
+              id={`anonymous-topic-${archiveTopic.id}`}
+              key={archiveTopic.id}
+            >
+              <div className="flex items-start gap-3">
+                <Pin className="mt-0.5 size-3.5 shrink-0 fill-none text-yellow-300/70" />
+                <div className="min-w-0">
+                  <p className="text-[9px] font-semibold text-yellow-200/60">
+                    지난 주 공지 · {archiveTopic.date}
+                  </p>
+                  <p className="mt-1.5 text-[11px] leading-5 text-zinc-400">
+                    {archiveTopic.title}
+                  </p>
+                </div>
+              </div>
+            </aside>
+          ))}
+
           <aside
             className="sticky top-0 z-10 scroll-mt-4 rounded-lg border border-yellow-300/55 bg-[#302d16]/95 px-4 py-3 text-yellow-50 shadow-[0_10px_30px_rgba(0,0,0,0.32)] backdrop-blur"
             id="anonymous-topic-current"

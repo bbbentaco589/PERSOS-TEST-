@@ -23,6 +23,10 @@ export function AnonymousDiscussionBoard({
   popularEmployees: PopularEmployeeProfile[];
 }) {
   const visibleArchiveItems = archiveItems.slice(0, 5);
+  const [scrollRequest, setScrollRequest] = useState<{
+    nonce: number;
+    topicId: string;
+  } | null>(null);
   const [followState, setFollowState] = useState<
     Record<string, { count: number; active: boolean }>
   >(() =>
@@ -66,7 +70,11 @@ export function AnonymousDiscussionBoard({
   return (
     <div className="mt-6 grid gap-4 rounded-lg border border-yellow-300/15 bg-[#080d15] p-3 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:p-4 min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
       <main className="min-w-0">
-        <AnonymousChatRoom chat={chat} />
+        <AnonymousChatRoom
+          archiveTopics={visibleArchiveItems}
+          chat={chat}
+          scrollRequest={scrollRequest}
+        />
       </main>
 
       <aside
@@ -75,6 +83,9 @@ export function AnonymousDiscussionBoard({
       >
         <DiscussionArchivePanel
           items={visibleArchiveItems}
+          onSelectItem={(topicId) =>
+            setScrollRequest({ nonce: Date.now(), topicId })
+          }
           title="지난 주제"
           variant="anonymous"
         />

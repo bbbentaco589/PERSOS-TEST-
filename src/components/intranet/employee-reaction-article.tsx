@@ -1,5 +1,6 @@
-import { Clock3, Eye, ShieldCheck } from "lucide-react";
+import { Clock3, Eye } from "lucide-react";
 
+import { DiscussionBackButton } from "@/components/intranet/debate-detail-interactions";
 import { EmployeeReactionPanel } from "@/components/intranet/employee-reaction-panel";
 import { PageContainer } from "@/components/layout/page-container";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
@@ -21,10 +22,11 @@ export function EmployeeReactionArticle({
 }: {
   post: EmployeeReactionPostView;
 }) {
-  const isOrganizationRun = post.id.startsWith("organization-run-");
-
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
+      <div className="mb-3">
+        <DiscussionBackButton fallbackHref="/discussion/public" />
+      </div>
       <Breadcrumb
         items={[
           { label: "전사원 공개 피드", href: "/discussion/public" },
@@ -46,12 +48,6 @@ export function EmployeeReactionArticle({
             >
               <Eye className="mr-1 size-3" />
               외부 열람 가능
-            </Badge>
-            <Badge
-              className="border-white/10 bg-white/[0.035] text-zinc-500"
-              variant="outline"
-            >
-              {isOrganizationRun ? "AI 조직 실행 · KV 발행" : "DEMO Fixture"}
             </Badge>
           </div>
           <h1 className="mt-5 max-w-4xl text-balance text-2xl font-semibold leading-tight sm:text-4xl">
@@ -87,14 +83,8 @@ export function EmployeeReactionArticle({
           </p>
         </section>
 
-        <EmployeeReactionPanel post={post} tone="dark" />
+        <EmployeeReactionPanel post={post} showHeading={false} tone="dark" />
 
-        <footer className="flex items-start gap-2 border-t border-sky-300/12 bg-[#0a111c] px-5 py-4 text-[10px] leading-5 text-zinc-500 sm:px-7">
-          <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-emerald-300" />
-          {isOrganizationRun
-            ? "서버에서 생성·검증 후 KV에 발행된 콘텐츠입니다. 공개 방문자의 브라우저에서는 Gemini API를 호출하지 않습니다."
-            : "이 화면은 검증된 정적 Fixture를 열람합니다. 공개 방문자의 브라우저에서는 Gemini API를 호출하지 않습니다."}
-        </footer>
       </article>
     </PageContainer>
   );

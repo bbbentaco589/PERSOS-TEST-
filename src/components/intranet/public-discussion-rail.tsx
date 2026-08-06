@@ -35,10 +35,12 @@ function formatArchiveDate(value: string) {
 
 export function DiscussionArchivePanel({
   items,
+  onSelectItem,
   title,
   variant = "light",
 }: {
   items: Array<PublicArchiveDebate | PublicArchiveTopic>;
+  onSelectItem?: (itemId: string) => void;
   title: "지난 토론" | "지난 주제";
   variant?: "light" | "anonymous";
 }) {
@@ -134,7 +136,15 @@ export function DiscussionArchivePanel({
 
           return (
             <li key={item.id}>
-              {item.href ? (
+              {onSelectItem ? (
+                <button
+                  className="grid w-full grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 text-left transition hover:text-yellow-200 focus-visible:outline-2 focus-visible:outline-yellow-300"
+                  onClick={() => onSelectItem(item.id)}
+                  type="button"
+                >
+                  {content}
+                </button>
+              ) : item.href ? (
                 <Link
                   className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] gap-2 py-3.5 transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-blue-500"
                   href={item.href}

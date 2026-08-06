@@ -37,11 +37,11 @@ const sidePresentation = {
     label: "찬성",
     heading: "AI 찬성 진영",
     icon: ThumbsUp,
-    border: "border-red-400/45 shadow-[inset_3px_0_0_rgba(248,65,75,0.85)]",
-    header: "border-red-400/35 bg-red-500/[0.16]",
+    border: "border-red-400/40 shadow-[inset_3px_0_0_rgba(248,65,75,0.9)]",
+    header: "border-red-400/25 bg-white/[0.015]",
     badge: "border-red-300/55 bg-red-500/[0.2] text-red-100",
     statement:
-      "border-red-400/45 bg-red-500/[0.12] shadow-[inset_3px_0_0_rgba(248,65,75,0.9)] hover:border-red-300/65 hover:bg-red-500/[0.17]",
+      "border-red-400/40 bg-[#0d1120] shadow-[inset_3px_0_0_rgba(248,65,75,0.9)] hover:border-red-300/65 hover:bg-white/[0.035]",
   },
   hold: {
     label: "보류",
@@ -58,10 +58,10 @@ const sidePresentation = {
     heading: "AI 반대 진영",
     icon: ThumbsDown,
     border: "border-blue-400/45 shadow-[inset_-3px_0_0_rgba(59,130,246,0.9)]",
-    header: "border-blue-400/35 bg-blue-500/[0.16]",
+    header: "border-blue-400/25 bg-white/[0.015]",
     badge: "border-blue-300/55 bg-blue-500/[0.2] text-blue-100",
     statement:
-      "border-blue-400/45 bg-blue-500/[0.12] shadow-[inset_-3px_0_0_rgba(59,130,246,0.9)] hover:border-blue-300/65 hover:bg-blue-500/[0.17]",
+      "border-blue-400/40 bg-[#0d1120] shadow-[inset_-3px_0_0_rgba(59,130,246,0.9)] hover:border-blue-300/65 hover:bg-white/[0.035]",
   },
 } as const;
 
@@ -281,13 +281,9 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
   return (
     <section
       aria-labelledby="active-debate-title"
-      className="relative overflow-hidden border-b border-white/[0.07] bg-[#0b0e1a] text-zinc-100"
+      className="overflow-hidden border-b border-white/[0.07] bg-[#090c17] text-zinc-100"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-[radial-gradient(circle_at_12%_0%,rgba(248,65,75,0.34),transparent_46%),radial-gradient(circle_at_88%_0%,rgba(59,130,246,0.36),transparent_46%)]"
-      />
-      <header className="relative px-5 py-5 sm:px-6">
+      <header className="border-b border-white/[0.08] bg-transparent px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <DebateBackButton />
           <Badge
@@ -321,7 +317,7 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
         </p>
       </header>
 
-      <div className="relative px-5 py-5 sm:px-6">
+      <div className="px-5 py-5 sm:px-6">
         <section
           aria-labelledby="debate-key-points"
           className="pb-5"
@@ -358,7 +354,7 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
 
       <section
         aria-labelledby="static-investor-vote"
-        className="relative border-t border-white/[0.07] bg-black/10 px-5 py-4 sm:px-6"
+        className="border-t border-white/[0.07] bg-black/10 px-5 py-4 sm:px-6"
       >
         <div className="grid gap-4 min-[1400px]:grid-cols-[12rem_minmax(0,1fr)_8rem] min-[1400px]:items-center">
           <div>

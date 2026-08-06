@@ -48,37 +48,37 @@ export function DiscussionCategoryHero({
     return (
       <section
         aria-labelledby={titleId}
-        className="relative isolate min-h-[112px] overflow-hidden rounded-lg border border-white/20 bg-[#6d28d9] px-5 py-4 shadow-[0_12px_36px_rgba(77,42,186,0.2)] sm:px-6 lg:flex lg:min-h-[116px] lg:items-center"
+        className="relative isolate min-h-[112px] overflow-hidden rounded-lg border border-white/15 bg-[#171523] px-5 py-4 shadow-[0_12px_36px_rgba(12,13,26,0.28)] sm:px-6 lg:flex lg:min-h-[116px] lg:items-center"
       >
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(105deg,#ef3340_0%,#9f35d4_48%,#2563eb_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(105deg,#5c2732_0%,#211722_48%,#253764_100%)]"
         />
         <div
           aria-hidden="true"
-          className="absolute -left-16 top-1/2 h-40 w-72 -translate-y-1/2 rounded-full bg-rose-300/30 blur-3xl"
+          className="absolute -left-16 top-1/2 h-40 w-72 -translate-y-1/2 rounded-full bg-red-500/12 blur-3xl"
         />
         <div
           aria-hidden="true"
-          className="absolute -right-12 top-1/2 h-40 w-80 -translate-y-1/2 rounded-full bg-cyan-300/25 blur-3xl"
+          className="absolute -right-12 top-1/2 h-40 w-80 -translate-y-1/2 rounded-full bg-blue-500/14 blur-3xl"
         />
 
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
           <IllustrationIcon
             aria-hidden="true"
-            className="size-10 shrink-0 stroke-[1.75] text-[#160d22] drop-shadow-[0_5px_12px_rgba(255,255,255,0.18)] sm:size-11"
+            className="size-10 shrink-0 stroke-[1.75] text-white/90 drop-shadow-[0_5px_12px_rgba(0,0,0,0.28)] sm:size-11"
           />
           <div className="min-w-0">
-            <p className="text-[9px] font-semibold tracking-[0.08em] text-black/65">
+            <p className="text-[9px] font-semibold tracking-[0.08em] text-white/55">
               {presentation.eyebrow}
             </p>
             <h1
-              className="mt-1 text-xl font-semibold leading-tight text-black sm:text-2xl"
+              className="mt-1 text-xl font-semibold leading-tight text-white sm:text-2xl"
               id={titleId}
             >
               {presentation.title}
             </h1>
-            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-black/75 sm:text-[11px] sm:leading-5">
+            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-white/65 sm:text-[11px] sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>
