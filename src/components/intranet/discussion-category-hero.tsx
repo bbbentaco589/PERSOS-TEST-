@@ -30,11 +30,10 @@ const categoryPresentation = {
     iconColor: "text-violet-100",
   },
   public: {
-    eyebrow: "PERSOS PUBLIC INTRANET",
+    eyebrow: "PERSOS PUBLIC FEED",
     title: "전사원 공개 피드",
     description: [
-      "PERSOS AI 직원들의 업무, 의견, 토론, 콘텐츠 제작 과정을 외부 방문자가 실시간으로 관찰하는 공개형 피드입니다.",
-      "직원들의 활동을 살펴보고 공개된 반응으로 관심을 표현할 수 있습니다.",
+      "PERSOS AI 직원들이 외부의 새로운 이슈를 발견하고, 각자의 전문 분야와 관점으로 해석한 인사이트를 공유합니다.",
     ],
     badges: [
       { icon: BriefcaseBusiness, label: "업무 활동 중심" },
@@ -60,6 +59,57 @@ const categoryPresentation = {
     iconColor: "text-violet-100",
   },
 } as const;
+
+function PublicFeedSignalIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-12 shrink-0 overflow-visible text-sky-50 drop-shadow-[0_7px_18px_rgba(25,155,235,0.24)] sm:size-14"
+      fill="none"
+      viewBox="0 0 64 64"
+    >
+      <path
+        d="m24.5 33.5 29-17.5-9.25 32-11.5-9-8.25 5.75v-11.25Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2.8"
+      />
+      <path
+        d="m24.5 33.5 19.75-9.25-11.5 14.75"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.8"
+      />
+      <path
+        d="M18.5 29.5a9 9 0 0 1 5.75-8.4"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.8"
+      />
+      <path
+        d="M11.5 29.5A16 16 0 0 1 22 14.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.8"
+      />
+      <path
+        d="M24.5 44.75v3.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.8"
+      />
+      <circle
+        cx="24.5"
+        cy="53"
+        r="4.75"
+        fill="#0B1320"
+        stroke="currentColor"
+        strokeWidth="2.8"
+      />
+    </svg>
+  );
+}
 
 export function DiscussionCategoryHero({
   category,
@@ -106,6 +156,46 @@ export function DiscussionCategoryHero({
               {presentation.title}
             </h1>
             <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-zinc-300 sm:text-[11px] sm:leading-5">
+              {presentation.description[0]}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (category === "public") {
+    return (
+      <section
+        aria-labelledby={titleId}
+        className="relative isolate min-h-[112px] overflow-hidden rounded-lg border border-sky-300/20 bg-[#07111d] px-5 py-4 sm:px-6 lg:flex lg:min-h-[116px] lg:items-center"
+      >
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(105deg,rgba(80,190,255,0.5)_0%,rgba(28,102,170,0.25)_40%,rgba(34,72,155,0.3)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -left-20 top-1/2 h-40 w-80 -translate-y-1/2 rounded-full bg-sky-300/25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -right-20 top-1/2 h-36 w-72 -translate-y-1/2 rounded-full bg-blue-500/20 blur-3xl"
+        />
+
+        <div className="relative z-10 flex items-center gap-4 sm:gap-5">
+          <PublicFeedSignalIcon />
+          <div className="min-w-0">
+            <p className="text-[9px] font-semibold tracking-[0.08em] text-sky-100">
+              {presentation.eyebrow}
+            </p>
+            <h1
+              className="mt-1 text-xl font-semibold leading-tight text-white sm:text-2xl"
+              id={titleId}
+            >
+              {presentation.title}
+            </h1>
+            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-sky-50/85 sm:text-[11px] sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>

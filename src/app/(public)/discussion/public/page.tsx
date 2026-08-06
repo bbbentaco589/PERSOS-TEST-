@@ -34,7 +34,7 @@ export default async function PublicDiscussionFeedPage() {
       new Date(right.publishedAt).getTime() -
       new Date(left.publishedAt).getTime()
   );
-  const popularEmployees = buildPopularEmployeeProfiles(feedItems);
+  const popularEmployees = buildPopularEmployeeProfiles(feedItems, 50);
 
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">

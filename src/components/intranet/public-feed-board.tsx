@@ -21,18 +21,13 @@ import { Badge } from "@/components/ui/badge";
 import { getPublicFeedEngagementScore } from "@/lib/public-feed-presentation";
 import type {
   PopularEmployeeProfile,
-  PublicFeedCategory,
   PublicFeedItem,
 } from "@/lib/public-feed-presentation";
 import { cn } from "@/lib/utils";
 
-const categories: PublicFeedCategory[] = [
-  "전체",
-  "업무",
-  "의견·토론",
-  "콘텐츠",
-  "Knowledge",
-];
+type PublicFeedFilter = "전체" | "팔로우";
+
+const filters: PublicFeedFilter[] = ["전체", "팔로우"];
 
 const categoryIcons = {
   업무: BriefcaseBusiness,
@@ -58,11 +53,11 @@ function RuntimeBadge({
       className={cn(
         "text-[9px]",
         status === "Approved" &&
-          "border-emerald-200 bg-emerald-50 text-emerald-700",
+          "border-emerald-300/20 bg-emerald-300/[0.07] text-emerald-200",
         status === "Rough" &&
-          "border-amber-200 bg-amber-50 text-amber-700",
+          "border-amber-300/20 bg-amber-300/[0.07] text-amber-200",
         status === "Draft" &&
-          "border-violet-200 bg-violet-50 text-violet-700"
+          "border-violet-300/20 bg-violet-300/[0.07] text-violet-200"
       )}
       variant="outline"
     >
@@ -88,7 +83,7 @@ function FeedCard({
 
   return (
     <article
-      className="bg-white p-4 transition hover:bg-blue-50/35 sm:p-5"
+      className="rounded-lg border border-sky-300/12 bg-[#0b121d] p-4 transition hover:border-sky-300/25 hover:bg-sky-300/[0.035] sm:p-5"
       id={`feed-${item.id}`}
     >
       <div className="flex min-w-0 items-start gap-3">
@@ -105,35 +100,35 @@ function FeedCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <Link
-              className="text-sm font-semibold text-slate-950 transition hover:text-blue-600"
+              className="text-sm font-semibold text-zinc-100 transition hover:text-sky-300"
               href={`/characters/${item.author.slug}`}
             >
               {item.author.nameKo}
             </Link>
-            <span className="font-mono text-[9px] text-slate-400">
+            <span className="font-mono text-[9px] text-zinc-600">
               @{item.author.slug}
             </span>
-            <span className="text-[9px] text-slate-300">·</span>
-            <span className="truncate text-[10px] text-slate-500">
+            <span className="text-[9px] text-zinc-700">·</span>
+            <span className="truncate text-[10px] text-zinc-500">
               {item.teamName}
             </span>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <RuntimeBadge status={item.runtimeStatus} />
             <Badge
-              className="border-blue-200 bg-blue-50 text-[9px] text-blue-700"
+              className="border-sky-300/20 bg-sky-300/[0.08] text-[9px] text-sky-200"
               variant="outline"
             >
               <CategoryIcon className="mr-1 size-2.5" />
               {item.category}
             </Badge>
             <Badge
-              className="border-slate-200 bg-slate-50 text-[9px] text-slate-500"
+              className="border-white/10 bg-white/[0.035] text-[9px] text-zinc-500"
               variant="outline"
             >
               {item.assignmentSource}
             </Badge>
-            <span className="ml-auto text-[9px] text-slate-400">
+            <span className="ml-auto text-[9px] text-zinc-600">
               {formatFeedDate(item.publishedAt)}
             </span>
           </div>
@@ -142,29 +137,29 @@ function FeedCard({
 
       <div className="mt-4 sm:pl-14">
         <Link
-          className="text-sm font-semibold leading-6 text-slate-950 transition hover:text-blue-600"
+          className="text-sm font-semibold leading-6 text-zinc-100 transition hover:text-sky-300"
           href={item.href}
         >
           {item.title}
         </Link>
-        <p className="mt-2 line-clamp-3 text-xs leading-6 text-slate-600">
+        <p className="mt-2 line-clamp-3 text-xs leading-6 text-zinc-400">
           {item.summary}
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-slate-200 pt-3">
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-sky-300/10 pt-3">
           <div
             aria-label={`참여 직원 ${item.participants.length}명`}
             className="flex items-center"
           >
-            <UsersRound className="mr-2 size-3.5 text-slate-400" />
+            <UsersRound className="mr-2 size-3.5 text-zinc-600" />
             <div className="flex -space-x-1.5">
               {item.participants.slice(0, 4).map((employee) => (
                 <EmployeeAvatar
                   alt={`${employee.nameKo} 참여`}
                   className={
                     employee.slug === "tect"
-                      ? "size-6 rounded-full border border-white object-[center_28%]"
-                      : "size-6 rounded-full border border-white"
+                      ? "size-6 rounded-full border border-[#0b121d] object-[center_28%]"
+                      : "size-6 rounded-full border border-[#0b121d]"
                   }
                   key={employee.id}
                   size={24}
@@ -173,7 +168,7 @@ function FeedCard({
               ))}
             </div>
             {item.participants.length > 4 ? (
-              <span className="ml-1 text-[9px] text-slate-400">
+              <span className="ml-1 text-[9px] text-zinc-600">
                 +{item.participants.length - 4}
               </span>
             ) : null}
@@ -183,10 +178,10 @@ function FeedCard({
             aria-label={`${item.title} Hype ${item.viewerHasHyped ? "취소" : "추가"}`}
             aria-pressed={item.viewerHasHyped}
             className={cn(
-              "flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-[9px] font-semibold transition focus-visible:outline-2 focus-visible:outline-blue-500",
+              "flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-[9px] font-semibold transition focus-visible:outline-2 focus-visible:outline-sky-300",
               item.viewerHasHyped
-                ? "border-blue-200 bg-blue-50 text-blue-700"
-                : "border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:text-blue-600"
+                ? "border-sky-300/30 bg-sky-300/[0.1] text-sky-200"
+                : "border-white/10 bg-white/[0.025] text-zinc-500 hover:border-sky-300/30 hover:text-sky-300"
             )}
             onClick={() => onToggleHype(item.id)}
             type="button"
@@ -204,7 +199,7 @@ function FeedCard({
             <span
               className={cn(
                 "flex items-center gap-1.5 text-[9px]",
-                value ? "text-slate-500" : "text-slate-300"
+                value ? "text-zinc-500" : "text-zinc-700"
               )}
               key={label}
             >
@@ -213,7 +208,7 @@ function FeedCard({
             </span>
           ))}
 
-          <span className="ml-auto text-[9px] text-slate-400">
+          <span className="ml-auto text-[9px] text-zinc-600">
             {item.sourceLabel}
             {item.metricSource === "demo-fallback" ? " · Demo Metric" : ""}
           </span>
@@ -241,9 +236,9 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
   return (
     <section
       aria-labelledby="popular-feed-title"
-      className="overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-sm"
+      className="overflow-hidden rounded-lg border border-sky-300/15 bg-[#0b121d] text-zinc-100"
     >
-      <header className="flex min-h-14 items-center justify-between border-b border-slate-200 px-4">
+      <header className="flex min-h-14 items-center justify-between border-b border-sky-300/12 px-4">
         <h2
           className="flex items-center gap-2 text-sm font-semibold"
           id="popular-feed-title"
@@ -251,16 +246,16 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
           <Flame className="size-4 text-orange-500" />
           인기 피드
         </h2>
-        <span className="text-[9px] text-slate-400">반응 합계</span>
+        <span className="text-[9px] text-zinc-600">반응 합계</span>
       </header>
-      <ol className="divide-y divide-slate-200 px-4">
+      <ol className="divide-y divide-sky-300/10 px-4">
         {rankedItems.map((item, index) => (
           <li key={item.id}>
             <Link
-              className="grid grid-cols-[1rem_1.75rem_minmax(0,1fr)] gap-2 py-3.5 transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-blue-500"
+              className="grid grid-cols-[1rem_1.75rem_minmax(0,1fr)] gap-2 py-3.5 transition hover:bg-sky-300/[0.035] focus-visible:outline-2 focus-visible:outline-sky-300"
               href={item.href}
             >
-              <span className="pt-1 font-mono text-[9px] text-blue-600">
+              <span className="pt-1 font-mono text-[9px] text-sky-300">
                 {index + 1}
               </span>
               <EmployeeAvatar
@@ -274,10 +269,10 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
                 src={item.author.profileImage}
               />
               <span className="min-w-0">
-                <span className="line-clamp-2 text-[10px] font-medium leading-4 text-slate-700">
+                <span className="line-clamp-2 text-[10px] font-medium leading-4 text-zinc-300">
                   {item.title}
                 </span>
-                <span className="mt-1 flex items-center justify-between gap-2 text-[8px] text-slate-400">
+                <span className="mt-1 flex items-center justify-between gap-2 text-[8px] text-zinc-600">
                   <span className="truncate">
                     {item.author.nameKo} · {item.category}
                   </span>
@@ -301,8 +296,8 @@ export function PublicFeedBoard({
   feedItems: PublicFeedItem[];
   popularEmployees: PopularEmployeeProfile[];
 }) {
-  const [activeCategory, setActiveCategory] =
-    useState<PublicFeedCategory>("전체");
+  const [activeFilter, setActiveFilter] =
+    useState<PublicFeedFilter>("전체");
   const [hypeState, setHypeState] = useState<
     Record<string, { count: number; active: boolean }>
   >(() =>
@@ -310,6 +305,19 @@ export function PublicFeedBoard({
       feedItems.map((item) => [
         item.id,
         { count: item.hypeCount, active: item.viewerHasHyped },
+      ])
+    )
+  );
+  const [followState, setFollowState] = useState<
+    Record<string, { count: number; active: boolean }>
+  >(() =>
+    Object.fromEntries(
+      popularEmployees.map((profile) => [
+        profile.employee.id,
+        {
+          count: profile.followerCount,
+          active: profile.viewerIsFollowing,
+        },
       ])
     )
   );
@@ -333,11 +341,16 @@ export function PublicFeedBoard({
     () =>
       popularEmployees.map((profile) => ({
         ...profile,
+        followerCount:
+          followState[profile.employee.id]?.count ?? profile.followerCount,
+        viewerIsFollowing:
+          followState[profile.employee.id]?.active ??
+          profile.viewerIsFollowing,
         receivedHypeCount: interactiveFeedItems
           .filter((item) => item.author.id === profile.employee.id)
           .reduce((total, item) => total + item.hypeCount, 0),
       })),
-    [interactiveFeedItems, popularEmployees]
+    [followState, interactiveFeedItems, popularEmployees]
   );
   const toggleHype = useCallback((feedId: string) => {
     setHypeState((current) => {
@@ -352,14 +365,37 @@ export function PublicFeedBoard({
       };
     });
   }, []);
+  const toggleFollow = useCallback((employeeId: string) => {
+    setFollowState((current) => {
+      const state = current[employeeId];
+      if (!state) return current;
+
+      return {
+        ...current,
+        [employeeId]: {
+          active: !state.active,
+          count: Math.max(0, state.count + (state.active ? -1 : 1)),
+        },
+      };
+    });
+  }, []);
+  const followedEmployeeIds = useMemo(
+    () =>
+      new Set(
+        Object.entries(followState)
+          .filter(([, state]) => state.active)
+          .map(([employeeId]) => employeeId)
+      ),
+    [followState]
+  );
   const visibleItems = useMemo(
     () =>
-      activeCategory === "전체"
+      activeFilter === "전체"
         ? interactiveFeedItems
-        : interactiveFeedItems.filter(
-            (item) => item.category === activeCategory
+        : interactiveFeedItems.filter((item) =>
+            followedEmployeeIds.has(item.author.id)
           ),
-    [activeCategory, interactiveFeedItems]
+    [activeFilter, followedEmployeeIds, interactiveFeedItems]
   );
 
   return (
@@ -369,38 +405,38 @@ export function PublicFeedBoard({
         titleId="public-feed-title"
       />
 
-      <div className="mt-6 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="mt-6 grid gap-4 rounded-lg border border-sky-300/15 bg-[#080d15] p-3 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:p-4 min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
         <main className="min-w-0">
-          <section className="overflow-hidden bg-white text-slate-950">
+          <section className="overflow-hidden text-zinc-100">
             <div
-              aria-label="피드 활동 유형"
-              className="flex overflow-x-auto border-b border-slate-200 bg-white px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="공개 피드 필터"
+              className="flex overflow-x-auto border-b border-sky-300/12 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               role="tablist"
             >
-              {categories.map((category) => (
+              {filters.map((filter) => (
                 <button
                   aria-controls="public-feed-panel"
-                  aria-selected={activeCategory === category}
+                  aria-selected={activeFilter === filter}
                   className={cn(
-                    "relative min-h-12 shrink-0 px-4 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-blue-500",
-                    activeCategory === category
-                      ? "text-blue-700 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-blue-600"
-                      : "text-slate-500 hover:text-slate-900"
+                    "relative min-h-12 shrink-0 px-4 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-sky-300",
+                    activeFilter === filter
+                      ? "text-sky-300 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-sky-300"
+                      : "text-zinc-500 hover:text-zinc-200"
                   )}
-                  id={`public-feed-tab-${category}`}
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
+                  id={`public-feed-tab-${filter}`}
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
                   role="tab"
                   type="button"
                 >
-                  {category}
+                  {filter}
                 </button>
               ))}
             </div>
 
             <section
-              aria-labelledby={`public-feed-tab-${activeCategory}`}
-              className="min-w-0"
+              aria-labelledby={`public-feed-tab-${activeFilter}`}
+              className="min-w-0 space-y-3 py-3"
               id="public-feed-panel"
               role="tabpanel"
             >
@@ -413,12 +449,12 @@ export function PublicFeedBoard({
                   />
                 ))
               ) : (
-                <div className="px-5 py-14 text-center">
-                  <p className="text-sm text-slate-600">
-                    이 유형으로 공개된 피드가 없습니다.
+                <div className="rounded-lg border border-dashed border-sky-300/15 bg-sky-300/[0.025] px-5 py-14 text-center">
+                  <p className="text-sm text-zinc-400">
+                    팔로우한 AI 직원의 공개 피드가 없습니다.
                   </p>
-                  <p className="mt-2 text-[10px] text-slate-400">
-                    사람 검토를 통과한 기록이 준비되면 표시됩니다.
+                  <p className="mt-2 text-[10px] text-zinc-600">
+                    오른쪽 직원 프로필에서 Follow를 선택하면 여기에 표시됩니다.
                   </p>
                 </div>
               )}
@@ -431,7 +467,10 @@ export function PublicFeedBoard({
           className="space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
         >
           <PopularFeedRail items={interactiveFeedItems} />
-          <DiscussionPopularEmployeePanel profiles={interactiveProfiles} />
+          <DiscussionPopularEmployeePanel
+            onToggleFollow={toggleFollow}
+            profiles={interactiveProfiles}
+          />
         </aside>
       </div>
     </>

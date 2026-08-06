@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Flame,
@@ -105,80 +105,43 @@ export function DiscussionArchivePanel({
 
 export function DiscussionPopularEmployeePanel({
   profiles,
+  onToggleFollow,
 }: {
   profiles: PopularEmployeeProfile[];
+  onToggleFollow: (employeeId: string) => void;
 }) {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     null
   );
-  const [followState, setFollowState] = useState<
-    Record<string, { count: number; active: boolean }>
-  >(() =>
-    Object.fromEntries(
-      profiles.map((profile) => [
-        profile.employee.id,
-        {
-          count: profile.followerCount,
-          active: profile.viewerIsFollowing,
-        },
-      ])
-    )
-  );
-  const interactiveProfiles = useMemo(
-    () =>
-      profiles.map((profile) => {
-        const state = followState[profile.employee.id];
-        return {
-          ...profile,
-          followerCount: state?.count ?? profile.followerCount,
-          viewerIsFollowing: state?.active ?? profile.viewerIsFollowing,
-        };
-      }),
-    [followState, profiles]
-  );
   const selectedProfile =
-    interactiveProfiles.find(
+    profiles.find(
       (profile) => profile.employee.id === selectedProfileId
     ) ?? null;
-  const closeProfile = useCallback(() => setSelectedProfileId(null), []);
-  const toggleFollow = useCallback((employeeId: string) => {
-    setFollowState((current) => {
-      const state = current[employeeId];
-      if (!state) return current;
-      return {
-        ...current,
-        [employeeId]: {
-          active: !state.active,
-          count: Math.max(0, state.count + (state.active ? -1 : 1)),
-        },
-      };
-    });
-  }, []);
 
   return (
     <>
       <section
         aria-labelledby="discussion-popular-employees"
-        className="overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-950 shadow-sm"
+        className="overflow-hidden rounded-lg border border-sky-300/15 bg-[#0b121d] text-zinc-100"
       >
-        <header className="flex min-h-14 items-center justify-between gap-3 border-b border-slate-200 px-4">
+        <header className="flex min-h-14 items-center justify-between gap-3 border-b border-sky-300/12 px-4">
           <h2
             className="flex items-center gap-2 text-sm font-semibold"
             id="discussion-popular-employees"
           >
-            <Sparkles className="size-4 text-blue-600" />
-            실시간 인기 사원
-            <Info className="size-3 text-slate-400" />
+            <Sparkles className="size-4 text-sky-300" />
+            주목받는 AI 직원
+            <Info className="size-3 text-zinc-600" />
           </h2>
           <div className="flex items-center gap-2">
             <Badge
-              className="border-slate-200 bg-slate-50 text-[8px] text-slate-500"
+              className="border-white/10 bg-white/[0.035] text-[8px] text-zinc-500"
               variant="outline"
             >
               DEMO
             </Badge>
             <Link
-              className="flex items-center gap-1 text-[10px] text-slate-500 transition hover:text-blue-600"
+              className="flex items-center gap-1 text-[10px] text-zinc-500 transition hover:text-sky-300"
               href="/characters"
             >
               더 보기
@@ -187,15 +150,15 @@ export function DiscussionPopularEmployeePanel({
           </div>
         </header>
 
-        <ol className="divide-y divide-slate-200 px-4">
-          {interactiveProfiles.slice(0, 5).map((profile, index) => (
+        <ol className="divide-y divide-sky-300/10 px-4">
+          {profiles.slice(0, 5).map((profile, index) => (
             <li key={profile.employee.id}>
               <button
-                className="grid min-h-16 w-full grid-cols-[1rem_2rem_minmax(0,1fr)_auto] items-center gap-2 py-3 text-left transition hover:bg-blue-50/70 focus-visible:outline-2 focus-visible:outline-blue-500"
+                className="grid min-h-16 w-full grid-cols-[1rem_2rem_minmax(0,1fr)_auto] items-center gap-2 py-3 text-left transition hover:bg-sky-300/[0.045] focus-visible:outline-2 focus-visible:outline-sky-300"
                 onClick={() => setSelectedProfileId(profile.employee.id)}
                 type="button"
               >
-                <span className="font-mono text-[10px] text-slate-400">
+                <span className="font-mono text-[10px] text-sky-300/80">
                   {index + 1}
                 </span>
                 <EmployeeAvatar
@@ -209,10 +172,10 @@ export function DiscussionPopularEmployeePanel({
                   src={profile.employee.profileImage}
                 />
                 <span className="min-w-0">
-                  <span className="block truncate text-[11px] font-semibold text-slate-800">
+                  <span className="block truncate text-[11px] font-semibold text-zinc-200">
                     {profile.employee.nameKo}
                   </span>
-                  <span className="mt-1 block truncate text-[9px] text-slate-500">
+                  <span className="mt-1 block truncate text-[9px] text-zinc-600">
                     {profile.teamName}
                   </span>
                 </span>
@@ -224,15 +187,15 @@ export function DiscussionPopularEmployeePanel({
             </li>
           ))}
         </ol>
-        <p className="border-t border-slate-200 px-4 py-3 text-[9px] leading-4 text-slate-400">
+        <p className="border-t border-sky-300/10 px-4 py-3 text-[9px] leading-4 text-zinc-600">
           인기 지표는 현재 고정된 Demo Metric입니다.
         </p>
       </section>
 
       {selectedProfile ? (
         <EmployeeProfileDialog
-          onClose={closeProfile}
-          onToggleFollow={() => toggleFollow(selectedProfile.employee.id)}
+          onClose={() => setSelectedProfileId(null)}
+          onToggleFollow={() => onToggleFollow(selectedProfile.employee.id)}
           profile={selectedProfile}
         />
       ) : null}
