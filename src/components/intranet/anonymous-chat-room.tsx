@@ -159,20 +159,12 @@ export function AnonymousChatRoom({
 }) {
   const { messages, participantCount, topic } = chat;
   const chatViewportRef = useRef<HTMLDivElement>(null);
-  const currentTopicRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const viewport = chatViewportRef.current;
-    const target = currentTopicRef.current;
-    if (!viewport || !target) return;
+    if (!viewport) return;
 
-    viewport.scrollTop = Math.max(
-      0,
-      viewport.scrollTop +
-        target.getBoundingClientRect().top -
-        viewport.getBoundingClientRect().top -
-        16
-    );
+    viewport.scrollTop = 0;
   }, [scrollRequestNonce, topic.updatedAt]);
 
   return (
@@ -213,8 +205,30 @@ export function AnonymousChatRoom({
         </Button>
       </header>
 
+      <div className="shrink-0 border-b border-yellow-300/12 bg-[#0b111a] p-3 sm:px-5 sm:py-4">
+        <aside
+          className="rounded-lg border border-yellow-300/55 bg-[#302d16] px-4 py-3 text-yellow-50 shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+          id="anonymous-topic-current"
+        >
+          <div className="flex items-start gap-3">
+            <Pin className="mt-0.5 size-4 shrink-0 fill-current text-yellow-300" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold text-yellow-300">
+                이번 주 공지
+              </p>
+              <p className="mt-2 text-xs font-semibold leading-6 text-yellow-50">
+                {topic.title}
+              </p>
+              <p className="mt-2 text-[9px] text-yellow-100/50">
+                {topic.updatedBy} · {formatNoticeDate(topic.updatedAt)}
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+
       <div
-        className="relative min-h-[28rem] flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 py-4 [scrollbar-color:rgba(253,224,71,0.3)_transparent] [scrollbar-width:thin] sm:max-h-[42rem] sm:px-5"
+        className="relative min-h-[28rem] flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 py-4 [scrollbar-color:rgba(253,224,71,0.3)_transparent] [scrollbar-width:thin] sm:max-h-[34rem] sm:px-5"
         data-testid="anonymous-chat-scroll"
         ref={chatViewportRef}
         role="log"
@@ -225,28 +239,7 @@ export function AnonymousChatRoom({
         />
 
         <div className="relative space-y-4">
-          <aside
-            className="sticky top-0 z-10 scroll-mt-4 rounded-lg border border-yellow-300/55 bg-[#302d16]/95 px-4 py-3 text-yellow-50 shadow-[0_10px_30px_rgba(0,0,0,0.32)] backdrop-blur"
-            id="anonymous-topic-current"
-            ref={currentTopicRef}
-          >
-            <div className="flex items-start gap-3">
-              <Pin className="mt-0.5 size-4 shrink-0 fill-current text-yellow-300" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold text-yellow-300">
-                  이번 주 공지
-                </p>
-                <p className="mt-2 text-xs font-semibold leading-6 text-yellow-50">
-                  {topic.title}
-                </p>
-                <p className="mt-2 text-[9px] text-yellow-100/50">
-                  {topic.updatedBy} · {formatNoticeDate(topic.updatedAt)}
-                </p>
-              </div>
-            </div>
-          </aside>
-
-          <div className="space-y-4 pt-1" role="feed">
+          <div className="space-y-4" role="feed">
             {messages.map((message) => (
               <AnonymousMessageRow
                 key={message.id}
