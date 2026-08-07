@@ -16,7 +16,8 @@ test("TECT가 제휴기획자 공개 슬롯을 승계하고 Runtime 경계를 �
   assert.ok(tect, "TECT Character가 Runtime SSOT에 있어야 합니다.");
   assert.ok(partnershipPlanner, "Legacy 제휴기획자 레코드가 유지되어야 합니다.");
   assert.equal(tect.slug, "tect");
-  assert.equal(tect.status, "Draft");
+  assert.equal(tect.status, "Active");
+  assert.equal(tect.profileStage, "Approved");
   assert.equal(tect.publicVisibility, true);
   assert.equal(partnershipPlanner.publicVisibility, false);
   assert.equal(tect.divisionId, "division-strategy");
@@ -25,11 +26,11 @@ test("TECT가 제휴기획자 공개 슬롯을 승계하고 Runtime 경계를 �
 
   assert.equal(characters.length, 19);
   assert.equal(characters.filter(isPublicCharacter).length, 18);
-  assert.equal(characters.filter(isDefaultAssignmentCharacter).length, 3);
+  assert.equal(characters.filter(isDefaultAssignmentCharacter).length, 4);
   assert.equal(isUnlistedQaCharacter(tect), false);
   assert.equal(isUnlistedQaCharacter(partnershipPlanner), true);
   assert.equal(canAccessCharacterDetail(tect), true);
-  assert.equal(isDefaultAssignmentCharacter(tect), false);
+  assert.equal(isDefaultAssignmentCharacter(tect), true);
 
   assert.equal(new Set(characters.map((character) => character.id)).size, characters.length);
   assert.equal(new Set(characters.map((character) => character.slug)).size, characters.length);

@@ -17,7 +17,7 @@ export async function verifyRepositoryContract(repositories: RepositoryBundle) {
   assert.equal(companies.length, 1, "Ptudio Company 레코드가 필요합니다.");
   assert.equal(divisions.length, 6, "공식 Division은 6개여야 합니다.");
   assert.equal(teams.length, 18, "공식 Team은 18개여야 합니다.");
-  assert.equal(employees.filter((employee) => employee.status === "Active").length, 3);
+  assert.equal(employees.filter((employee) => employee.status === "Active").length, 4);
   assert.equal((await repositories.organization.getTeamBySlug("ccgg-care"))?.divisionId, "division-intelligence");
   assert.equal((await repositories.organization.getEmployeesByTeamId("team-ccgg-care"))[0]?.id, "char-001");
   assert.equal((await repositories.organization.getEmployeesByTeamId("team-prediction-market"))[0]?.id, "char-002");

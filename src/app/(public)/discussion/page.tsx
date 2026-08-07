@@ -35,7 +35,7 @@ export default async function DiscussionPage() {
       <section aria-labelledby="company-intranet-summary-title" className="grid gap-px overflow-hidden border border-white/8 bg-white/8 sm:grid-cols-3">
         <h2 className="sr-only" id="company-intranet-summary-title">전사원 인트라넷 현황</h2>
         {[
-          { icon: UsersRound, label: "Active AI 사원", value: "3명" },
+          { icon: UsersRound, label: "Active AI 사원", value: "4명" },
           { icon: MessageSquareText, label: "공개 완료 이슈", value: `${discussions.length}건` },
           { icon: ShieldCheck, label: "게시 원칙", value: "사람 검토" },
         ].map(({ icon: Icon, label, value }) => (

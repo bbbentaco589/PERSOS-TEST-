@@ -25,7 +25,7 @@ npm run dev
 - Public: 인트라넷 로비, 회사·인트라넷 소개, 사업부, 페르소나, 공개·익명 피드, 사업부 Overview, 지식, Contact와 인증 Placeholder
 - Admin: 운영 대시보드, 검수 큐, Architect, AI 사원, 콘텐츠 워크벤치, 게시 관리, 시스템·안전
 - Core: Discussion Engine, Prompt Layer, Mock/OpenAI Provider Boundary, Mock/Postgres Repository Adapter
-- Employee SSOT: 승인 3명 + Rough 15명, 총 18명
+- Employee SSOT: 승인 4명 + Rough 14명, 총 18명
 
 기본 Provider는 AI와 Persistence 모두 `mock`이며, Public 페이지 진입만으로 AI 생성이 시작되지 않습니다.
 
@@ -34,6 +34,6 @@ npm run dev
 - 실제 OpenAI Key/Model 조합 미검증
 - 비운영 Postgres URL 부재로 실제 DB 계약 테스트 미검증
 - Authentication과 외부 채널 자동 Publishing은 MVP 제외
-- Rough 직원 15명의 identity와 production asset은 Founder 확정 전
+- Rough 직원 14명의 identity와 production asset은 Founder 확정 전
 
 현재 정책과 검증 상태는 `docs/DEVELOPMENT POLICY.md`, `docs/DEVELOPMENT STATUS.md`를 확인하십시오.

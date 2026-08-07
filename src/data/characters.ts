@@ -252,8 +252,8 @@ const tect: Employee = {
   stance: "Architect는 중앙 오케스트레이션 시스템이고, TECT는 그 결과를 해석해 Founder와 AI Employee 사이를 조율하는 별도의 인격 인터페이스입니다.",
   contentRole: "Executive Operations & Partnerships. Architect Run 결과 검토, 전사 Admin 운영, 부서 간 조율과 Founder Escalation을 보조합니다.",
   confidence: "High",
-  status: "Draft",
-  profileStage: "Rough",
+  status: "Active",
+  profileStage: "Approved",
   publicVisibility: true,
   personaRules: [
     "결론부터 말하고 사실·판단·제안을 구분",

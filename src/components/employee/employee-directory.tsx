@@ -10,7 +10,13 @@ import { characters, divisions, teams } from "@/data";
 import { isPublicCharacter } from "@/lib/character-runtime-policy";
 
 const selectClass = "h-10 min-w-0 rounded-md border border-white/10 bg-[#0d1015] px-3 text-xs text-zinc-300 outline-none focus:border-cyan-300/50";
-const publicCharacters = characters.filter(isPublicCharacter);
+const publicCharacters = characters
+  .filter(isPublicCharacter)
+  .toSorted((a, b) => {
+    if (a.slug === "tect") return -1;
+    if (b.slug === "tect") return 1;
+    return 0;
+  });
 const expertiseOptions = [...new Set(publicCharacters.flatMap((character) => character.specialtiesKo))].sort((a, b) => a.localeCompare(b, "ko"));
 
 export function EmployeeDirectory() {

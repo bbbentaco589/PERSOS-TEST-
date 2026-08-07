@@ -34,7 +34,7 @@ export default function DepartmentsPage() {
         ))}
       </section>
       <div className="border-l-2 border-cyan-300/40 pl-4 text-sm leading-7 text-zinc-400">
-        승인 프로필 3명은 운영 중이며, 나머지 15명은 조직·직무 검증을 위한 Rough 상태입니다. Rough 이름과 Character Lore는 최종 확정 정보가 아닙니다.
+        승인 프로필 4명은 업무 중이며, 나머지 14명은 조직·직무 검증을 위한 Rough 상태입니다. Rough 이름과 Character Lore는 최종 확정 정보가 아닙니다.
       </div>
     </PageContainer>
   );
