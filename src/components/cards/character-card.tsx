@@ -8,6 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { divisions, teams } from "@/data";
 import type { Character } from "@/types";
 
+const approvedProfileImageClass =
+  "object-cover object-center opacity-90 transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none";
+const tallProfileImageClass =
+  "object-cover object-[center_34%] opacity-90 transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none";
+const roughProfileImageClass = "object-contain object-center p-10 opacity-45";
+
+function getProfileImageClass(character: Character) {
+  if (character.profileStage === "Rough") return roughProfileImageClass;
+  if (character.slug === "tect") return tallProfileImageClass;
+  return approvedProfileImageClass;
+}
+
 export function CharacterCard({ character }: { character: Character }) {
   const division = divisions.find((item) => item.id === character.divisionId);
   const team = teams.find((item) => item.id === character.teamId);
@@ -34,12 +46,12 @@ export function CharacterCard({ character }: { character: Character }) {
 
       <div className="p-3">
         <div
-          className="relative aspect-[4/3] overflow-hidden rounded-lg border border-white/10 bg-black"
+          className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black"
           data-asset-placeholder={character.profileStage === "Rough" && character.slug !== "tect" ? "employee-profile" : undefined}
         >
           <Image
             alt={`${character.nameKo} 프로필`}
-            className={character.slug === "tect" ? "object-cover object-[center_24%] opacity-90 transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none" : character.profileStage === "Rough" ? "object-contain p-9 opacity-45" : "object-cover object-[center_24%] opacity-90 transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none"}
+            className={getProfileImageClass(character)}
             fill
             sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw"
             src={character.profileImage}
