@@ -25,7 +25,7 @@ export function CharacterCard({ character }: { character: Character }) {
               <p className="mt-0.5 text-[10px] text-zinc-400">{team?.nameKo}</p>
             </div>
           </div>
-          <Badge variant={character.profileStage === "Approved" ? "accent" : "outline"}>{character.status === "Draft" ? "Draft" : character.profileStage === "Approved" ? "운영 중" : "Rough"}</Badge>
+          <Badge variant={character.status === "Active" ? "accent" : "outline"}>{character.status === "Active" ? "업무 중" : "채용 중"}</Badge>
         </div>
       </div>
       <div className="p-4">
@@ -41,7 +41,7 @@ export function CharacterCard({ character }: { character: Character }) {
         <div className="mt-3 flex flex-wrap gap-1.5">{character.specialtiesKo.slice(0, 3).map((specialty) => <Badge key={specialty} variant="outline">{specialty}</Badge>)}</div>
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/8 pt-3 text-[11px] text-zinc-500">
           <CoreCrystalBadge compact label="Persona Core" />
-          <span className={character.profileStage === "Approved" ? "flex shrink-0 items-center gap-1 text-emerald-300" : "flex shrink-0 items-center gap-1 text-amber-200"}><CircleCheck className="size-3" />{character.profileStage === "Approved" ? "운영 중" : "설정 검토 중"}</span>
+          <span className={character.status === "Active" ? "flex shrink-0 items-center gap-1 text-emerald-300" : "flex shrink-0 items-center gap-1 text-amber-200"}><CircleCheck className="size-3" />{character.status === "Active" ? "업무 중" : "채용 중"}</span>
         </div>
       </div>
     </Link>

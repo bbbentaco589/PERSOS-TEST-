@@ -42,7 +42,7 @@ export default async function DivisionFeedDirectoryPage({
   const hasInvalidFilter = Boolean(requestedDivisionSlug && !selectedDivision) || Boolean(requestedTeamSlug && !selectedTeam);
   const effectiveDivision = hasInvalidFilter ? undefined : selectedDivision;
   const effectiveTeam = hasInvalidFilter ? undefined : selectedTeam;
-  const visibleEmployees = publicEmployees.filter((employee) => {
+  const visibleEmployees = activeEmployees.filter((employee) => {
     if (effectiveTeam) return employee.teamId === effectiveTeam.id;
     if (effectiveDivision) return employee.divisionId === effectiveDivision.id;
     return true;
@@ -102,15 +102,14 @@ export default async function DivisionFeedDirectoryPage({
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {orderedDivisions.map((division) => {
-            const divisionEmployees = publicEmployees.filter((employee) => employee.divisionId === division.id);
-            const divisionActiveEmployees = activeEmployees.filter((employee) => employee.divisionId === division.id);
+            const divisionEmployees = activeEmployees.filter((employee) => employee.divisionId === division.id);
             const divisionTeams = teams.filter((team) => team.divisionId === division.id).sort((a, b) => a.displayOrder - b.displayOrder);
             const selected = effectiveDivision?.id === division.id;
             return (
               <article className={`rounded-lg border p-5 transition ${selected ? "border-cyan-300/35 bg-cyan-300/[0.06]" : "border-white/10 bg-white/[0.025] hover:border-cyan-300/20"}`} key={division.id}>
                 <div className="flex items-start justify-between gap-3">
                   <DivisionIcon className="size-9" divisionId={division.id} />
-                  <Badge variant={divisionActiveEmployees.length ? "accent" : "outline"}>{divisionActiveEmployees.length ? `운영 중 ${divisionActiveEmployees.length}명` : "채용중"}</Badge>
+                  <Badge variant={divisionEmployees.length ? "accent" : "outline"}>{divisionEmployees.length ? `업무 중 ${divisionEmployees.length}명` : "채용 중"}</Badge>
                 </div>
                 <h3 className="mt-4 text-base font-semibold">{division.nameKo}</h3>
                 <p className="mt-2 line-clamp-3 text-xs leading-6 text-zinc-500">{division.descriptionKo}</p>

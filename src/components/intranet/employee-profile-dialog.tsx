@@ -74,12 +74,7 @@ export function EmployeeProfileDialog({
   }, [onClose]);
 
   const { employee } = profile;
-  const runtimeStatus =
-    employee.profileStage === "Approved"
-      ? "Approved"
-      : employee.slug === "tect"
-        ? "Draft"
-        : "Rough";
+  const runtimeStatus = employee.status === "Active" ? "Active" : "Draft";
 
   return (
     <div
@@ -120,7 +115,7 @@ export function EmployeeProfileDialog({
               </h2>
               <Badge
                 className={
-                  runtimeStatus === "Approved"
+                  runtimeStatus === "Active"
                     ? "border-emerald-300/25 bg-emerald-300/10 text-emerald-200"
                     : runtimeStatus === "Draft"
                       ? "border-violet-300/25 bg-violet-300/10 text-violet-200"
@@ -128,7 +123,7 @@ export function EmployeeProfileDialog({
                 }
                 variant="outline"
               >
-                {runtimeStatus}
+                {runtimeStatus === "Active" ? "업무 중" : "채용 중"}
               </Badge>
             </div>
             <p className="mt-1 font-mono text-[10px] text-zinc-600">

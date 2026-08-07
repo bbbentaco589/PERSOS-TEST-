@@ -67,8 +67,8 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   const heroAssetAvailable = hasLocalPublicAsset(character.heroImage);
   const profileAssetAvailable = hasLocalPublicAsset(character.profileImage);
   const runtimeStatusLabel = character.publicVisibility
-    ? character.status === "Draft" ? "Draft · 공개 프로필" : character.profileStage === "Approved" ? "운영 중" : "러프 프로필"
-    : "Draft · Unlisted";
+    ? character.status === "Active" ? "업무 중" : "채용 중"
+    : "비공개";
 
   return (
     <PageContainer className="space-y-8 pt-5 lg:pt-7">
@@ -180,7 +180,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           </section>
           <section id="section-6">
             <div className="mb-4 flex items-center gap-2"><Sparkles className="size-4 text-violet-300" /><h2 className="font-semibold">Related Employees</h2></div>
-            <div className="grid gap-3 sm:grid-cols-2">{characters.filter((item) => item.id !== character.id && item.divisionId === character.divisionId && item.publicVisibility).slice(0, 4).map((item) => <Link className="flex items-center justify-between border border-white/8 p-4 text-sm text-zinc-300 transition hover:border-cyan-300/20 hover:text-cyan-200" href={`/characters/${item.slug}`} key={item.id}><span>{item.nameKo}</span><Badge variant="outline">{item.profileStage === "Approved" ? "운영 중" : "Rough"}</Badge></Link>)}</div>
+            <div className="grid gap-3 sm:grid-cols-2">{characters.filter((item) => item.id !== character.id && item.divisionId === character.divisionId && item.publicVisibility).slice(0, 4).map((item) => <Link className="flex items-center justify-between border border-white/8 p-4 text-sm text-zinc-300 transition hover:border-cyan-300/20 hover:text-cyan-200" href={`/characters/${item.slug}`} key={item.id}><span>{item.nameKo}</span><Badge variant="outline">{item.status === "Active" ? "업무 중" : "채용 중"}</Badge></Link>)}</div>
           </section>
         </div>
 

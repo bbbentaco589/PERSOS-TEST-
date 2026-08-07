@@ -19,7 +19,7 @@ import {
   publicLobbyNav,
 } from "@/constants/navigation";
 import { divisions, employees, teams } from "@/data";
-import { isPublicCharacter } from "@/lib/character-runtime-policy";
+import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
 import {
   getPopularContents,
   type PopularContentCategory,
@@ -95,7 +95,7 @@ export function PublicSidebarContent({
             onClick={onNavigate}
           >
             <span className="grid size-4 place-items-center bg-[#07080a]"><MessageSquareText className="size-3.5" /></span>
-            전사원 통합 인트라넷
+            사업부 통합 인트라넷
           </Link>
         </h2>
         <nav aria-label="토론 유형" className="space-y-1 pl-5">
@@ -137,10 +137,10 @@ export function PublicSidebarContent({
         <h2 className="mb-3" id="organization-directory-title">
           <Link className={cn("flex w-fit items-center gap-2 text-[11px] font-semibold transition", pathname.startsWith("/departments/") || pathname === "/division-feed" ? "text-white" : "text-muted-foreground hover:text-white")} href="/division-feed" onClick={onNavigate}>
             <span className="grid size-4 place-items-center bg-[#07080a]"><Building2 className="size-3.5" /></span>
-            사업부 개별 인트라넷
+            사업부별 페르소나
           </Link>
         </h2>
-        <nav aria-label="사업부 및 직원" className="space-y-1 pl-5">
+        <nav aria-label="사업부별 페르소나" className="space-y-1 pl-5">
           {publicDivisionOrder
             .map((divisionId) => divisions.find((item) => item.id === divisionId))
             .filter((division) => Boolean(division))
@@ -149,7 +149,7 @@ export function PublicSidebarContent({
               const divisionTeams = teams.filter((team) => team.divisionId === division.id);
               const teamOrder = new Map(divisionTeams.map((team) => [team.id, team.displayOrder]));
               const members = employees
-                .filter((employee) => employee.divisionId === division.id && isPublicCharacter(employee))
+                .filter((employee) => employee.divisionId === division.id && isPublicActiveCharacter(employee))
                 .sort((a, b) => (teamOrder.get(a.teamId) ?? 999) - (teamOrder.get(b.teamId) ?? 999));
               const expanded = expandedDivisionIds.has(division.id);
               const panelId = `directory-${division.slug}`;
@@ -193,7 +193,6 @@ export function PublicSidebarContent({
                             <span className="block truncate text-[11px] font-medium text-zinc-200">{employee.nameKo}</span>
                             <span className="mt-1 flex min-w-0 items-center gap-1.5">
                               <span className="truncate text-[9px] text-zinc-600">{team?.nameKo ?? "소속 팀 준비 중"}</span>
-                              {employee.status === "Draft" ? <span className="shrink-0 rounded-sm border border-white/10 px-1 py-0.5 text-[8px] leading-none text-zinc-600">Draft</span> : null}
                             </span>
                           </span>
                         </Link>
@@ -204,7 +203,7 @@ export function PublicSidebarContent({
                         <span className="grid size-7 shrink-0 place-items-center rounded-full border border-dashed border-cyan-300/25 bg-cyan-300/[0.05] text-cyan-200/70">
                           <UserRoundPlus className="size-3.5" strokeWidth={1.7} />
                         </span>
-                        <span className="text-[11px] font-medium">채용중</span>
+                        <span className="text-[11px] font-medium">채용 중</span>
                       </div>
                     ) : null}
                   </div>
