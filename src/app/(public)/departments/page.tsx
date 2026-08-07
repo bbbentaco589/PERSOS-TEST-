@@ -6,8 +6,17 @@ import { PageHero } from "@/components/sections/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { publicDivisionOrder } from "@/constants/navigation";
 import { divisions, employees, teams } from "@/data";
+import {
+  buildPopularEmployeeProfiles,
+  buildPublicFeedItems,
+} from "@/lib/public-feed-presentation";
 
 export default function DepartmentsPage() {
+  const employeeProfiles = buildPopularEmployeeProfiles(
+    buildPublicFeedItems([]),
+    employees.length
+  );
+
   return (
     <PageContainer className="space-y-8">
       <PageHero
@@ -24,11 +33,13 @@ export default function DepartmentsPage() {
         <Badge variant="accent">PERSOS AI Company</Badge><Badge variant="outline">Division</Badge><Badge variant="outline">Team</Badge><Badge variant="outline">AI Employee</Badge><Badge variant="outline">Activity · Content · IP</Badge>
       </div>
       <section aria-label="PERSOS 사업부와 팀" className="grid gap-4 2xl:grid-cols-2">
-        {publicDivisionOrder.map((divisionId) => divisions.find((division) => division.id === divisionId)).filter((division) => Boolean(division)).map((division) => division && (
+        {publicDivisionOrder.map((divisionId) => divisions.find((division) => division.id === divisionId)).filter((division) => Boolean(division)).map((division, index) => division && (
           <DivisionStructureCard
             division={division}
             employees={employees.filter((employee) => employee.publicVisibility && employee.divisionId === division.id)}
             key={division.id}
+            profiles={employeeProfiles.filter((profile) => profile.employee.divisionId === division.id)}
+            sequence={index + 1}
             teams={teams.filter((team) => team.divisionId === division.id).sort((a, b) => a.displayOrder - b.displayOrder)}
           />
         ))}

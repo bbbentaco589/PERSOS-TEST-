@@ -30,12 +30,22 @@ const compactIconByDivision: Record<string, LucideIcon> = {
   "division-studio": Cpu,
 };
 
+function getFeaturedIconPosition(divisionId: string) {
+  const [x = "-119px", y = "-115px"] = (
+    iconPositionByDivision[divisionId] ?? "-119px -115px"
+  ).split(" ");
+
+  return `${Number.parseInt(x) * 2}px ${Number.parseInt(y) * 2}px`;
+}
+
 export function DivisionIcon({
   compact = false,
+  featured = false,
   divisionId,
   className,
 }: {
   compact?: boolean;
+  featured?: boolean;
   divisionId: string;
   className?: string;
 }) {
@@ -60,17 +70,21 @@ export function DivisionIcon({
       aria-hidden="true"
       className={cn(
         "grid shrink-0 place-items-center overflow-hidden border border-white/10 bg-[#081126]",
-        "size-10 rounded-md",
+        featured
+          ? "size-20 rounded-xl shadow-[0_0_40px_rgba(34,211,238,0.12)]"
+          : "size-10 rounded-md",
         className
       )}
     >
       <span
-        className="block size-8 shrink-0"
+        className={cn("block shrink-0", featured ? "size-16" : "size-8")}
         style={{
           backgroundImage: `url(${designAssets.divisionIconOverview})`,
-          backgroundPosition: iconPositionByDivision[divisionId] ?? "-119px -115px",
+          backgroundPosition: featured
+            ? getFeaturedIconPosition(divisionId)
+            : iconPositionByDivision[divisionId] ?? "-119px -115px",
           backgroundRepeat: "no-repeat",
-          backgroundSize: "514px 289px",
+          backgroundSize: featured ? "1028px 578px" : "514px 289px",
         }}
       />
     </span>
