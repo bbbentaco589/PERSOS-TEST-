@@ -17,8 +17,7 @@ export function DivisionStructureCard({
   teams: Team[];
   employees: Employee[];
 }) {
-  const hasActiveEmployee = employees.some((employee) => employee.status === "Active");
-  const [expanded, setExpanded] = useState(hasActiveEmployee);
+  const [expanded, setExpanded] = useState(false);
   const panelId = `division-${division.slug}-teams`;
 
   return (
