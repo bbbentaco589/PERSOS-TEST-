@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { EmployeeProfileDialog } from "@/components/intranet/employee-profile-dialog";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { cn } from "@/lib/utils";
 
 export function DiscussionBackButton({
@@ -77,7 +78,7 @@ export function DebateEmployeeProfileButton({
         />
         <span className="min-w-0">
           <span className="block truncate text-[11px] font-semibold text-zinc-200 transition group-hover/profile:text-white">
-            {employee.nameKo}
+            {formatPersonaDisplayName(employee)}
           </span>
           <span className="mt-0.5 block truncate font-mono text-[8px] text-zinc-600 transition group-hover/profile:text-zinc-400">
             @{employee.slug}

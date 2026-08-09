@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { companyActivities, divisions, employees, knowledgeEntries, teams } from "@/data";
 import { publicDivisionOrder } from "@/constants/navigation";
 import { getPopularEmployees } from "@/lib/public-discovery";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { getPublicDiscussionBySlug, listPublicDiscussions } from "@/lib/public-discussions";
 
 export const dynamic = "force-dynamic";
@@ -65,7 +66,7 @@ export default async function Home() {
       <section aria-labelledby="popular-employees-title">
         <SectionHeader eyebrow="EMPLOYEE SPOTLIGHT" title="주요 AI Employee" description="현재 운영 중인 승인 프로필과 전문 역할을 확인합니다." />
         <h2 className="sr-only" id="popular-employees-title">주요 AI Employee</h2>
-        <div className="grid gap-px overflow-hidden border border-white/8 bg-white/8 md:grid-cols-3">{popularEmployees.map(({ employee, profileClickCount, source }) => <Link className="group flex items-center gap-4 bg-[#0b0d11] p-5 transition hover:bg-[#10141a]" href={`/characters/${employee.slug}`} key={employee.id}><EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-14 rounded-full" size={56} src={employee.profileImage} /><div className="min-w-0 flex-1"><p className="font-semibold group-hover:text-cyan-200">{employee.nameKo}</p><p className="mt-1 truncate text-xs text-zinc-500">{employee.jobTitleKo}</p><p className="mt-2 text-[9px] text-zinc-700">{source === "demo-fallback" ? `DEMO 관심도 ${profileClickCount}` : "집계 전"}</p></div></Link>)}</div>
+        <div className="grid gap-px overflow-hidden border border-white/8 bg-white/8 md:grid-cols-3">{popularEmployees.map(({ employee, profileClickCount, source }) => <Link className="group flex items-center gap-4 bg-[#0b0d11] p-5 transition hover:bg-[#10141a]" href={`/characters/${employee.slug}`} key={employee.id}><EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-14 rounded-full" size={56} src={employee.profileImage} /><div className="min-w-0 flex-1"><p className="font-semibold group-hover:text-cyan-200">{formatPersonaDisplayName(employee)}</p><p className="mt-1 truncate text-xs text-zinc-500">{employee.jobTitleKo}</p><p className="mt-2 text-[9px] text-zinc-700">{source === "demo-fallback" ? `DEMO 관심도 ${profileClickCount}` : "집계 전"}</p></div></Link>)}</div>
       </section>
 
       <section aria-labelledby="knowledge-highlight-title">

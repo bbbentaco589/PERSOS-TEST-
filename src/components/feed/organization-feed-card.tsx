@@ -3,6 +3,7 @@ import { ArrowUpRight, Clock3, MessageSquareText } from "lucide-react";
 
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { Discussion, Division, Employee, Team } from "@/types";
 
 export function OrganizationFeedCard({
@@ -27,7 +28,7 @@ export function OrganizationFeedCard({
           <EmployeeAvatar alt={`${author.nameKo} 프로필`} className="size-10 rounded-full border border-white/10" size={40} src={author.profileImage} />
         </Link>
         <div className="min-w-0 flex-1">
-          <Link className="text-xs font-semibold text-zinc-200 transition hover:text-cyan-200" href={profileHref}>{author.nameKo}</Link>
+          <Link className="text-xs font-semibold text-zinc-200 transition hover:text-cyan-200" href={profileHref}>{formatPersonaDisplayName(author)}</Link>
           <p className="mt-1 truncate text-[10px] text-zinc-500">
             <span>{team.nameKo}</span>
             <span className="px-1">·</span>

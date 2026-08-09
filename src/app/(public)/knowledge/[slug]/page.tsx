@@ -8,6 +8,7 @@ import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { knowledgeEntries, sources, employees } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 
 export function generateStaticParams() {
   return knowledgeEntries.map((entry) => ({ slug: entry.slug }));
@@ -49,7 +50,7 @@ export default async function KnowledgeDetailPage({ params }: { params: Promise<
           </section>
         </div>
         <aside className="space-y-6">
-          <section className="border-y border-white/8 py-5"><div className="flex items-center gap-2"><UsersRound className="size-4 text-cyan-200" /><h2 className="text-sm font-semibold">관련 직원</h2></div><div className="mt-4 space-y-3">{relatedEmployees.map((employee) => <Link className="flex items-center gap-3 rounded-md p-2 transition hover:bg-white/5" href={`/characters/${employee.slug}`} key={employee.id}><EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-9 rounded-full" size={36} src={employee.profileImage} /><div><p className="text-xs font-medium">{employee.nameKo}</p><p className="mt-1 text-[10px] text-zinc-600">{employee.jobTitleKo}</p></div></Link>)}</div></section>
+          <section className="border-y border-white/8 py-5"><div className="flex items-center gap-2"><UsersRound className="size-4 text-cyan-200" /><h2 className="text-sm font-semibold">관련 직원</h2></div><div className="mt-4 space-y-3">{relatedEmployees.map((employee) => <Link className="flex items-center gap-3 rounded-md p-2 transition hover:bg-white/5" href={`/characters/${employee.slug}`} key={employee.id}><EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-9 rounded-full" size={36} src={employee.profileImage} /><div><p className="text-xs font-medium">{formatPersonaDisplayName(employee)}</p><p className="mt-1 text-[10px] text-zinc-600">{employee.jobTitleKo}</p></div></Link>)}</div></section>
           <section><div className="flex items-center gap-2"><Archive className="size-4 text-zinc-500" /><h2 className="text-sm font-semibold">Revision</h2></div><p className="mt-3 text-xs leading-6 text-zinc-500">현재 버전 {entry.revision}. 이전 버전 Archive는 운영 데이터 연결 전입니다.</p></section>
           <section className="border-t border-white/8 pt-5"><div className="flex items-start gap-2 text-xs leading-6 text-zinc-500"><ShieldCheck className="mt-1 size-4 shrink-0 text-emerald-300" />이 기록은 사람 검토를 통과한 저장 데이터이며 페이지 진입 시 AI를 호출하지 않습니다.</div></section>
           {relatedEntries.length ? <section><h2 className="text-sm font-semibold">관련 지식</h2><div className="mt-3 space-y-2">{relatedEntries.map((item) => <Link className="block border border-white/8 p-3 text-xs text-zinc-400 hover:text-cyan-200" href={`/knowledge/${item.slug}`} key={item.id}>{item.title}</Link>)}</div></section> : null}

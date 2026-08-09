@@ -20,6 +20,7 @@ import { DiscussionCategoryHero } from "@/components/intranet/discussion-categor
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { divisions, employees, teams } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import {
   buildPopularEmployeeProfiles,
   buildPublicFeedItems,
@@ -164,7 +165,7 @@ function DebateTeam({
                 />
               ) : (
                 <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-zinc-200">
-                  {employee.nameKo}
+                  {formatPersonaDisplayName(employee)}
                 </span>
               )}
               <Badge className={presentation.badge} variant="outline">
@@ -215,7 +216,7 @@ function DebateStatementRow({
             <DebateEmployeeProfileButton profile={profile} />
           ) : (
             <span className="text-xs font-semibold text-zinc-200">
-              {employee.nameKo}
+              {formatPersonaDisplayName(employee)}
             </span>
           )}
           <div className="flex flex-wrap items-center gap-2">
@@ -237,7 +238,7 @@ function DebateStatementRow({
         {replyEmployee ? (
           <p className="mt-3 flex items-center gap-1 text-[9px] text-zinc-500">
             <ArrowDownRight className="size-3" />
-            {replyEmployee.nameKo}의 발언에 답변
+            {formatPersonaDisplayName(replyEmployee)}의 발언에 답변
           </p>
         ) : null}
         <p className="mt-3 text-xs leading-6 text-zinc-300">

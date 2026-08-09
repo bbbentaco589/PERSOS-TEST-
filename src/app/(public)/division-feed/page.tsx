@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { publicDivisionOrder } from "@/constants/navigation";
 import { companyActivities, divisions, employees, knowledgeEntries, teams } from "@/data";
 import { listPublicDiscussions } from "@/lib/public-discussions";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "사업부 개별 인트라넷", description: "PERSOS 6개 사업부와 팀의 Discussion, Content, Knowledge와 Project Activity를 탐색합니다." };
@@ -123,7 +124,7 @@ export default async function DivisionFeedDirectoryPage({
                         {teamMembers.length ? teamMembers.map((employee) => (
                           <Link aria-label={`${employee.nameKo} 프로필 보기`} className="flex max-w-[120px] items-center gap-1.5 text-[10px] text-zinc-300 transition hover:text-cyan-200" href={`/characters/${employee.slug}`} key={employee.id}>
                             <EmployeeAvatar alt="" className="size-5 rounded-full object-center" size={20} src={employee.profileImage} />
-                            <span className="truncate">{employee.nameKo}</span>
+                            <span className="truncate">{formatPersonaDisplayName(employee)}</span>
                           </Link>
                         )) : <span className="text-[9px] text-zinc-700">채용중</span>}
                       </div>

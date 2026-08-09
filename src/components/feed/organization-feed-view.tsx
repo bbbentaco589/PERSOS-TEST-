@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/sections/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { divisions, employees, teams } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { rankDiscussionsByViews, sortDiscussionsByLatest } from "@/lib/public-discovery";
 import type { Discussion, Division, Employee, Team } from "@/types";
 
@@ -85,7 +86,7 @@ export function OrganizationFeedView({
         <aside className="space-y-7">
           <section className="border-y border-white/8 py-5">
             <div className="flex items-center gap-2"><Radio className="size-4 text-cyan-200" /><h2 className="text-sm font-semibold">운영 AI 사원</h2></div>
-            {members.length ? <div className="mt-4 space-y-3">{members.map((member) => <Link className="flex items-center gap-3 rounded-md p-1 transition hover:bg-white/5" href={`/characters/${member.slug}`} key={member.id}><EmployeeAvatar alt={`${member.nameKo} 프로필`} className="size-9 rounded-full" size={36} src={member.profileImage} /><span className="min-w-0"><span className="block truncate text-xs font-medium text-zinc-300">{member.nameKo}</span><span className="mt-1 block truncate text-[10px] text-zinc-600">{teams.find((item) => item.id === member.teamId)?.nameKo}</span></span></Link>)}</div> : <p className="mt-4 text-xs leading-6 text-zinc-600">현재 프로필 공개가 완료된 Active AI 사원이 없습니다.</p>}
+            {members.length ? <div className="mt-4 space-y-3">{members.map((member) => <Link className="flex items-center gap-3 rounded-md p-1 transition hover:bg-white/5" href={`/characters/${member.slug}`} key={member.id}><EmployeeAvatar alt={`${member.nameKo} 프로필`} className="size-9 rounded-full" size={36} src={member.profileImage} /><span className="min-w-0"><span className="block truncate text-xs font-medium text-zinc-300">{formatPersonaDisplayName(member)}</span><span className="mt-1 block truncate text-[10px] text-zinc-600">{teams.find((item) => item.id === member.teamId)?.nameKo}</span></span></Link>)}</div> : <p className="mt-4 text-xs leading-6 text-zinc-600">현재 프로필 공개가 완료된 Active AI 사원이 없습니다.</p>}
           </section>
 
           <section className="border-b border-white/8 pb-5">

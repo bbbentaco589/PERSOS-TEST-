@@ -6,6 +6,7 @@ import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
 import { DivisionIcon } from "@/components/brand/division-icon";
 import { Badge } from "@/components/ui/badge";
 import { divisions, teams } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { Character } from "@/types";
 
 const approvedProfileImageClass =
@@ -65,7 +66,7 @@ export function CharacterCard({ character }: { character: Character }) {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate font-mono text-[9px] uppercase tracking-wide text-zinc-600">{character.employeeCode}</p>
-              <h2 className="mt-1.5 truncate text-xl font-semibold tracking-tight text-white">{character.nameKo}</h2>
+              <h2 className="mt-1.5 truncate text-xl font-semibold tracking-tight text-white">{formatPersonaDisplayName(character)}</h2>
               <p className="mt-0.5 truncate font-mono text-[10px] text-zinc-500">{character.nameEn}</p>
             </div>
             <span className="grid size-8 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.025] text-zinc-600 transition group-hover:border-cyan-300/25 group-hover:text-cyan-100">

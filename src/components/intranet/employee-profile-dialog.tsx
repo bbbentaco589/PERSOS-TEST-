@@ -16,6 +16,7 @@ import {
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
 
 export function EmployeeProfileDialog({
@@ -107,7 +108,7 @@ export function EmployeeProfileDialog({
                 className="text-xl font-semibold text-white"
                 id="employee-profile-dialog-title"
               >
-                {employee.nameKo}
+                {formatPersonaDisplayName(employee)}
               </h2>
               <Badge
                 className={

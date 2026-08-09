@@ -2,22 +2,128 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, EyeOff, Globe2, MessageSquareText, ShieldCheck, UsersRound } from "lucide-react";
 
-import { DiscussionCard } from "@/components/cards/discussion-card";
+import {
+  RecentDiscussionCarousel,
+  type RecentDiscussionItem,
+} from "@/components/intranet/recent-discussion-carousel";
 import { PageContainer } from "@/components/layout/page-container";
-import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/sections/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { publicDiscussionNav } from "@/constants/navigation";
 import { anonymousTopics } from "@/data/anonymous-intranet";
+import { employees, publicDebates } from "@/data";
+import { buildEmployeeReactionFeedItem } from "@/lib/employee-reaction-presentation";
+import { listPublishedLiveDemoContents } from "@/lib/live-demo";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
+import { buildPublicFeedItems } from "@/lib/public-feed-presentation";
 import { listPublicDiscussions } from "@/lib/public-discussions";
+import { listEmployeeReactionPostViewsByBoard } from "@/lib/repositories";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "전사원 통합 인트라넷", description: "PERSOS의 찬반 토론·공개 피드·익명 채팅과 주요 합의, 남은 쟁점을 탐색합니다." };
 
 export default async function DiscussionPage() {
-  const discussions = await listPublicDiscussions();
-  const currentAnonymousTopic = anonymousTopics.find((topic) => topic.status === "진행 중");
+  const [
+    discussions,
+    liveDemoContents,
+    publicReactionPosts,
+    debateReactionPosts,
+    anonymousReactionPosts,
+  ] = await Promise.all([
+    listPublicDiscussions(),
+    listPublishedLiveDemoContents("feed"),
+    listEmployeeReactionPostViewsByBoard("public-feed"),
+    listEmployeeReactionPostViewsByBoard("debate"),
+    listEmployeeReactionPostViewsByBoard("anonymous"),
+  ]);
+  const employeeById = new Map(employees.map((employee) => [employee.id, employee]));
+  const toPersonaAuthor = (employee: (typeof employees)[number]) => ({
+    name: formatPersonaDisplayName(employee),
+    profileImage: employee.profileImage,
+  });
+  const publicFeedItems = [
+    ...publicReactionPosts.map(buildEmployeeReactionFeedItem),
+    ...buildPublicFeedItems(discussions, liveDemoContents),
+  ].sort((left, right) => right.publishedAt.localeCompare(left.publishedAt));
+  const recentPublic: RecentDiscussionItem[] = publicFeedItems.slice(0, 2).map((item) => ({
+    id: `public-${item.id}`,
+    category: "public",
+    boardLabel: "전사원 공개 피드",
+    title: item.title,
+    href: item.href,
+    image: "/assets/discussion/activity-v1/public-feed.webp",
+    publishedAt: item.publishedAt,
+    author: toPersonaAuthor(item.author),
+  }));
+  const recentDebates: RecentDiscussionItem[] = [
+    ...debateReactionPosts.map((post) => {
+      const author =
+        post.reactions.find((reaction) => reaction.employeeId === "tect")?.employee ??
+        post.reactions[0]?.employee;
+      return {
+        id: `debate-reaction-${post.id}`,
+        category: "debate" as const,
+        boardLabel: "전사원 찬반 토론",
+        title: post.title,
+        href: `/discussion/${post.slug}`,
+        image: "/assets/discussion/activity-v1/debate.webp",
+        publishedAt: post.publishedAt,
+        author: author
+          ? toPersonaAuthor(author)
+          : { name: "PERSOS Founder", profileImage: "/brand/persos-icon.png" },
+      };
+    }),
+    ...publicDebates.map((debate) => {
+      const author = employeeById.get(debate.participants[0]?.employeeId ?? "");
+      return {
+        id: `debate-${debate.id}`,
+        category: "debate" as const,
+        boardLabel: "전사원 찬반 토론",
+        title: debate.title,
+        href: `/discussion/${debate.slug}`,
+        image: "/assets/discussion/activity-v1/debate.webp",
+        publishedAt: debate.proposedAt,
+        author: author
+          ? toPersonaAuthor(author)
+          : { name: "PERSOS Founder", profileImage: "/brand/persos-icon.png" },
+      };
+    }),
+  ]
+    .sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
+    .slice(0, 2);
+  const recentAnonymous: RecentDiscussionItem[] = [
+    ...anonymousReactionPosts.map((post) => ({
+      id: `anonymous-reaction-${post.id}`,
+      category: "anonymous" as const,
+      boardLabel: "전사원 익명 채팅",
+      title: post.title,
+      href: "/discussion/anonymous",
+      image: "/assets/discussion/activity-v1/anonymous.webp",
+      publishedAt: post.publishedAt,
+      author: { name: "익명 관리자", profileImage: "/assets/boards/v1/anonymous-chat.png" },
+    })),
+    ...anonymousTopics.map((topic) => ({
+      id: `anonymous-${topic.id}`,
+      category: "anonymous" as const,
+      boardLabel: "전사원 익명 채팅",
+      title: topic.title,
+      href: "/discussion/anonymous",
+      image: "/assets/discussion/activity-v1/anonymous.webp",
+      publishedAt: topic.startedAt,
+      author: { name: "익명 관리자", profileImage: "/assets/boards/v1/anonymous-chat.png" },
+    })),
+  ]
+    .sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
+    .slice(0, 2);
+  const recentItems = [
+    recentDebates[0],
+    recentPublic[0],
+    recentAnonymous[0],
+    recentDebates[1],
+    recentPublic[1],
+    recentAnonymous[1],
+  ].filter((item): item is RecentDiscussionItem => Boolean(item));
 
   return (
     <PageContainer className="space-y-12 pt-5 lg:space-y-16 lg:pt-7">
@@ -83,20 +189,7 @@ export default async function DiscussionPage() {
         </div>
       </section>
 
-      <section aria-labelledby="company-recent-activity-title">
-        <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase text-cyan-300">Recent Company Activity</p>
-            <h2 className="mt-2 text-2xl font-semibold" id="company-recent-activity-title">최근 전사 활동</h2>
-          </div>
-          {currentAnonymousTopic ? <Badge variant="outline">익명 주제 · {currentAnonymousTopic.title}</Badge> : null}
-        </div>
-        {discussions.length ? (
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {discussions.slice(0, 2).map((discussion, index) => <DiscussionCard discussion={discussion} featured={index === 0} key={discussion.id} thumbnail={index === 0 ? "discussion" : "consensus"} />)}
-          </div>
-        ) : <div className="mt-5"><EmptyState title="최근 공개 활동이 없습니다" description="사람 검토와 게시 승인을 완료한 전사 이슈가 이곳에 요약됩니다." /></div>}
-      </section>
+      <RecentDiscussionCarousel items={recentItems} />
     </PageContainer>
   );
 }

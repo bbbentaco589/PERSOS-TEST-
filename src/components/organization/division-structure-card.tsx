@@ -7,6 +7,7 @@ import { DivisionIcon } from "@/components/brand/division-icon";
 import { EmployeeProfileDialog } from "@/components/intranet/employee-profile-dialog";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { Division, Employee, Team } from "@/types";
 
 const divisionAccent: Record<string, string> = {
@@ -142,7 +143,7 @@ export function DivisionStructureCard({
                             src={employee.profileImage}
                           />
                           <span className="text-xs font-medium text-zinc-200 transition group-hover/member:text-cyan-100">
-                            {employee.nameKo} <span className="font-normal text-zinc-600">({employee.nameEn})</span>
+                            {formatPersonaDisplayName(employee)}
                           </span>
                         </button>
                       ))}

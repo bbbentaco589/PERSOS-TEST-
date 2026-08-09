@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EmployeeProfileDialog } from "@/components/intranet/employee-profile-dialog";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type {
   EmployeeReactionPostView,
   EmployeeReactionStance,
@@ -153,14 +154,14 @@ function ReactionIdentity({
               onClick={() => onOpenProfile(reaction.employee.id)}
               type="button"
             >
-              {reaction.employee.nameKo}
+              {formatPersonaDisplayName(reaction.employee)}
             </button>
           ) : (
             <Link
               className="transition hover:text-blue-600"
               href={`/characters/${reaction.employee.slug}`}
             >
-              {reaction.employee.nameKo}
+              {formatPersonaDisplayName(reaction.employee)}
             </Link>
           )}
         </h3>

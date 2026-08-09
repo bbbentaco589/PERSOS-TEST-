@@ -8,6 +8,7 @@ import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { buildEmployeeReactionFeedItem } from "@/lib/employee-reaction-presentation";
 import { buildPopularEmployeeProfiles } from "@/lib/public-feed-presentation";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { EmployeeReactionPostView } from "@/types";
 
 function formatPublishedAt(value: string) {
@@ -68,7 +69,7 @@ export function EmployeeReactionArticle({
             />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-zinc-100">
-                {feedItem.author.nameKo}
+                {formatPersonaDisplayName(feedItem.author)}
                 <span className="ml-2 font-mono text-[9px] font-normal text-zinc-600">
                   {feedItem.author.nameEn}
                 </span>

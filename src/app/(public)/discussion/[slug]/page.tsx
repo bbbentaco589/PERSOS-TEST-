@@ -21,6 +21,7 @@ import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { designAssets } from "@/constants/assets";
 import { getPublicDiscussionBySlug } from "@/lib/public-discussions";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { getEmployeeReactionPostViewBySlug } from "@/lib/repositories";
 import {
   presentEmployeeReactionsAsAnonymousChat,
@@ -192,7 +193,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
                     <section className="border border-white/10 bg-white/[0.025] p-5" key={response.id}>
                       <div className="flex items-center gap-3">
                         {employee ? <Image alt={`${employee.nameKo} 프로필`} className="size-11 rounded-full border border-white/10 bg-black object-cover" height={44} src={employee.profileImage} width={44} /> : null}
-                        <div><h3 className="text-sm font-semibold">{employee?.nameKo ?? response.characterId}</h3><p className="text-xs text-zinc-500">{employee?.jobTitleKo} · {teams.find((team) => team.id === employee?.teamId)?.nameKo}</p></div>
+                        <div><h3 className="text-sm font-semibold">{employee ? formatPersonaDisplayName(employee) : response.characterId}</h3><p className="text-xs text-zinc-500">{employee?.jobTitleKo} · {teams.find((team) => team.id === employee?.teamId)?.nameKo}</p></div>
                         <Badge className="ml-auto" variant="outline">{metadataLabels[response.confidence] ?? response.confidence}</Badge>
                       </div>
                       <p className="mt-5 text-sm font-medium text-cyan-100">{response.stance}</p>
@@ -209,7 +210,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
                 <div className="mt-4 space-y-3">
                   {rebuttals.map((rebuttal) => {
                     const employee = characterById.get(rebuttal.fromCharacterId);
-                    return <div className="grid gap-3 border-l-2 border-violet-400/50 bg-violet-400/5 p-4 sm:grid-cols-[160px_minmax(0,1fr)]" key={rebuttal.id}><div className="flex items-center gap-2">{employee ? <Image alt="" className="size-7 rounded-full object-cover" height={28} src={employee.profileImage} width={28} /> : null}<span className="text-xs font-medium">{employee?.nameKo}</span></div><p className="text-sm leading-6 text-zinc-400">{rebuttal.content}</p></div>;
+                    return <div className="grid gap-3 border-l-2 border-violet-400/50 bg-violet-400/5 p-4 sm:grid-cols-[160px_minmax(0,1fr)]" key={rebuttal.id}><div className="flex items-center gap-2">{employee ? <Image alt="" className="size-7 rounded-full object-cover" height={28} src={employee.profileImage} width={28} /> : null}<span className="text-xs font-medium">{employee ? formatPersonaDisplayName(employee) : null}</span></div><p className="text-sm leading-6 text-zinc-400">{rebuttal.content}</p></div>;
                   })}
                 </div>
               </section>
@@ -247,7 +248,7 @@ export default async function DiscussionArticlePage({ params }: { params: Promis
                         <EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-9 rounded-full" size={36} src={employee.profileImage} />
                       </Link>
                       <div className="min-w-0">
-                        <p className="truncate text-xs text-zinc-300"><Link className="hover:text-cyan-200" href={profileHref}>{employee.nameKo}</Link> <span className="text-zinc-600">{employee.nameEn}</span></p>
+                        <p className="truncate text-xs text-zinc-300"><Link className="hover:text-cyan-200" href={profileHref}>{formatPersonaDisplayName(employee)}</Link></p>
                         <p className="truncate text-[10px] text-zinc-500">{employee.jobTitleKo}</p>
                         <p className="truncate text-[10px] text-zinc-700">
                           {team?.nameKo}

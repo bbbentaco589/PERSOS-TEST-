@@ -19,6 +19,7 @@ import type {
   PublicArchiveTopic,
 } from "@/data/public-discussion-demo";
 import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { cn } from "@/lib/utils";
 
 function formatArchiveDate(value: string) {
@@ -235,7 +236,7 @@ export function DiscussionPopularEmployeePanel({
                 />
                 <span className="min-w-0">
                   <span className="block truncate text-[11px] font-semibold text-zinc-200">
-                    {profile.employee.nameKo}
+                    {formatPersonaDisplayName(profile.employee)}
                   </span>
                   <span className="mt-1 block truncate text-[9px] text-zinc-600">
                     {profile.teamName}

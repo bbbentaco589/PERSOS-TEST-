@@ -21,6 +21,7 @@ import {
 } from "@/constants/navigation";
 import { divisions, employees, teams } from "@/data";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import {
   getPopularContents,
   type PopularContentCategory,
@@ -182,7 +183,7 @@ export function PublicSidebarContent({
                         >
                           <EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-8 rounded-full object-center" size={32} src={employee.profileImage} />
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[11px] font-medium text-zinc-200">{employee.nameKo}</span>
+                            <span className="block truncate text-[11px] font-medium text-zinc-200">{formatPersonaDisplayName(employee)}</span>
                             <span className="mt-1 flex min-w-0 items-center gap-1.5">
                               <span className="truncate text-[9px] text-zinc-600">{team?.nameKo ?? "소속 팀 준비 중"}</span>
                             </span>

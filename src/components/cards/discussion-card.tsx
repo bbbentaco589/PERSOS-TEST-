@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FeedThumbnail, type FeedThumbnailVariant } from "@/components/content/feed-thumbnail";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
 import { characters, divisions, teams } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { DiscussionArticle } from "@/types";
 
 export function DiscussionCard({
@@ -36,7 +37,7 @@ export function DiscussionCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-zinc-200">{participants.map((item) => item?.nameKo ?? item?.name).join(" · ")}</span>
+            <span className="font-medium text-zinc-200">{participants.map((item) => item ? formatPersonaDisplayName(item) : "").filter(Boolean).join(" · ")}</span>
             <span className="text-zinc-600">{leadTeam?.nameKo ?? "회사 피드"}</span>
           </div>
           <div className="mt-2 flex flex-wrap gap-2"><Badge variant="outline">{discussion.kicker}</Badge><Badge variant={discussion.status === "Published" ? "accent" : "secondary"}>{discussion.status === "Published" ? "게시" : discussion.status}</Badge></div>

@@ -7,6 +7,7 @@ import { KnowledgeCard } from "@/components/cards/knowledge-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { divisions, employeeShowcases, employees, knowledgeEntries, teams } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 
 const selectClass = "h-10 rounded-md border border-white/10 bg-[#0d1015] px-3 text-xs text-zinc-300 outline-none focus:border-cyan-300/50";
 
@@ -48,7 +49,7 @@ export function KnowledgeLibrary() {
           </select>
           <select aria-label="관련 직원" className={selectClass} onChange={(event) => setEmployeeId(event.target.value)} value={employeeId}>
             <option value="all">전체 관련 직원</option>
-            {employees.filter((employee) => employee.publicVisibility).map((employee) => <option key={employee.id} value={employee.id}>{employee.nameKo}</option>)}
+            {employees.filter((employee) => employee.publicVisibility).map((employee) => <option key={employee.id} value={employee.id}>{formatPersonaDisplayName(employee)}</option>)}
           </select>
         </div>
       </section>
@@ -65,7 +66,7 @@ export function KnowledgeLibrary() {
             const employee = employees.find((item) => item.id === showcase?.employeeId);
             const team = teams.find((item) => item.id === employee?.teamId);
             const division = divisions.find((item) => item.id === employee?.divisionId);
-            return <KnowledgeCard author={employee && team && division ? { name: employee.nameKo, team: team.nameKo, division: division.nameKo } : undefined} entry={entry} key={entry.id} />;
+            return <KnowledgeCard author={employee && team && division ? { name: formatPersonaDisplayName(employee), team: team.nameKo, division: division.nameKo } : undefined} entry={entry} key={entry.id} />;
           })}
         </section>
       ) : <EmptyState title="조건에 맞는 지식이 없습니다" description="검색어 또는 필터를 조정해 다시 확인해 주세요." />}

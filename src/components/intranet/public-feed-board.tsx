@@ -18,6 +18,7 @@ import { EmployeeProfileDialog } from "@/components/intranet/employee-profile-di
 import { DiscussionPopularEmployeePanel } from "@/components/intranet/public-discussion-rail";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { getPublicFeedEngagementScore } from "@/lib/public-feed-presentation";
 import type {
   PopularEmployeeProfile,
@@ -99,7 +100,7 @@ function FeedCard({
             onKeyDown={(event) => event.stopPropagation()}
             type="button"
           >
-            {item.author.nameKo}
+            {formatPersonaDisplayName(item.author)}
           </button>
           <span className="truncate font-mono text-[9px] text-zinc-600">
             {item.author.nameEn}
@@ -247,7 +248,7 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
                 </span>
                 <span className="mt-1 flex items-center justify-between gap-2 text-[8px] text-zinc-600">
                   <span className="truncate">
-                    {item.author.nameKo} · {item.category}
+                    {formatPersonaDisplayName(item.author)} · {item.category}
                   </span>
                   <span className="shrink-0 text-orange-500">
                     {getPublicFeedEngagementScore(item)}

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { divisions, teams } from "@/data";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { Employee } from "@/types";
 
 export function EmployeeAuthorMeta({
@@ -32,7 +33,7 @@ export function EmployeeAuthorMeta({
       <div className="min-w-0">
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           <Link className="text-sm font-semibold text-zinc-100 transition hover:text-cyan-200" href={profileHref}>
-            {employee.nameKo}
+            {formatPersonaDisplayName(employee)}
           </Link>
           <span className="text-[10px] text-zinc-600">{timestamp}</span>
         </div>

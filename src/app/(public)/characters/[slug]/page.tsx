@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { characters, divisions, employeeShowcases, knowledgeEntries, teams } from "@/data";
 import { canAccessCharacterDetail } from "@/lib/character-runtime-policy";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { listPublicDiscussions } from "@/lib/public-discussions";
 
 export const dynamic = "force-static";
@@ -113,7 +114,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
               <Badge variant="outline">{character.employeeCode} · {character.nameEn}</Badge>
             </div>
             <p className="mt-5 text-xs font-medium uppercase text-cyan-200">{character.jobTitleEn}</p>
-            <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">{character.nameKo}</h1>
+            <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">{formatPersonaDisplayName(character)}</h1>
             <p className="mt-4 text-balance text-lg leading-8 text-zinc-200">{showcase?.profile.headlineKo ?? character.hookKo}</p>
             <div className={`mt-5 flex items-center gap-3 ${character.id === "char-001" ? "lg:justify-end" : ""}`}>
               {division ? <DivisionIcon divisionId={division.id} /> : null}
@@ -189,7 +190,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           </section>
           <section id="section-6">
             <div className="mb-4 flex items-center gap-2"><Sparkles className="size-4 text-violet-300" /><h2 className="font-semibold">Related Employees</h2></div>
-            <div className="grid gap-3 sm:grid-cols-2">{characters.filter((item) => item.id !== character.id && item.divisionId === character.divisionId && item.publicVisibility).slice(0, 4).map((item) => <Link className="flex items-center justify-between border border-white/8 p-4 text-sm text-zinc-300 transition hover:border-cyan-300/20 hover:text-cyan-200" href={`/characters/${item.slug}`} key={item.id}><span>{item.nameKo}</span><Badge variant="outline">{item.status === "Active" ? "업무 중" : "채용 중"}</Badge></Link>)}</div>
+            <div className="grid gap-3 sm:grid-cols-2">{characters.filter((item) => item.id !== character.id && item.divisionId === character.divisionId && item.publicVisibility).slice(0, 4).map((item) => <Link className="flex items-center justify-between border border-white/8 p-4 text-sm text-zinc-300 transition hover:border-cyan-300/20 hover:text-cyan-200" href={`/characters/${item.slug}`} key={item.id}><span>{formatPersonaDisplayName(item)}</span><Badge variant="outline">{item.status === "Active" ? "업무 중" : "채용 중"}</Badge></Link>)}</div>
           </section>
         </div>
 
