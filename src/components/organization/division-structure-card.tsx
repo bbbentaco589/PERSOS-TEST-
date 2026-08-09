@@ -10,12 +10,12 @@ import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
 import type { Division, Employee, Team } from "@/types";
 
 const divisionAccent: Record<string, string> = {
-  "division-strategy": "rgba(103, 232, 249, 0.17)",
-  "division-governance": "rgba(129, 140, 248, 0.18)",
-  "division-entertainment": "rgba(244, 114, 182, 0.16)",
-  "division-editorial": "rgba(56, 189, 248, 0.17)",
-  "division-intelligence": "rgba(52, 211, 153, 0.16)",
-  "division-studio": "rgba(106, 124, 255, 0.18)",
+  "division-strategy": "rgba(244, 63, 94, 0.18)",
+  "division-governance": "rgba(245, 158, 11, 0.18)",
+  "division-entertainment": "rgba(236, 72, 153, 0.18)",
+  "division-editorial": "rgba(139, 92, 246, 0.18)",
+  "division-intelligence": "rgba(45, 212, 191, 0.18)",
+  "division-studio": "rgba(59, 130, 246, 0.2)",
 };
 
 export function DivisionStructureCard({

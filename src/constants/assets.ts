@@ -8,6 +8,15 @@ export const designAssets = {
   divisionIconOverview: "/assets/ui-v1/09-division-icons-overview.png",
 } as const;
 
+export const divisionIconAssets: Record<string, string> = {
+  "division-strategy": "/assets/divisions/v1.1/business-development.png",
+  "division-governance": "/assets/divisions/v1.1/strategy-analysis.png",
+  "division-entertainment": "/assets/divisions/v1.1/entertainment.png",
+  "division-editorial": "/assets/divisions/v1.1/media-content.png",
+  "division-intelligence": "/assets/divisions/v1.1/community.png",
+  "division-studio": "/assets/divisions/v1.1/technology.png",
+};
+
 export const employeeVisuals = {
   "char-001": {
     hero: "/assets/ui-v1/04-employee-hero-1.png",

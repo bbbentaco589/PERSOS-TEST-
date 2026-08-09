@@ -1,42 +1,8 @@
-import {
-  BriefcaseBusiness,
-  Building2,
-  ChartNoAxesCombined,
-  Clapperboard,
-  Cpu,
-  Newspaper,
-  UsersRound,
-  type LucideIcon,
-} from "lucide-react";
+import Image from "next/image";
+import { Building2 } from "lucide-react";
 
-import { designAssets } from "@/constants/assets";
+import { divisionIconAssets } from "@/constants/assets";
 import { cn } from "@/lib/utils";
-
-const iconPositionByDivision: Record<string, string> = {
-  "division-intelligence": "-119px -115px",
-  "division-governance": "-442px -115px",
-  "division-studio": "-362px -115px",
-  "division-strategy": "-279px -115px",
-  "division-editorial": "-199px -115px",
-  "division-entertainment": "-279px -115px",
-};
-
-const compactIconByDivision: Record<string, LucideIcon> = {
-  "division-strategy": BriefcaseBusiness,
-  "division-governance": ChartNoAxesCombined,
-  "division-entertainment": Clapperboard,
-  "division-editorial": Newspaper,
-  "division-intelligence": UsersRound,
-  "division-studio": Cpu,
-};
-
-function getFeaturedIconPosition(divisionId: string) {
-  const [x = "-119px", y = "-115px"] = (
-    iconPositionByDivision[divisionId] ?? "-119px -115px"
-  ).split(" ");
-
-  return `${Number.parseInt(x) * 2}px ${Number.parseInt(y) * 2}px`;
-}
 
 export function DivisionIcon({
   compact = false,
@@ -49,18 +15,19 @@ export function DivisionIcon({
   divisionId: string;
   className?: string;
 }) {
-  if (compact) {
-    const Icon = compactIconByDivision[divisionId] ?? Building2;
+  const asset = divisionIconAssets[divisionId];
 
+  if (!asset) {
     return (
       <span
         aria-hidden="true"
         className={cn(
-          "grid size-4 shrink-0 place-items-center rounded-[3px] border border-cyan-300/25 bg-cyan-300/[0.07] text-cyan-200",
+          "grid shrink-0 place-items-center rounded-md border border-cyan-300/25 bg-cyan-300/[0.07] text-cyan-200",
+          compact ? "size-6" : featured ? "size-24" : "size-10",
           className
         )}
       >
-        <Icon className="size-3" strokeWidth={1.8} />
+        <Building2 className={featured ? "size-10" : "size-1/2"} strokeWidth={1.8} />
       </span>
     );
   }
@@ -69,23 +36,26 @@ export function DivisionIcon({
     <span
       aria-hidden="true"
       className={cn(
-        "grid shrink-0 place-items-center overflow-hidden border border-white/10 bg-[#081126]",
-        featured
-          ? "size-20 rounded-xl shadow-[0_0_40px_rgba(34,211,238,0.12)]"
-          : "size-10 rounded-md",
+        "relative grid shrink-0 place-items-center",
+        compact ? "size-6" : featured ? "size-24" : "size-10",
         className
       )}
+      data-division-icon={divisionId}
     >
-      <span
-        className={cn("block shrink-0", featured ? "size-16" : "size-8")}
-        style={{
-          backgroundImage: `url(${designAssets.divisionIconOverview})`,
-          backgroundPosition: featured
-            ? getFeaturedIconPosition(divisionId)
-            : iconPositionByDivision[divisionId] ?? "-119px -115px",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: featured ? "1028px 578px" : "514px 289px",
-        }}
+      <Image
+        alt=""
+        className={cn(
+          "object-contain",
+          compact
+            ? "scale-[1.15] drop-shadow-[0_0_6px_rgba(255,255,255,0.14)]"
+            : featured
+              ? "scale-[1.08] p-1 drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
+              : "scale-[1.1] p-0.5 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+        )}
+        fill
+        loading={featured ? "eager" : "lazy"}
+        sizes={compact ? "24px" : featured ? "96px" : "40px"}
+        src={asset}
       />
     </span>
   );
