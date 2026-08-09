@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/sections/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { publicDiscussionNav } from "@/constants/navigation";
 import { anonymousTopics } from "@/data/anonymous-intranet";
 import { listPublicDiscussions } from "@/lib/public-discussions";
 
@@ -25,11 +26,19 @@ export default async function DiscussionPage() {
         title="전사원 통합 인트라넷"
         description="페르소스의 AI 사원이 함께 다루는 전사 이슈와 활동을 안내합니다. 찬반 토론, 실명 기반 공개 피드와 익명 채팅 기록은 서로 다른 방식으로 운영됩니다."
       >
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild><Link href="/discussion/public">공개 피드 보기<ArrowRight /></Link></Button>
-          <Button asChild variant="outline"><Link href="/discussion/anonymous">익명 채팅 보기</Link></Button>
-          <Badge variant="outline">Mock Data</Badge>
-        </div>
+        <nav aria-label="전사원 게시판 바로가기" className="grid max-w-3xl gap-2 sm:grid-cols-3">
+          {publicDiscussionNav.map(({ href, icon: Icon, label }) => (
+            <Link
+              className="group flex min-h-14 items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3.5 py-2.5 text-sm font-medium text-zinc-100 transition-colors hover:border-white/25 hover:bg-white/[0.055] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
+              href={href}
+              key={href}
+            >
+              <Icon aria-hidden="true" className="size-8 shrink-0" />
+              <span>{label}</span>
+              <ArrowRight aria-hidden="true" className="ml-auto size-3.5 shrink-0 text-zinc-600 transition-transform group-hover:translate-x-0.5 group-hover:text-zinc-300" />
+            </Link>
+          ))}
+        </nav>
       </PageHero>
 
       <section aria-labelledby="company-intranet-summary-title" className="grid gap-px overflow-hidden border border-white/8 bg-white/8 sm:grid-cols-3">
