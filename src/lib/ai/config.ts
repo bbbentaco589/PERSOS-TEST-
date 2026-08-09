@@ -3,7 +3,7 @@ import { readAIEnvironment } from "./env";
 import { AIProviderName, type AIProviderName as AIProviderNameValue } from "./types";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
-const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
+export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 export type MockAIConfig = { provider: typeof AIProviderName.Mock };
 export type OpenAIConfig = {

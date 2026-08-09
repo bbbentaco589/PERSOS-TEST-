@@ -3,6 +3,8 @@ import { Redis } from "@upstash/redis";
 import type {
   EmployeeReactionBoard,
   EmployeeReactionPost,
+  OrganizationRunReviewItem,
+  OrganizationRunReviewStatus,
 } from "@/types";
 
 import type { OrganizationRunPublisher } from "./types";
@@ -16,13 +18,19 @@ const KEY = {
     `persos:org-run:posts:board:${board}`,
   summaries: "persos:org-run:topic-summaries",
   run: (runId: string) => `persos:org-run:run:${runId}`,
+  review: (id: string) => `persos:org-run:review:${id}`,
+  reviews: "persos:org-run:reviews:all",
   lock: "persos:org-run:execution-lock",
   rate: (bucket: number) => `persos:org-run:rate:${bucket}`,
 } as const;
 
 function readKVConfig() {
-  const url = process.env.KV_REST_API_URL?.trim();
-  const token = process.env.KV_REST_API_TOKEN?.trim();
+  const url =
+    process.env.KV_REST_API_URL?.trim() ||
+    process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token =
+    process.env.KV_REST_API_TOKEN?.trim() ||
+    process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
   if (!url || !token) return undefined;
   return { url, token };
 }
@@ -50,7 +58,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   constructor(config = readKVConfig()) {
     if (!config) {
       throw new Error(
-        "KV_REST_API_URL과 KV_REST_API_TOKEN이 모두 필요합니다."
+        "Vercel KV 또는 Upstash Redis REST 환경변수가 필요합니다."
       );
     }
     this.redis = new Redis(config);
@@ -147,6 +155,59 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         "게시글 상세 데이터 또는 목록 인덱스 저장을 확인하지 못했습니다."
       );
     }
+  }
+
+  async listReviewItems(status?: OrganizationRunReviewStatus) {
+    const ids = (await this.redis.get<string[]>(KEY.reviews)) ?? [];
+    const items = await Promise.all(
+      ids.map((id) => this.redis.get<OrganizationRunReviewItem>(KEY.review(id)))
+    );
+    return items
+      .filter((item): item is OrganizationRunReviewItem => Boolean(item))
+      .filter((item) => !status || item.status === status)
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  }
+
+  async getReviewItem(id: string) {
+    return (
+      (await this.redis.get<OrganizationRunReviewItem>(KEY.review(id))) ??
+      undefined
+    );
+  }
+
+  async saveReviewItem(item: OrganizationRunReviewItem) {
+    const currentIds = (await this.redis.get<string[]>(KEY.reviews)) ?? [];
+    const ids = [item.id, ...currentIds.filter((id) => id !== item.id)].slice(
+      0,
+      300
+    );
+    await this.redis
+      .multi()
+      .set(KEY.review(item.id), item)
+      .set(KEY.reviews, ids)
+      .set(KEY.run(item.runId), {
+        runId: item.runId,
+        status: item.status,
+        reviewItemId: item.id,
+        board: item.boardType,
+        updatedAt: item.updatedAt,
+      })
+      .exec();
+  }
+
+  async updateReviewItem(item: OrganizationRunReviewItem) {
+    await this.redis
+      .multi()
+      .set(KEY.review(item.id), item)
+      .set(KEY.run(item.runId), {
+        runId: item.runId,
+        status: item.status,
+        reviewItemId: item.id,
+        board: item.boardType,
+        postSlug: item.status === "approved" ? item.post?.slug : undefined,
+        updatedAt: item.updatedAt,
+      })
+      .exec();
   }
 
   async acquireExecutionLock(token: string, ttlSeconds: number) {

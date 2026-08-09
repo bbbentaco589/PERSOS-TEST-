@@ -32,6 +32,14 @@ export function verifyTriggerSecret(candidate: string) {
   return safeEqual(candidate, getSecret());
 }
 
+export function verifyScheduledTriggerSecret(candidate: string) {
+  const secrets = [
+    process.env.CRON_SECRET?.trim(),
+    process.env.DEMO_TRIGGER_SECRET?.trim(),
+  ].filter((secret): secret is string => Boolean(secret));
+  return Boolean(candidate) && secrets.some((secret) => safeEqual(candidate, secret));
+}
+
 export function createOrganizationRunSession() {
   const payload = Buffer.from(
     JSON.stringify({

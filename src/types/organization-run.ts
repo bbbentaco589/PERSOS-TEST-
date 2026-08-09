@@ -10,6 +10,7 @@ export type OrganizationRunTopic = {
   topicSummary: string;
   reasonForBoardSelection: string;
   relevantEmployeeIds: string[];
+  sourceUrls?: string[];
 };
 
 export type ManualOrganizationRunInput = {
@@ -28,6 +29,7 @@ export type OrganizationRunStage =
   | "employees"
   | "reactions"
   | "validation"
+  | "review"
   | "publishing"
   | "completed"
   | "failed";
@@ -39,9 +41,12 @@ export type OrganizationRunResult = {
   boardType: OrganizationRunBoardType;
   title: string;
   participantIds: string[];
-  publicUrl: string;
+  publicUrl?: string;
   geminiCallCount: number;
   post: EmployeeReactionPost;
+  published: boolean;
+  reviewPending: boolean;
+  reviewItemId?: string;
 };
 
 export type OrganizationRunFailure = {
@@ -51,10 +56,25 @@ export type OrganizationRunFailure = {
   retryable: boolean;
 };
 
-export type ManualOrganizationRunResult = Omit<
-  OrganizationRunResult,
-  "publicUrl"
-> & {
-  published: boolean;
-  publicUrl?: string;
+export type ManualOrganizationRunResult = OrganizationRunResult;
+
+export type OrganizationRunReviewStatus =
+  | "review_pending"
+  | "approved"
+  | "discarded";
+
+export type OrganizationRunRiskLevel = "low" | "medium" | "high";
+
+export type OrganizationRunReviewItem = {
+  id: string;
+  runId: string;
+  status: OrganizationRunReviewStatus;
+  boardType: OrganizationRunBoardType;
+  title: string;
+  post?: EmployeeReactionPost;
+  reasons: string[];
+  riskLevel: OrganizationRunRiskLevel;
+  createdAt: string;
+  updatedAt: string;
+  reviewedAt?: string;
 };

@@ -1,6 +1,7 @@
 import type {
   DebateSide,
   EmployeeReaction,
+  EmployeeReactionPost,
   EmployeeReactionPostView,
   PublicDebate,
 } from "@/types";
@@ -11,6 +12,7 @@ import type {
 
 const anonymousPresentation = {
   tect: { alias: "익명 네이비", tone: "soda" },
+  "char-001": { alias: "익명 코발트", tone: "soda" },
   "char-003": { alias: "익명 라벤더", tone: "lavender" },
   "char-002": { alias: "익명 앰버", tone: "lemon" },
 } as const;
@@ -75,7 +77,7 @@ export function presentEmployeeReactionsAsDebate(
 }
 
 export function presentEmployeeReactionsAsAnonymousChat(
-  post: EmployeeReactionPostView
+  post: EmployeeReactionPost
 ): PublicAnonymousChatDemo {
   return {
     participantCount: post.reactions.length,

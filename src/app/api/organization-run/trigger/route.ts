@@ -59,6 +59,9 @@ export async function POST(request: Request) {
         name: employee.nameKo,
       })),
       publicUrl: result.publicUrl,
+      published: result.published,
+      reviewPending: result.reviewPending,
+      reviewItemId: result.reviewItemId,
       geminiCallCount: result.geminiCallCount,
     });
   } catch (error) {

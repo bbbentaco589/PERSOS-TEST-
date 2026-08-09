@@ -4,18 +4,23 @@ import test from "node:test";
 import type {
   EmployeeReactionPost,
   ManualOrganizationRunInput,
+  OrganizationRunReviewItem,
+  OrganizationRunReviewStatus,
   OrganizationRunTopic,
 } from "@/types";
 import {
   runAIOrganization,
   runManualAIOrganization,
 } from "@/lib/organization-run/service";
+import { reviewOrganizationRunItem } from "@/lib/organization-run/review-service";
 import type {
   OrganizationRunGenerator,
   OrganizationRunPublisher,
 } from "@/lib/organization-run/types";
 import { buildOrganizationRunPost } from "@/lib/organization-run/post-builder";
 import { parseManualOrganizationRunInput } from "@/lib/organization-run/manual-input";
+import { ORGANIZATION_RUN_EMPLOYEE_IDS } from "@/lib/organization-run/canonical-employees";
+import { validateOrganizationRunTopic } from "@/lib/organization-run/topic-validation";
 
 const validTopic: OrganizationRunTopic = {
   boardType: "debate",
@@ -33,6 +38,7 @@ class MemoryPublisher implements OrganizationRunPublisher {
   posts: EmployeeReactionPost[] = [];
   published = 0;
   locked = false;
+  reviews: OrganizationRunReviewItem[] = [];
 
   async listPosts() {
     return this.posts;
@@ -46,6 +52,18 @@ class MemoryPublisher implements OrganizationRunPublisher {
   async publish(post: EmployeeReactionPost) {
     this.posts.unshift(post);
     this.published += 1;
+  }
+  async listReviewItems(status?: OrganizationRunReviewStatus) {
+    return this.reviews.filter((item) => !status || item.status === status);
+  }
+  async getReviewItem(id: string) {
+    return this.reviews.find((item) => item.id === id);
+  }
+  async saveReviewItem(item: OrganizationRunReviewItem) {
+    this.reviews.unshift(item);
+  }
+  async updateReviewItem(item: OrganizationRunReviewItem) {
+    this.reviews = this.reviews.map((current) => current.id === item.id ? item : current);
   }
   async acquireExecutionLock() {
     if (this.locked) return false;
@@ -70,7 +88,7 @@ function createGenerator(topics: OrganizationRunTopic[]) {
     },
     async generateReactions({ employees }) {
       return employees.map(({ employee }, index) => ({
-        employeeId: employee.id as "tect" | "char-003" | "char-002",
+        employeeId: employee.id as "tect" | "char-001" | "char-003" | "char-002",
         stance: index === 0 ? "보류" : index === 1 ? "찬성" : "반대",
         coreOpinion: `${employee.nameKo}의 핵심 의견입니다.`,
         concerns: `${employee.nameKo}의 우려 사항입니다.`,
@@ -81,16 +99,17 @@ function createGenerator(topics: OrganizationRunTopic[]) {
   return { generator, getTopicCalls: () => topicCalls };
 }
 
-test("정상 실행은 Topic과 반응을 각 1회 생성하고 한 번만 발행한다", async () => {
+test("정상 실행은 Topic 1회와 직원별 독립 호출 후 자동 발행한다", async () => {
   const publisher = new MemoryPublisher();
   const { generator } = createGenerator([validTopic]);
   const result = await runAIOrganization({ generator, publisher });
 
   assert.equal(result.status, "completed");
-  assert.equal(result.geminiCallCount, 2);
+  assert.equal(result.geminiCallCount, 4);
   assert.equal(result.participantIds.length, 3);
   assert.equal(publisher.published, 1);
   assert.equal(publisher.posts[0].reactions.length, 3);
+  assert.equal(result.reviewPending, false);
 });
 
 test("첫 Topic이 중복이면 한 번 재생성하고 정상 Topic을 발행한다", async () => {
@@ -123,7 +142,7 @@ test("첫 Topic이 중복이면 한 번 재생성하고 정상 Topic을 발행�
 
   const result = await runAIOrganization({ generator, publisher });
   assert.equal(getTopicCalls(), 2);
-  assert.equal(result.geminiCallCount, 3);
+  assert.equal(result.geminiCallCount, 5);
   assert.equal(publisher.published, 1);
   assert.equal(result.title, replacement.title);
 });
@@ -152,6 +171,23 @@ test("public boardType은 공개 피드 저장 값으로 정규화한다", () =>
   assert.equal(post.board, "public-feed");
 });
 
+test("SIG를 중복 없이 후보군에 포함하고 TECT 없이도 2명 배정이 가능하다", () => {
+  assert.deepEqual(ORGANIZATION_RUN_EMPLOYEE_IDS, [
+    "tect",
+    "char-001",
+    "char-003",
+    "char-002",
+  ]);
+  const validation = validateOrganizationRunTopic(
+    {
+      ...validTopic,
+      relevantEmployeeIds: ["char-001", "char-003"],
+    },
+    []
+  );
+  assert.equal(validation.valid, true);
+});
+
 const manualInput: ManualOrganizationRunInput = {
   boardType: "public",
   title: "AI 직원 외부 협업 제안을 운영자가 수동으로 검토하는 절차",
@@ -171,7 +207,7 @@ test("수동 실행은 주제를 생성하지 않고 반응과 검증만 수행�
   });
 
   assert.equal(getTopicCalls(), 0);
-  assert.equal(result.geminiCallCount, 1);
+  assert.equal(result.geminiCallCount, 2);
   assert.equal(result.published, false);
   assert.equal(result.publicUrl, undefined);
   assert.equal(result.post.reactions.length, 2);
@@ -198,6 +234,90 @@ test("수동 발행 선택 시 이미지와 게시글을 함께 저장한다", a
     publisher.posts[0].imageUrl,
     "https://assets.example.com/persos/manual-topic.png"
   );
+});
+
+test("고위험 콘텐츠는 자동 발행하지 않고 예외 검수 큐로 보낸다", async () => {
+  const publisher = new MemoryPublisher();
+  const highRiskTopic: OrganizationRunTopic = {
+    ...validTopic,
+    title: "AI 직원 채용 계약과 급여 조건을 외부에 공식 발표해야 하는가?",
+    body:
+      "PERSOS의 향후 AI 직원 채용 계약과 급여 조건을 외부에 공식 발표하는 안건입니다. 대외 공약과 계약 책임이 발생할 수 있어 공개 범위와 검수 책임을 구체적으로 검토해야 합니다. 확정되지 않은 조건을 사실처럼 단정하지 않고 위험 요소와 필요한 승인 절차를 함께 제시해 주세요.",
+    topicSummary: "채용 계약과 급여 조건의 대외 발표 범위를 검토합니다.",
+    sourceUrls: [],
+  };
+  const { generator } = createGenerator([highRiskTopic]);
+  const result = await runAIOrganization({ generator, publisher });
+
+  assert.equal(result.published, false);
+  assert.equal(result.reviewPending, true);
+  assert.equal(publisher.published, 0);
+  assert.equal(publisher.reviews.length, 1);
+  assert.equal(publisher.reviews[0].status, "review_pending");
+  assert.equal(publisher.reviews[0].riskLevel, "high");
+
+  const approved = await reviewOrganizationRunItem({
+    publisher,
+    id: publisher.reviews[0].id,
+    action: "approve",
+  });
+  assert.equal(approved.status, "approved");
+  assert.equal(publisher.published, 1);
+});
+
+test("선택적 전건 검수 모드는 QA 통과 건도 자동 발행하지 않는다", async () => {
+  const publisher = new MemoryPublisher();
+  const { generator } = createGenerator([validTopic]);
+  const result = await runAIOrganization({
+    generator,
+    publisher,
+    fullReviewMode: true,
+  });
+
+  assert.equal(result.published, false);
+  assert.equal(result.reviewPending, true);
+  assert.match(publisher.reviews[0].reasons.join(" "), /전건 검수/);
+});
+
+test("저장 오류가 발생하면 생성 결과를 잃지 않고 예외 검수 큐에 보존한다", async () => {
+  class FailingPublisher extends MemoryPublisher {
+    override async publish() {
+      throw new Error("isolated storage failure");
+    }
+  }
+  const publisher = new FailingPublisher();
+  const { generator } = createGenerator([validTopic]);
+
+  await assert.rejects(() => runAIOrganization({ generator, publisher }));
+  assert.equal(publisher.reviews.length, 1);
+  assert.equal(publisher.reviews[0].status, "review_pending");
+  assert.equal(publisher.reviews[0].post?.reactions.length, 3);
+  assert.match(publisher.reviews[0].reasons.join(" "), /시스템 오류/);
+});
+
+test("예외 검수 큐에서 보류 콘텐츠를 수정하거나 폐기할 수 있다", async () => {
+  const publisher = new MemoryPublisher();
+  const { generator } = createGenerator([validTopic]);
+  await runAIOrganization({ generator, publisher, fullReviewMode: true });
+  const item = publisher.reviews[0];
+  const edited = await reviewOrganizationRunItem({
+    publisher,
+    id: item.id,
+    action: "edit",
+    title: "수정된 AI 직원 콘텐츠 검수 범위와 자동 발행 운영 원칙",
+    body:
+      "Automated QA를 통과한 일반 콘텐츠는 자동 공개하고, 출처 불충분 또는 고위험 예외만 Founder 검수 큐에서 처리하는 운영 원칙으로 수정합니다.",
+  });
+  assert.equal(edited.status, "review_pending");
+  assert.match(edited.post?.title ?? "", /수정된/);
+
+  const discarded = await reviewOrganizationRunItem({
+    publisher,
+    id: item.id,
+    action: "discard",
+  });
+  assert.equal(discarded.status, "discarded");
+  assert.equal(publisher.published, 0);
 });
 
 test("수동 입력은 게시판, 본문, 직원과 이미지 URL 정책을 검증한다", () => {

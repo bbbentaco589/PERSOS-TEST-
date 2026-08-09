@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
 
 import {
   buildEmployeeReactionSystemInstruction,
@@ -9,7 +10,6 @@ import type { OrganizationRunTopic } from "@/types";
 
 import type { OrganizationRunGenerator } from "./types";
 
-const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const BOARD_TYPES = ["public", "debate", "anonymous"] as const;
 
 const topicSchema = {
@@ -22,6 +22,7 @@ const topicSchema = {
     "topicSummary",
     "reasonForBoardSelection",
     "relevantEmployeeIds",
+    "sourceUrls",
   ],
   properties: {
     boardType: { type: "string", enum: [...BOARD_TYPES] },
@@ -36,8 +37,15 @@ const topicSchema = {
       uniqueItems: true,
       items: {
         type: "string",
-        enum: ["tect", "char-003", "char-002"],
+        enum: ["tect", "char-001", "char-003", "char-002"],
       },
+    },
+    sourceUrls: {
+      type: "array",
+      minItems: 0,
+      maxItems: 5,
+      uniqueItems: true,
+      items: { type: "string" },
     },
   },
 };
@@ -56,7 +64,9 @@ function parseTopic(value: string): OrganizationRunTopic {
     typeof parsed.topicSummary !== "string" ||
     typeof parsed.reasonForBoardSelection !== "string" ||
     !Array.isArray(parsed.relevantEmployeeIds) ||
-    !parsed.relevantEmployeeIds.every((id) => typeof id === "string")
+    !parsed.relevantEmployeeIds.every((id) => typeof id === "string") ||
+    !Array.isArray(parsed.sourceUrls) ||
+    !parsed.sourceUrls.every((url) => typeof url === "string")
   ) {
     throw new Error("Gemini Topic 응답 구조가 올바르지 않습니다.");
   }
@@ -67,6 +77,7 @@ function parseTopic(value: string): OrganizationRunTopic {
     topicSummary: parsed.topicSummary.trim(),
     reasonForBoardSelection: parsed.reasonForBoardSelection.trim(),
     relevantEmployeeIds: parsed.relevantEmployeeIds,
+    sourceUrls: parsed.sourceUrls.map((url) => url.trim()).filter(Boolean),
   };
 }
 
@@ -83,9 +94,17 @@ export class GeminiOrganizationRunGenerator
   private readonly client: GoogleGenAI;
   private readonly model: string;
 
-  constructor(apiKey: string) {
+  constructor(
+    apiKey: string,
+    private readonly jsonExecutor?: (input: {
+      prompt: string;
+      systemInstruction: string;
+      schema: Record<string, unknown>;
+      maxOutputTokens: number;
+    }) => Promise<string>
+  ) {
     this.client = new GoogleGenAI({ apiKey });
-    this.model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
+    this.model = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
   }
 
   private async generateJson(input: {
@@ -94,6 +113,7 @@ export class GeminiOrganizationRunGenerator
     schema: Record<string, unknown>;
     maxOutputTokens: number;
   }) {
+    if (this.jsonExecutor) return this.jsonExecutor(input);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), getTimeoutMs());
     try {
@@ -144,7 +164,9 @@ export class GeminiOrganizationRunGenerator
         "anonymous는 조직 내부 고민·갈등·업무 불편처럼 공개적으로 말하기 어려운 주제입니다.",
         "PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
         "테스트, 샘플, 임시 문구와 기존 주제의 반복을 금지합니다.",
-        "참여 직원은 tect, char-003, char-002 중 주제와 관련된 2~3명만 선택하세요.",
+        "참여 직원은 tect, char-001(SIG), char-003(LUMI), char-002(박봉남) 중 주제와 관련된 2~3명만 선택하세요.",
+        "TECT는 기본 참여자가 아니다. 직무 관련성이 명확할 때만 선택하고 모든 주제에 강제 배정하지 마세요.",
+        "공개적으로 확인 가능한 사실 근거가 있으면 sourceUrls에 HTTPS URL을 최대 5개 기록하고, 확실한 출처가 없으면 빈 배열을 반환하세요.",
         "Architect를 참여 직원으로 선택하지 마세요.",
         "지정된 JSON Schema 이외의 설명은 반환하지 마세요.",
       ].join("\n"),
@@ -160,18 +182,23 @@ export class GeminiOrganizationRunGenerator
     employees,
   }: Parameters<OrganizationRunGenerator["generateReactions"]>[0]) {
     const board = topic.boardType === "public" ? "public-feed" : topic.boardType;
-    const employeeIds = employees.map(({ employee }) => employee.id);
-    const text = await this.generateJson({
-      prompt: `게시글 제목:\n${topic.title}\n\n게시글 본문:\n${topic.body}`,
-      systemInstruction: buildEmployeeReactionSystemInstruction({
-        board,
-        title: topic.title,
-        body: topic.body,
-        employees,
-      }),
-      schema: createEmployeeReactionResponseSchema(employeeIds),
-      maxOutputTokens: 2_200,
-    });
-    return parseEmployeeReactions(text, employeeIds);
+    const independentResults = await Promise.all(
+      employees.map(async (employee) => {
+        const employeeIds = [employee.employee.id];
+        const text = await this.generateJson({
+          prompt: `게시글 제목:\n${topic.title}\n\n게시글 본문:\n${topic.body}`,
+          systemInstruction: buildEmployeeReactionSystemInstruction({
+            board,
+            title: topic.title,
+            body: topic.body,
+            employees: [employee],
+          }),
+          schema: createEmployeeReactionResponseSchema(employeeIds),
+          maxOutputTokens: 900,
+        });
+        return parseEmployeeReactions(text, employeeIds)[0];
+      })
+    );
+    return independentResults;
   }
 }

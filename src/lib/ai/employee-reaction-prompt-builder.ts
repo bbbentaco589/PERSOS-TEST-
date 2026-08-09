@@ -4,7 +4,12 @@ import type {
   EmployeeReactionStance,
 } from "@/types";
 
-export const EMPLOYEE_REACTION_IDS = ["tect", "char-003", "char-002"] as const;
+export const EMPLOYEE_REACTION_IDS = [
+  "tect",
+  "char-001",
+  "char-003",
+  "char-002",
+] as const;
 export const EMPLOYEE_REACTION_STANCES = ["찬성", "보류", "반대"] as const;
 
 export type EmployeeReactionCanonical = {
@@ -125,9 +130,14 @@ export function buildEmployeeReactionSystemInstruction({
     "",
     "작성 규칙:",
     "- 각 직원은 같은 안건을 자신의 가치관, 전문 분야, 약점과 Persona Rules에 따라 독립적으로 판단한다.",
-    "- 세 직원의 논리, 우려, 제안과 문장 표현이 Canonical 차이에 따라 명확히 구분되어야 한다.",
+    "- 이 요청에는 한 직원의 Canonical만 제공된다. 다른 직원의 관점이나 말투를 대신 작성하지 않는다.",
     "- 찬성, 보류, 반대 중 하나를 선택한다.",
     "- 확인되지 않은 수치, 계약, 시장 사실, 과거 경력과 직원 관계를 만들지 않는다.",
+    ...(board === "anonymous"
+      ? [
+          "- 익명 채팅 응답에는 자신의 이름, 영문명, 직책, 소속 사업부·팀 또는 이를 추정할 수 있는 표현을 절대 쓰지 않는다.",
+        ]
+      : []),
     "- coreOpinion, concerns, suggestion은 각각 한 개 이상의 완결된 한국어 문장으로 작성한다.",
     "- 요청된 JSON Schema 이외의 설명을 반환하지 않는다.",
   ].join("\n");

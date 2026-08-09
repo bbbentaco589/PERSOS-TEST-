@@ -41,6 +41,8 @@ export async function POST(request: Request) {
       title: result.title,
       imageUrl: result.post.imageUrl,
       published: result.published,
+      reviewPending: result.reviewPending,
+      reviewItemId: result.reviewItemId,
       publicUrl: result.publicUrl,
       geminiCallCount: result.geminiCallCount,
       reactions: result.post.reactions.map((reaction) => {

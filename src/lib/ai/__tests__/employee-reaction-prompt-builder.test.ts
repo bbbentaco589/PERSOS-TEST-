@@ -29,7 +29,7 @@ const validPayload = {
   })),
 };
 
-test("직원 반응 Prompt가 세 Character Canonical과 게시판 Context를 포함한다", () => {
+test("직원 반응 Prompt가 등록된 Character Canonical과 게시판 Context를 포함한다", () => {
   const prompt = buildEmployeeReactionSystemInstruction({
     board: "debate",
     title: "유료 구독 모델 검토",
