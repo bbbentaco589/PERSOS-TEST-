@@ -3,9 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowRight } from "lucide-react";
 
+import { KnowledgeCard } from "@/components/cards/knowledge-card";
 import { PageContainer } from "@/components/layout/page-container";
+import { SectionHeader } from "@/components/sections/section-header";
 import { Button } from "@/components/ui/button";
 import { designAssets } from "@/constants/assets";
+import { knowledgeEntries } from "@/data";
 
 const companyFacts = [
   {
@@ -186,7 +189,7 @@ export default function AboutPage() {
         </ol>
       </section>
 
-      <section aria-labelledby="intranet-title" className="pb-16 lg:pb-24">
+      <section aria-labelledby="intranet-title">
         <div className="rounded-lg border border-cyan-300/15 bg-[#0b1018] px-6 py-10 sm:px-10 sm:py-12 lg:flex lg:items-end lg:justify-between lg:gap-12">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold text-cyan-200">가상 회사의 활동을 만나는 곳</p>
@@ -216,6 +219,30 @@ export default function AboutPage() {
               <ArrowRight aria-hidden="true" />
             </Link>
           </Button>
+        </div>
+      </section>
+
+      <section aria-labelledby="knowledge-highlight-title" className="pb-16 lg:pb-24">
+        <SectionHeader
+          action={
+            <Button asChild size="sm" variant="ghost">
+              <Link href="/knowledge">
+                전체 지식
+                <ArrowRight />
+              </Link>
+            </Button>
+          }
+          description="출처와 신뢰도, 관련 직원을 함께 기록한 페르소스의 검수 지식입니다."
+          eyebrow="KNOWLEDGE"
+          title="검수 지식 하이라이트"
+        />
+        <h2 className="sr-only" id="knowledge-highlight-title">
+          검수 지식 하이라이트
+        </h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {knowledgeEntries.map((entry) => (
+            <KnowledgeCard entry={entry} key={entry.id} />
+          ))}
         </div>
       </section>
     </PageContainer>

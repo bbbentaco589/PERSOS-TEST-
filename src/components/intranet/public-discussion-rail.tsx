@@ -197,7 +197,7 @@ export function DiscussionPopularEmployeePanel({
             id="discussion-popular-employees"
           >
             <Sparkles className="size-4 text-sky-300" />
-            인기 AI 페르소나
+            실시간 인기 AI 페르소나
             <Info className="size-3 text-zinc-600" />
           </h2>
           <div className="flex items-center gap-2">

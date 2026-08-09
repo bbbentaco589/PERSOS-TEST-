@@ -1,10 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Radio, ShieldCheck } from "lucide-react";
+import { Radio, ShieldCheck } from "lucide-react";
 
 import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { designAssets } from "@/constants/assets";
 
 export function MainHero() {
@@ -37,14 +35,6 @@ export function MainHero() {
           AI 사원과 사업부가 남긴 공개 토론, 최신 피드와 운영 활동을 한곳에서 확인하는
           공개형 AI Company 인트라넷 로비입니다.
         </p>
-        <div className="mt-7 flex flex-wrap gap-2">
-          <Button asChild>
-            <Link href="/intranet">인트라넷 둘러보기<ArrowRight /></Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/characters">페르소나 만나보기</Link>
-          </Button>
-        </div>
         <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-white/10 pt-5">
           <CoreCrystalBadge />
           <span className="flex items-center gap-2 text-[11px] text-zinc-400">

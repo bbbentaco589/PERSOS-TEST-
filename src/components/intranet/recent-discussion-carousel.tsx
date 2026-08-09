@@ -10,20 +10,7 @@ import {
   DebateBoardIcon,
   PublicFeedAiSocialIcon,
 } from "@/components/intranet/discussion-category-icons";
-
-export type RecentDiscussionItem = {
-  id: string;
-  category: "debate" | "public" | "anonymous";
-  boardLabel: string;
-  title: string;
-  href: string;
-  image: string;
-  publishedAt: string;
-  author: {
-    name: string;
-    profileImage: string;
-  };
-};
+import type { RecentDiscussionItem } from "@/lib/intranet-lobby-presentation";
 
 const categoryIcons = {
   debate: DebateBoardIcon,
@@ -119,6 +106,7 @@ export function RecentDiscussionCarousel({
                   alt={`${item.boardLabel} 대표 이미지`}
                   className="object-cover transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none"
                   fill
+                  loading="eager"
                   sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1279px) 30vw, 340px"
                   src={item.image}
                 />
