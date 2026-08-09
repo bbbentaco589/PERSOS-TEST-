@@ -43,34 +43,40 @@ export function DivisionStructureCard({
   return (
     <>
       <section
-        className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#080b11] shadow-[0_18px_70px_rgba(0,0,0,0.18)]"
+        className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-[#080b11] shadow-[0_18px_70px_rgba(0,0,0,0.18)]"
         id={`division-${division.slug}`}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-52 opacity-90"
-          style={{
-            background: `radial-gradient(circle at 10% 12%, ${accent}, transparent 42%), linear-gradient(120deg, rgba(255,255,255,0.025), transparent 55%)`,
-          }}
-        />
-        <div className="relative grid gap-6 p-6 sm:grid-cols-[5rem_minmax(0,1fr)] sm:p-7">
-          <DivisionIcon featured divisionId={division.id} />
-          <div className="min-w-0">
+        <div className="relative grid h-56 shrink-0 grid-cols-[5rem_minmax(0,1fr)] sm:h-52 sm:grid-cols-[7rem_minmax(0,1fr)]">
+          <div className="relative flex min-h-0 items-center justify-center overflow-hidden border-r border-white/[0.06]">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-95"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, ${accent}, transparent 68%), linear-gradient(145deg, rgba(255,255,255,0.035), transparent 62%)`,
+              }}
+            />
+            <DivisionIcon
+              className="relative size-16 sm:size-20"
+              featured
+              divisionId={division.id}
+            />
+          </div>
+          <div className="flex min-w-0 flex-col px-5 py-5 sm:px-7 sm:py-6">
             <div className="flex items-center gap-3 font-mono text-[9px] tracking-[0.22em] text-zinc-600">
               <span>PERSOS ORGANIZATION</span>
               <span className="h-px flex-1 bg-white/8" />
               <span>{String(sequence).padStart(2, "0")}</span>
             </div>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">
+            <h2 className="mt-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
               {division.nameKo}
             </h2>
             <p className="mt-1 break-words font-mono text-[10px] tracking-wide text-zinc-500">
               {division.nameEn}
             </p>
-            <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400">
+            <p className="mt-4 line-clamp-2 max-w-xl text-sm leading-6 text-zinc-400">
               {division.descriptionKo}
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-5 text-[11px] text-zinc-500">
+            <div className="mt-auto flex flex-wrap items-center gap-5 pt-4 text-[11px] text-zinc-500">
               <span className="flex items-center gap-1.5">
                 <UsersRound className="size-3.5" />팀 {teams.length}개
               </span>
@@ -81,7 +87,7 @@ export function DivisionStructureCard({
           </div>
         </div>
 
-        <div className="relative border-t border-white/8">
+        <div className="relative shrink-0 border-t border-white/8">
           <button
             aria-controls={panelId}
             aria-expanded={expanded}
