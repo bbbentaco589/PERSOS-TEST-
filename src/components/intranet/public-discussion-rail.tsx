@@ -229,11 +229,7 @@ export function DiscussionPopularEmployeePanel({
                 </span>
                 <EmployeeAvatar
                   alt={`${profile.employee.nameKo} 프로필`}
-                  className={
-                    profile.employee.slug === "tect"
-                      ? "size-8 rounded-full object-[center_28%]"
-                      : "size-8 rounded-full"
-                  }
+                  className="size-8 rounded-full object-center"
                   size={32}
                   src={profile.employee.profileImage}
                 />

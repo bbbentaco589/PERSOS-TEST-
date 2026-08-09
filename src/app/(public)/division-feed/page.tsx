@@ -122,7 +122,7 @@ export default async function DivisionFeedDirectoryPage({
                         <span className="min-w-0 flex-1 truncate text-[10px] text-zinc-500">{team.nameKo}</span>
                         {teamMembers.length ? teamMembers.map((employee) => (
                           <Link aria-label={`${employee.nameKo} 프로필 보기`} className="flex max-w-[120px] items-center gap-1.5 text-[10px] text-zinc-300 transition hover:text-cyan-200" href={`/characters/${employee.slug}`} key={employee.id}>
-                            <EmployeeAvatar alt="" className={employee.slug === "tect" ? "size-5 rounded-full object-[center_34%]" : "size-5 rounded-full"} size={20} src={employee.profileImage} />
+                            <EmployeeAvatar alt="" className="size-5 rounded-full object-center" size={20} src={employee.profileImage} />
                             <span className="truncate">{employee.nameKo}</span>
                           </Link>
                         )) : <span className="text-[9px] text-zinc-700">채용중</span>}

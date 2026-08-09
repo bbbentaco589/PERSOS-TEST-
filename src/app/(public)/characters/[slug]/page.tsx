@@ -75,28 +75,37 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
       <Breadcrumb items={[{ label: "PERSOS", href: "/departments" }, { label: division?.nameKo ?? "조직", href: "/division-feed" }, { label: team?.nameKo ?? "팀" }, { label: character.nameKo }]} />
 
       <section className="relative min-h-[560px] overflow-hidden border border-white/10 bg-[#081126] sm:min-h-[620px]" data-asset-placeholder={!heroAssetAvailable ? "canonical-asset-pending" : character.profileStage === "Rough" ? "employee-hero" : undefined}>
-        {heroAssetAvailable ? <Image
+        {heroAssetAvailable ? character.slug === "tect" ? (
+          <div className="absolute inset-y-0 right-0 w-full sm:w-[78%] lg:w-[64%]">
+            <Image
+              alt={`${character.nameKo}, ${character.jobTitleKo} 업무 공간 Hero`}
+              className="object-cover object-center"
+              fill
+              priority
+              quality={92}
+              sizes="(min-width: 1024px) 850px, 100vw"
+              src={character.heroImage}
+            />
+          </div>
+        ) : <Image
           alt={`${character.nameKo}, ${character.jobTitleKo} 업무 공간 Hero`}
-          className={character.slug === "tect"
-            ? "object-cover object-[center_18%]"
-            : character.profileStage === "Rough"
-              ? "object-cover opacity-35"
-              : character.id === "char-001"
-                ? "object-cover object-[24%_center] sm:object-center"
-                : character.id === "char-003"
-                  ? "object-cover object-[76%_center] sm:object-center"
-                  : "object-cover object-center"}
+          className={character.profileStage === "Rough"
+            ? "object-cover opacity-35"
+            : character.id === "char-001"
+              ? "object-cover object-[24%_center] sm:object-center"
+              : character.id === "char-003"
+                ? "object-cover object-[76%_center] sm:object-center"
+                : "object-cover object-center"}
           fill
           priority
           quality={92}
           sizes="(min-width: 1280px) 1320px, 100vw"
           src={character.heroImage}
-          unoptimized
         /> : <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_42%)]">
           <div className="flex flex-col items-center gap-3 text-center text-zinc-500"><ImageOff className="size-8 text-cyan-200/60" /><p className="text-xs font-medium">Canonical 원본 에셋 연결 대기</p><p className="max-w-xs text-[10px] leading-5 text-zinc-600">저해상도 Preview를 Production Asset으로 대체하지 않습니다.</p></div>
         </div>}
         <div className="absolute inset-0 bg-gradient-to-t from-[#07080a] via-black/15 to-transparent" />
-        <div className={character.id === "char-001" ? "absolute inset-0 bg-gradient-to-l from-black/75 via-transparent to-black/15" : "absolute inset-0 bg-gradient-to-r from-black/80 via-black/15 to-transparent"} />
+        <div className={character.slug === "tect" ? "absolute inset-0 bg-gradient-to-t from-[#0b0d12] via-transparent to-transparent sm:bg-gradient-to-r sm:via-[#0b0d12]/55" : character.id === "char-001" ? "absolute inset-0 bg-gradient-to-l from-black/75 via-transparent to-black/15" : "absolute inset-0 bg-gradient-to-r from-black/80 via-black/15 to-transparent"} />
         <div className="relative flex min-h-[560px] items-end p-5 sm:min-h-[620px] sm:p-8 lg:p-10">
           <div className={`max-w-xl ${copyPosition}`}>
             <div className={`flex flex-wrap items-center gap-2 ${character.id === "char-001" ? "lg:justify-end" : ""}`}>
@@ -120,7 +129,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
       <section className="grid gap-6 border-b border-white/8 pb-8 lg:grid-cols-[220px_minmax(0,1fr)]">
         <div>
           <div data-asset-placeholder={!profileAssetAvailable ? "canonical-asset-pending" : character.profileStage === "Rough" ? "employee-profile" : undefined}>
-            {profileAssetAvailable ? <Image alt={`${character.nameKo} 프로필`} className={character.slug === "tect" ? "aspect-[941/1672] w-full border border-white/10 object-cover object-[center_18%]" : character.profileStage === "Rough" ? "aspect-square w-full border border-dashed border-white/10 bg-white/[0.02] object-contain p-14 opacity-60" : "aspect-square w-full border border-white/10 object-cover"} height={character.slug === "tect" ? 668 : 360} src={character.profileImage} width={character.slug === "tect" ? 376 : 360} /> : <div className="grid aspect-[941/1672] w-full place-items-center border border-dashed border-cyan-300/20 bg-cyan-300/[0.03] p-5 text-center"><div><ImageOff className="mx-auto size-6 text-cyan-200/60" /><p className="mt-3 text-[11px] font-medium text-zinc-400">원본 PNG 연결 대기</p><p className="mt-2 text-[9px] leading-4 text-zinc-600">941×1672 Production Source 필요</p></div></div>}
+            {profileAssetAvailable ? <Image alt={`${character.nameKo} 프로필`} className={character.profileStage === "Rough" ? "aspect-square w-full border border-dashed border-white/10 bg-white/[0.02] object-contain p-14 opacity-60" : "aspect-square w-full border border-white/10 object-cover object-center"} height={360} src={character.profileImage} width={360} /> : <div className="grid aspect-square w-full place-items-center border border-dashed border-cyan-300/20 bg-cyan-300/[0.03] p-5 text-center"><div><ImageOff className="mx-auto size-6 text-cyan-200/60" /><p className="mt-3 text-[11px] font-medium text-zinc-400">Canonical 원본 연결 대기</p><p className="mt-2 text-[9px] leading-4 text-zinc-600">승인된 정방형 Profile Source 필요</p></div></div>}
           </div>
           <CoreCrystalBadge className="mt-4" label={character.publicVisibility && character.profileStage === "Approved" ? "Persona Core · Identity Active" : character.publicVisibility ? "Persona Core · 설정 검토 중" : "Persona Core · Draft / Unlisted"} />
         </div>
@@ -176,7 +185,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           </section>
           <section id="section-5">
             <div className="mb-4 flex items-center gap-2"><Radio className="size-4 text-cyan-200" /><h2 className="font-semibold">Media</h2></div>
-            {showcase?.media.length ? <div className="grid gap-3 sm:grid-cols-2">{showcase.media.map((item) => <div className="border border-white/8 p-4" key={item.id}><Badge variant="outline">{item.type}</Badge><p className="mt-3 text-sm font-medium">{item.titleKo}</p><p className="mt-2 text-xs text-zinc-600">{item.status}</p></div>)}</div> : <EmptyState title="공개된 미디어가 없습니다" description="공식 이미지와 영상 에셋이 승인되면 이 영역에 연결됩니다." />}
+            {showcase?.media.length ? <div className="grid gap-3 sm:grid-cols-2">{showcase.media.map((item) => <div className="overflow-hidden border border-white/8 bg-[#0b0d11]" key={item.id}>{item.type === "Image" && item.url ? <div className="relative aspect-[3/2] bg-zinc-100"><Image alt={item.titleKo} className="object-contain" fill sizes="(min-width: 640px) 50vw, 100vw" src={item.url} /></div> : null}<div className="p-4"><Badge variant="outline">{item.type}</Badge><p className="mt-3 text-sm font-medium">{item.titleKo}</p><p className="mt-2 text-xs text-zinc-600">{item.publishedAt ? `${item.status} · ${item.publishedAt}` : item.status}</p></div></div>)}</div> : <EmptyState title="공개된 미디어가 없습니다" description="공식 이미지와 영상 에셋이 승인되면 이 영역에 연결됩니다." />}
           </section>
           <section id="section-6">
             <div className="mb-4 flex items-center gap-2"><Sparkles className="size-4 text-violet-300" /><h2 className="font-semibold">Related Employees</h2></div>

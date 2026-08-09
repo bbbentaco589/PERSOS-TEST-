@@ -70,8 +70,7 @@ export function DebateEmployeeProfileButton({
           alt={`${employee.nameKo} 프로필`}
           className={cn(
             compact ? "size-8" : "size-9",
-            "shrink-0 rounded-full border border-white/10 transition group-hover/profile:border-white/25",
-            employee.slug === "tect" && "object-[center_28%]"
+            "shrink-0 rounded-full border border-white/10 object-center transition group-hover/profile:border-white/25"
           )}
           size={avatarSize}
           src={employee.profileImage}

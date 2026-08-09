@@ -188,7 +188,7 @@ export function PublicSidebarContent({
                           key={employee.id}
                           onClick={onNavigate}
                         >
-                          <EmployeeAvatar alt={`${employee.nameKo} 프로필`} className={employee.slug === "tect" ? "size-8 rounded-full object-[center_34%]" : "size-8 rounded-full"} size={32} src={employee.profileImage} />
+                          <EmployeeAvatar alt={`${employee.nameKo} 프로필`} className="size-8 rounded-full object-center" size={32} src={employee.profileImage} />
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-[11px] font-medium text-zinc-200">{employee.nameKo}</span>
                             <span className="mt-1 flex min-w-0 items-center gap-1.5">

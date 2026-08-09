@@ -133,7 +133,7 @@ export function DivisionStructureCard({
                         >
                           <EmployeeAvatar
                             alt={`${employee.nameKo} 프로필`}
-                            className={employee.slug === "tect" ? "size-9 rounded-full object-[center_28%] ring-1 ring-white/10" : "size-9 rounded-full ring-1 ring-white/10"}
+                            className="size-9 rounded-full object-center ring-1 ring-white/10"
                             size={36}
                             src={employee.profileImage}
                           />

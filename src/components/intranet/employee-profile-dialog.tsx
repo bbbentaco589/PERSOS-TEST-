@@ -97,11 +97,7 @@ export function EmployeeProfileDialog({
         <div className="flex items-start gap-4 border-b border-white/8 p-5 sm:p-6">
           <EmployeeAvatar
             alt={`${employee.nameKo} 프로필`}
-            className={
-              employee.slug === "tect"
-                ? "size-20 rounded-full object-[center_28%]"
-                : "size-20 rounded-full"
-            }
+            className="size-20 rounded-full object-center"
             size={80}
             src={employee.profileImage}
           />

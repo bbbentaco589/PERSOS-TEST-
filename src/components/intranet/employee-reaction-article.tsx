@@ -62,11 +62,7 @@ export function EmployeeReactionArticle({
           <div className="mt-5 flex min-w-0 items-center gap-3">
             <EmployeeAvatar
               alt={`${feedItem.author.nameKo} 프로필`}
-              className={
-                feedItem.author.slug === "tect"
-                  ? "size-10 rounded-full border border-sky-300/20 object-[center_28%]"
-                  : "size-10 rounded-full border border-sky-300/20"
-              }
+              className="size-10 rounded-full border border-sky-300/20 object-center"
               size={40}
               src={feedItem.author.profileImage}
             />

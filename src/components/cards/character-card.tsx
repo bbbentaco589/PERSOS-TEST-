@@ -10,13 +10,10 @@ import type { Character } from "@/types";
 
 const approvedProfileImageClass =
   "object-cover object-center opacity-90 transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none";
-const tallProfileImageClass =
-  "object-cover object-[center_34%] opacity-90 transition duration-500 group-hover:scale-[1.025] motion-reduce:transform-none";
 const roughProfileImageClass = "object-contain object-center p-10 opacity-45";
 
 function getProfileImageClass(character: Character) {
   if (character.profileStage === "Rough") return roughProfileImageClass;
-  if (character.slug === "tect") return tallProfileImageClass;
   return approvedProfileImageClass;
 }
 

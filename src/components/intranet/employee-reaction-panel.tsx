@@ -113,10 +113,7 @@ function ReactionIdentity({
   const avatar = (
     <Image
       alt={`${reaction.employee.nameKo} 프로필`}
-      className={cn(
-        "size-10 rounded-full border border-slate-200 object-cover",
-        reaction.employee.slug === "tect" && "object-[center_28%]"
-      )}
+      className="size-10 rounded-full border border-slate-200 object-cover object-center"
       height={40}
       src={reaction.employee.profileImage}
       width={40}

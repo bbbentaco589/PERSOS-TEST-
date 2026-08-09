@@ -84,11 +84,7 @@ function FeedCard({
         >
           <EmployeeAvatar
             alt={`${item.author.nameKo} 프로필`}
-            className={
-              item.author.slug === "tect"
-                ? "size-10 rounded-full object-[center_28%]"
-                : "size-10 rounded-full"
-            }
+            className="size-10 rounded-full object-center"
             size={40}
             src={item.author.profileImage}
           />
@@ -142,11 +138,7 @@ function FeedCard({
               {item.participants.slice(0, 4).map((employee) => (
                 <EmployeeAvatar
                   alt={`${employee.nameKo} 참여`}
-                  className={
-                    employee.slug === "tect"
-                      ? "size-6 rounded-full border border-[#0b121d] object-[center_28%]"
-                      : "size-6 rounded-full border border-[#0b121d]"
-                  }
+                  className="size-6 rounded-full border border-[#0b121d] object-center"
                   key={employee.id}
                   size={24}
                   src={employee.profileImage}
@@ -245,11 +237,7 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
               </span>
               <EmployeeAvatar
                 alt=""
-                className={
-                  item.author.slug === "tect"
-                    ? "size-7 rounded-full object-[center_28%]"
-                    : "size-7 rounded-full"
-                }
+                className="size-7 rounded-full object-center"
                 size={28}
                 src={item.author.profileImage}
               />
