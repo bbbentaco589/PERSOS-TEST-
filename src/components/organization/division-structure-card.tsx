@@ -43,18 +43,16 @@ export function DivisionStructureCard({
   return (
     <>
       <section
-        className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-[#080b11] shadow-[0_18px_70px_rgba(0,0,0,0.18)]"
+        className="group relative flex self-start flex-col overflow-hidden rounded-xl border border-white/10 bg-[#080b11] shadow-[0_18px_70px_rgba(0,0,0,0.18)]"
         id={`division-${division.slug}`}
       >
-        <div className="relative grid h-56 shrink-0 grid-cols-[5rem_minmax(0,1fr)] sm:h-52 sm:grid-cols-[7rem_minmax(0,1fr)]">
+        <div
+          className="relative grid h-64 shrink-0 grid-cols-[5rem_minmax(0,1fr)] overflow-hidden sm:h-60 sm:grid-cols-[7rem_minmax(0,1fr)]"
+          style={{
+            background: `radial-gradient(circle at 9% 50%, ${accent}, transparent 38%), linear-gradient(110deg, ${accent}, rgba(8,11,17,0.9) 48%, #080b11 100%)`,
+          }}
+        >
           <div className="relative flex min-h-0 items-center justify-center overflow-hidden border-r border-white/[0.06]">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-95"
-              style={{
-                background: `radial-gradient(circle at 50% 50%, ${accent}, transparent 68%), linear-gradient(145deg, rgba(255,255,255,0.035), transparent 62%)`,
-              }}
-            />
             <DivisionIcon
               className="relative size-16 sm:size-20"
               featured
@@ -73,10 +71,10 @@ export function DivisionStructureCard({
             <p className="mt-1 break-words font-mono text-[10px] tracking-wide text-zinc-500">
               {division.nameEn}
             </p>
-            <p className="mt-4 line-clamp-2 max-w-xl text-sm leading-6 text-zinc-400">
+            <p className="mt-4 line-clamp-3 h-[4.5rem] max-w-xl text-sm leading-6 text-zinc-400">
               {division.descriptionKo}
             </p>
-            <div className="mt-auto flex flex-wrap items-center gap-5 pt-4 text-[11px] text-zinc-500">
+            <div className="mt-3 flex flex-wrap items-center gap-5 text-[11px] text-zinc-500">
               <span className="flex items-center gap-1.5">
                 <UsersRound className="size-3.5" />팀 {teams.length}개
               </span>
@@ -87,7 +85,7 @@ export function DivisionStructureCard({
           </div>
         </div>
 
-        <div className="relative shrink-0 border-t border-white/8">
+        <div className="relative z-10 shrink-0 border-t border-white/8 bg-[#080b11]">
           <button
             aria-controls={panelId}
             aria-expanded={expanded}

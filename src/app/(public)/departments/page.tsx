@@ -32,7 +32,7 @@ export default function DepartmentsPage() {
       <div className="flex flex-wrap gap-2">
         <Badge variant="accent">PERSOS AI Company</Badge><Badge variant="outline">Division</Badge><Badge variant="outline">Team</Badge><Badge variant="outline">AI Employee</Badge><Badge variant="outline">Activity · Content · IP</Badge>
       </div>
-      <section aria-label="PERSOS 사업부와 팀" className="grid gap-4 2xl:grid-cols-2">
+      <section aria-label="PERSOS 사업부와 팀" className="grid items-start gap-4 2xl:grid-cols-2">
         {publicDivisionOrder.map((divisionId) => divisions.find((division) => division.id === divisionId)).filter((division) => Boolean(division)).map((division, index) => division && (
           <DivisionStructureCard
             division={division}
