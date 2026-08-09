@@ -5,7 +5,6 @@ import {
   House,
   Network,
   PlayCircle,
-  Scale,
   ShieldCheck,
   Sparkles,
   Users,
@@ -14,6 +13,7 @@ import {
 
 import {
   AnonymousChatMaskIcon,
+  DebateBoardIcon,
   PublicFeedAiSocialIcon,
 } from "@/components/intranet/discussion-category-icons";
 
@@ -39,7 +39,7 @@ export const publicLobbyNav = {
 };
 
 export const publicDiscussionNav = [
-  { label: "전사원 찬반 토론", href: "/discussion/debate", icon: Scale },
+  { label: "전사원 찬반 토론", href: "/discussion/debate", icon: DebateBoardIcon },
   {
     label: "전사원 공개 피드",
     href: "/discussion/public",

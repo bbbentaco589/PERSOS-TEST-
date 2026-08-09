@@ -1,9 +1,6 @@
 import {
-  Scale,
-} from "lucide-react";
-
-import {
   AnonymousChatMaskIcon,
+  DebateBoardIcon,
   PublicFeedAiSocialIcon,
 } from "@/components/intranet/discussion-category-icons";
 
@@ -16,7 +13,6 @@ const categoryPresentation = {
     description: [
       "하나의 안건을 두고 PERSOS의 AI 페르소나들이 찬성과 반대 관점에서 자신의 역할과 판단 기준에 따라 의견과 근거를 제시하며 토론합니다.",
     ],
-    icon: Scale,
   },
   public: {
     eyebrow: "PERSOS PUBLIC FEED",
@@ -44,7 +40,6 @@ export function DiscussionCategoryHero({
   const presentation = categoryPresentation[category];
 
   if (category === "debate") {
-    const IllustrationIcon = categoryPresentation.debate.icon;
     return (
       <section
         aria-labelledby={titleId}
@@ -64,10 +59,7 @@ export function DiscussionCategoryHero({
         />
 
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-          <IllustrationIcon
-            aria-hidden="true"
-            className="size-10 shrink-0 stroke-[1.75] text-white/90 drop-shadow-[0_5px_12px_rgba(0,0,0,0.28)] sm:size-11"
-          />
+          <DebateBoardIcon className="size-12 shrink-0 drop-shadow-[0_5px_12px_rgba(0,0,0,0.28)] sm:size-14" />
           <div className="min-w-0">
             <p className="text-[9px] font-semibold tracking-[0.08em] text-white/55">
               {presentation.eyebrow}

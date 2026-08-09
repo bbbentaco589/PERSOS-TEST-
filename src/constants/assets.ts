@@ -17,6 +17,12 @@ export const divisionIconAssets: Record<string, string> = {
   "division-studio": "/assets/divisions/v1.1/technology.png",
 };
 
+export const discussionCategoryIconAssets = {
+  debate: "/assets/boards/v1/debate.png",
+  public: "/assets/boards/v1/public-feed.png",
+  anonymous: "/assets/boards/v1/anonymous-chat.png",
+} as const;
+
 export const employeeVisuals = {
   "char-001": {
     hero: "/assets/ui-v1/04-employee-hero-1.png",

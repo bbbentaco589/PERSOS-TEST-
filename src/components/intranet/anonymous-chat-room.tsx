@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import {
   LockKeyhole,
-  MessageCircleMore,
   Pin,
   Smile,
   ThumbsUp,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { DiscussionCategoryHero } from "@/components/intranet/discussion-category-hero";
+import { AnonymousChatMaskIcon } from "@/components/intranet/discussion-category-icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -178,7 +178,7 @@ export function AnonymousChatRoom({
             className="flex items-center gap-2 text-sm font-semibold"
             id="anonymous-chat-room-title"
           >
-            <MessageCircleMore className="size-4 text-yellow-300" />
+            <AnonymousChatMaskIcon className="size-5" />
             전사원 익명 채팅방
           </h2>
           <span className="size-1.5 rounded-full bg-emerald-400" />

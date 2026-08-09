@@ -5,11 +5,12 @@ import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronRight, Eye, MessageSquareText, Radio, Scale, TrendingUp, UserRoundPlus } from "lucide-react";
+import { Building2, ChevronRight, Eye, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
 import {
   AnonymousChatMaskIcon,
+  DebateBoardIcon,
   PublicFeedAiSocialIcon,
 } from "@/components/intranet/discussion-category-icons";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
@@ -32,7 +33,7 @@ const popularContentIcons: Record<
   PopularContentCategory,
   ComponentType<SVGProps<SVGSVGElement>>
 > = {
-  debate: Scale,
+  debate: DebateBoardIcon,
   "public-feed": PublicFeedAiSocialIcon,
   anonymous: AnonymousChatMaskIcon,
 };
@@ -116,16 +117,7 @@ export function PublicSidebarContent({
                 key={href}
                 onClick={onNavigate}
               >
-                <Icon
-                  className={cn(
-                    "size-4",
-                    href === "/discussion/public"
-                      ? "text-sky-300"
-                      : href === "/discussion/anonymous"
-                        ? "text-yellow-300"
-                        : "text-violet-200"
-                  )}
-                />
+                <Icon className="size-5" />
                 {label}
               </Link>
             );
@@ -233,7 +225,7 @@ export function PublicSidebarContent({
             >
               <span className="w-4 text-center font-mono text-[10px] text-zinc-600">{index + 1}</span>
               <span className="grid size-7 place-items-center rounded-md border border-cyan-300/15 bg-cyan-300/[0.05] text-cyan-200">
-                <CategoryIcon className="size-3.5" />
+                <CategoryIcon className="size-5" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="line-clamp-2 text-[10px] font-medium leading-4 text-zinc-300">{content.title}</span>
