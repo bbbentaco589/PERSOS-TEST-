@@ -31,6 +31,22 @@
 
 초기 테스트 기간에만 `AI_REQUIRE_FOUNDER_REVIEW=true`로 모든 발행 요청을 예외 검수 큐에 보낼 수 있습니다. 관리자는 `/admin/review`에서 보류 건을 수정 저장, 승인·발행 또는 폐기할 수 있습니다.
 
+## KV 환경 격리
+
+Production은 기존 `persos:org-run:*` Key를 그대로 사용합니다. 기존 Production 데이터와 호환성을 유지하기 위해 이 Prefix는 변경하지 않습니다.
+
+Preview는 Vercel이 제공하는 `VERCEL_ENV=preview`를 기준으로 다음 전용 Prefix만 사용할 수 있습니다.
+
+```text
+persos:preview:<namespace>:org-run:*
+```
+
+- 기본 namespace는 `VERCEL_GIT_COMMIT_REF`를 정규화한 값입니다.
+- 선택적으로 Preview 환경에만 `PERSOS_KV_NAMESPACE=tect-runtime-preview`를 설정할 수 있습니다.
+- Preview에서 `PERSOS_KV_NAMESPACE=production`을 입력해도 `persos:preview:production:org-run:*`이 되므로 기존 Production Prefix와 충돌하지 않습니다.
+- `VERCEL_ENV`가 없으면 `persos:development:local:org-run:*`으로 fail-safe 처리합니다.
+- Post, 목록 Index, Topic Summary, Run, Review Queue, Lock, Rate Limit을 모두 같은 환경 Prefix 아래에 저장합니다.
+
 ## Trigger
 
 - 관리자 수동 Trigger: `/api/organization-run/trigger`의 기존 30분 실행 세션을 사용합니다.

@@ -11,18 +11,50 @@ import type { OrganizationRunPublisher } from "./types";
 
 type PublishedBoard = Exclude<EmployeeReactionBoard, "investor-demo">;
 
-const KEY = {
-  post: (slug: string) => `persos:org-run:post:${slug}`,
-  posts: "persos:org-run:posts:all",
-  boardPosts: (board: PublishedBoard) =>
-    `persos:org-run:posts:board:${board}`,
-  summaries: "persos:org-run:topic-summaries",
-  run: (runId: string) => `persos:org-run:run:${runId}`,
-  review: (id: string) => `persos:org-run:review:${id}`,
-  reviews: "persos:org-run:reviews:all",
-  lock: "persos:org-run:execution-lock",
-  rate: (bucket: number) => `persos:org-run:rate:${bucket}`,
-} as const;
+const PRODUCTION_KEY_PREFIX = "persos:org-run";
+
+function normalizeNamespaceSegment(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+}
+
+export function getOrganizationRunKVKeyPrefix(
+  env: Readonly<Record<string, string | undefined>> = process.env
+) {
+  if (env.VERCEL_ENV === "production") return PRODUCTION_KEY_PREFIX;
+
+  if (env.VERCEL_ENV === "preview") {
+    const namespace = normalizeNamespaceSegment(
+      env.PERSOS_KV_NAMESPACE?.trim() ||
+        env.VERCEL_GIT_COMMIT_REF?.trim() ||
+        "shared"
+    );
+    return `persos:preview:${namespace || "shared"}:org-run`;
+  }
+
+  const namespace = normalizeNamespaceSegment(
+    env.PERSOS_KV_NAMESPACE?.trim() || "local"
+  );
+  return `persos:development:${namespace || "local"}:org-run`;
+}
+
+function createKeys(prefix: string) {
+  return {
+    post: (slug: string) => `${prefix}:post:${slug}`,
+    posts: `${prefix}:posts:all`,
+    boardPosts: (board: PublishedBoard) => `${prefix}:posts:board:${board}`,
+    summaries: `${prefix}:topic-summaries`,
+    run: (runId: string) => `${prefix}:run:${runId}`,
+    review: (id: string) => `${prefix}:review:${id}`,
+    reviews: `${prefix}:reviews:all`,
+    lock: `${prefix}:execution-lock`,
+    rate: (bucket: number) => `${prefix}:rate:${bucket}`,
+  } as const;
+}
 
 function readKVConfig() {
   const url =
@@ -54,21 +86,26 @@ export function isOrganizationRunKVConfigured() {
 
 export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   private readonly redis: Redis;
+  private readonly key: ReturnType<typeof createKeys>;
 
-  constructor(config = readKVConfig()) {
+  constructor(
+    config = readKVConfig(),
+    keyPrefix = getOrganizationRunKVKeyPrefix()
+  ) {
     if (!config) {
       throw new Error(
         "Vercel KV 또는 Upstash Redis REST 환경변수가 필요합니다."
       );
     }
     this.redis = new Redis(config);
+    this.key = createKeys(keyPrefix);
   }
 
   async listPosts(board?: PublishedBoard) {
     const [allSlugs, boardSlugs] = await Promise.all([
-      this.redis.get<string[]>(KEY.posts),
+      this.redis.get<string[]>(this.key.posts),
       board
-        ? this.redis.get<string[]>(KEY.boardPosts(board))
+        ? this.redis.get<string[]>(this.key.boardPosts(board))
         : Promise.resolve(undefined),
     ]);
     const slugs = uniqueSlugs([
@@ -77,7 +114,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     ]);
     const posts = await Promise.all(
       slugs.map((slug) =>
-        this.redis.get<EmployeeReactionPost>(KEY.post(slug))
+        this.redis.get<EmployeeReactionPost>(this.key.post(slug))
       )
     );
     const availablePosts = posts
@@ -91,27 +128,28 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
       expectedSlugs.length !== (boardSlugs ?? []).length ||
       expectedSlugs.some((slug, index) => slug !== boardSlugs?.[index])
     ) {
-      await this.redis.set(KEY.boardPosts(board), expectedSlugs);
+      await this.redis.set(this.key.boardPosts(board), expectedSlugs);
     }
     return boardPosts;
   }
 
   async getPost(slug: string) {
     const post =
-      (await this.redis.get<EmployeeReactionPost>(KEY.post(slug))) ?? undefined;
+      (await this.redis.get<EmployeeReactionPost>(this.key.post(slug))) ??
+      undefined;
     return post ? normalizeStoredPost(post) : undefined;
   }
 
   async listTopicSummaries() {
-    return (await this.redis.get<string[]>(KEY.summaries)) ?? [];
+    return (await this.redis.get<string[]>(this.key.summaries)) ?? [];
   }
 
   async publish(post: EmployeeReactionPost, runId: string) {
     const [currentSlugs, currentBoardSlugs, currentSummaries] =
       await Promise.all([
-        this.redis.get<string[]>(KEY.posts),
-        this.redis.get<string[]>(KEY.boardPosts(post.board)),
-        this.redis.get<string[]>(KEY.summaries),
+        this.redis.get<string[]>(this.key.posts),
+        this.redis.get<string[]>(this.key.boardPosts(post.board)),
+        this.redis.get<string[]>(this.key.summaries),
       ]);
     const slugs = [
       post.slug,
@@ -128,11 +166,11 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
 
     await this.redis
       .multi()
-      .set(KEY.post(post.slug), post)
-      .set(KEY.posts, slugs)
-      .set(KEY.boardPosts(post.board), boardSlugs)
-      .set(KEY.summaries, summaries)
-      .set(KEY.run(runId), {
+      .set(this.key.post(post.slug), post)
+      .set(this.key.posts, slugs)
+      .set(this.key.boardPosts(post.board), boardSlugs)
+      .set(this.key.summaries, summaries)
+      .set(this.key.run(runId), {
         runId,
         status: "completed",
         postSlug: post.slug,
@@ -143,8 +181,8 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
 
     const [storedPost, storedSlugs, storedBoardSlugs] = await Promise.all([
       this.getPost(post.slug),
-      this.redis.get<string[]>(KEY.posts),
-      this.redis.get<string[]>(KEY.boardPosts(post.board)),
+      this.redis.get<string[]>(this.key.posts),
+      this.redis.get<string[]>(this.key.boardPosts(post.board)),
     ]);
     if (
       !storedPost ||
@@ -158,9 +196,11 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   }
 
   async listReviewItems(status?: OrganizationRunReviewStatus) {
-    const ids = (await this.redis.get<string[]>(KEY.reviews)) ?? [];
+    const ids = (await this.redis.get<string[]>(this.key.reviews)) ?? [];
     const items = await Promise.all(
-      ids.map((id) => this.redis.get<OrganizationRunReviewItem>(KEY.review(id)))
+      ids.map((id) =>
+        this.redis.get<OrganizationRunReviewItem>(this.key.review(id))
+      )
     );
     return items
       .filter((item): item is OrganizationRunReviewItem => Boolean(item))
@@ -170,22 +210,22 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
 
   async getReviewItem(id: string) {
     return (
-      (await this.redis.get<OrganizationRunReviewItem>(KEY.review(id))) ??
+      (await this.redis.get<OrganizationRunReviewItem>(this.key.review(id))) ??
       undefined
     );
   }
 
   async saveReviewItem(item: OrganizationRunReviewItem) {
-    const currentIds = (await this.redis.get<string[]>(KEY.reviews)) ?? [];
+    const currentIds = (await this.redis.get<string[]>(this.key.reviews)) ?? [];
     const ids = [item.id, ...currentIds.filter((id) => id !== item.id)].slice(
       0,
       300
     );
     await this.redis
       .multi()
-      .set(KEY.review(item.id), item)
-      .set(KEY.reviews, ids)
-      .set(KEY.run(item.runId), {
+      .set(this.key.review(item.id), item)
+      .set(this.key.reviews, ids)
+      .set(this.key.run(item.runId), {
         runId: item.runId,
         status: item.status,
         reviewItemId: item.id,
@@ -198,8 +238,8 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   async updateReviewItem(item: OrganizationRunReviewItem) {
     await this.redis
       .multi()
-      .set(KEY.review(item.id), item)
-      .set(KEY.run(item.runId), {
+      .set(this.key.review(item.id), item)
+      .set(this.key.run(item.runId), {
         runId: item.runId,
         status: item.status,
         reviewItemId: item.id,
@@ -211,7 +251,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   }
 
   async acquireExecutionLock(token: string, ttlSeconds: number) {
-    const result = await this.redis.set(KEY.lock, token, {
+    const result = await this.redis.set(this.key.lock, token, {
       nx: true,
       ex: ttlSeconds,
     });
@@ -221,7 +261,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   async releaseExecutionLock(token: string) {
     await this.redis.eval(
       "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
-      [KEY.lock],
+      [this.key.lock],
       [token]
     );
   }
@@ -231,7 +271,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     const count = Number(
       await this.redis.eval(
         "local n = redis.call('incr', KEYS[1]); if n == 1 then redis.call('expire', KEYS[1], ARGV[1]) end; return n",
-        [KEY.rate(bucket)],
+        [this.key.rate(bucket)],
         [windowSeconds]
       )
     );
