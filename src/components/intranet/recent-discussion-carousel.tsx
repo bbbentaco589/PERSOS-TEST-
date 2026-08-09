@@ -51,26 +51,29 @@ export function RecentDiscussionCarousel({
   items: RecentDiscussionItem[];
 }) {
   const itemsPerPage = useItemsPerPage();
-  const [page, setPage] = useState(0);
-  const pageCount = Math.max(1, Math.ceil(items.length / itemsPerPage));
-  const pages = useMemo(
+  const carouselItems = useMemo(() => items.slice(0, 5), [items]);
+  const itemCount = Math.max(1, carouselItems.length);
+  const [position, setPosition] = useState({ index: 0, direction: 1 as -1 | 1 });
+  const activeIndex = position.index % itemCount;
+  const visibleItems = useMemo(
     () =>
-      Array.from({ length: pageCount }, (_, index) =>
-        items.slice(index * itemsPerPage, (index + 1) * itemsPerPage)
+      Array.from(
+        { length: Math.min(itemsPerPage, carouselItems.length) },
+        (_, offset) => carouselItems[(activeIndex + offset) % itemCount]
       ),
-    [items, itemsPerPage, pageCount]
+    [activeIndex, carouselItems, itemCount, itemsPerPage]
   );
-  const activePage = page % pageCount;
 
   const move = (direction: -1 | 1) => {
-    setPage((current) =>
-      ((current % pageCount) + direction + pageCount) % pageCount
-    );
+    setPosition((current) => ({
+      direction,
+      index: ((current.index % itemCount) + direction + itemCount) % itemCount,
+    }));
   };
 
   return (
     <section aria-labelledby="company-recent-activity-title">
-      <div className="flex items-end justify-between gap-4 border-b border-white/8 pb-4">
+      <div className="border-b border-white/8 pb-4">
         <div>
           <p className="text-[10px] font-semibold uppercase text-cyan-300">
             Recent Posts
@@ -82,38 +85,31 @@ export function RecentDiscussionCarousel({
             최근 게시물
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="mr-1 text-[10px] text-zinc-600">
-            {activePage + 1} / {pageCount}
-          </span>
-          <button
-            aria-label="이전 최근 게시물"
-            className="grid size-9 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:border-white/25 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
-            onClick={() => move(-1)}
-            type="button"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <button
-            aria-label="다음 최근 게시물"
-            className="grid size-9 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:border-white/25 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
-            onClick={() => move(1)}
-            type="button"
-          >
-            <ChevronRight className="size-4" />
-          </button>
-        </div>
       </div>
 
-      <div
-        aria-live="polite"
-        className="grid gap-3 pt-4 md:grid-cols-3"
-        key={`${itemsPerPage}-${activePage}`}
-      >
-        {pages[activePage]?.map((item) => {
-          const CategoryIcon = categoryIcons[item.category];
-          return (
-            <Link
+      <div className="relative mt-4 px-11 sm:px-12">
+        <button
+          aria-label="이전 최근 게시물"
+          className="absolute left-0 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-[#0b0d11]/95 text-zinc-300 shadow-lg transition hover:border-white/30 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
+          onClick={() => move(-1)}
+          type="button"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+
+        <div
+          aria-live="polite"
+          className={`grid gap-3 md:grid-cols-3 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300 ${
+            position.direction > 0
+              ? "motion-safe:slide-in-from-right-3"
+              : "motion-safe:slide-in-from-left-3"
+          }`}
+          key={`${itemsPerPage}-${activeIndex}`}
+        >
+          {visibleItems.map((item) => {
+            const CategoryIcon = categoryIcons[item.category];
+            return (
+              <Link
               className="group min-w-0 overflow-hidden rounded-lg border border-white/10 bg-[#0b0d11] transition hover:-translate-y-0.5 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 motion-reduce:transform-none"
               href={item.href}
               key={item.id}
@@ -126,8 +122,11 @@ export function RecentDiscussionCarousel({
                   sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1279px) 30vw, 340px"
                   src={item.image}
                 />
-                <span className="absolute left-3 top-3 grid size-10 place-items-center rounded-md border border-white/15 bg-black/70 shadow-lg backdrop-blur-sm">
-                  <CategoryIcon aria-hidden="true" className="size-7" />
+                <span className="absolute left-3 top-3 flex items-center gap-2 rounded-full border border-white/15 bg-black/75 py-1.5 pl-1.5 pr-3 shadow-lg backdrop-blur-sm">
+                  <CategoryIcon aria-hidden="true" className="size-6 shrink-0" />
+                  <span className="text-[10px] font-semibold text-white">
+                    {item.boardLabel}
+                  </span>
                 </span>
               </div>
               <div className="p-4">
@@ -147,9 +146,19 @@ export function RecentDiscussionCarousel({
                   {item.title}
                 </h3>
               </div>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
+
+        <button
+          aria-label="다음 최근 게시물"
+          className="absolute right-0 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-[#0b0d11]/95 text-zinc-300 shadow-lg transition hover:border-white/30 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
+          onClick={() => move(1)}
+          type="button"
+        >
+          <ChevronRight className="size-4" />
+        </button>
       </div>
     </section>
   );

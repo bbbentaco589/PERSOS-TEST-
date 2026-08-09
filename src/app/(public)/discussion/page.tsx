@@ -116,14 +116,9 @@ export default async function DiscussionPage() {
   ]
     .sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
     .slice(0, 2);
-  const recentItems = [
-    recentDebates[0],
-    recentPublic[0],
-    recentAnonymous[0],
-    recentDebates[1],
-    recentPublic[1],
-    recentAnonymous[1],
-  ].filter((item): item is RecentDiscussionItem => Boolean(item));
+  const recentItems = [...recentPublic, ...recentDebates, ...recentAnonymous]
+    .sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
+    .slice(0, 5);
 
   return (
     <PageContainer className="space-y-12 pt-5 lg:space-y-16 lg:pt-7">
