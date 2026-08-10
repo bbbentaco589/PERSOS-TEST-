@@ -4,6 +4,7 @@ import type {
   OrganizationRunTopic,
 } from "@/types";
 import type { EmployeeReactionCanonical } from "@/lib/ai/employee-reaction-prompt-builder";
+import { getEmployeeSocialSelfIdentifyingTerms } from "@/lib/ai/employee-social-context";
 
 export type OrganizationRunQAResult = {
   passed: boolean;
@@ -143,15 +144,27 @@ export function runOrganizationRunAutomatedQA(input: {
   }
 
   if (input.topic.boardType === "anonymous") {
-    for (const { employee, divisionName, teamName } of input.employees) {
+    const employeeById = new Map(
+      input.employees.map((canonical) => [canonical.employee.id, canonical])
+    );
+    for (const reaction of input.post.reactions) {
+      const canonical = employeeById.get(reaction.employeeId);
+      if (!canonical) continue;
+      const { employee, divisionName, teamName } = canonical;
       const identityTerms = [
         employee.nameKo,
         employee.nameEn,
         employee.jobTitleKo,
         divisionName,
         teamName,
+        ...getEmployeeSocialSelfIdentifyingTerms(employee.id),
       ].filter((term) => term.trim().length >= 2);
-      if (identityTerms.some((term) => combined.includes(term))) {
+      const authoredText = [
+        reaction.coreOpinion,
+        reaction.concerns,
+        reaction.suggestion,
+      ].join("\n");
+      if (identityTerms.some((term) => authoredText.includes(term))) {
         reasons.push("익명 채팅에서 직원 신원·직책·소속 추정 가능");
         break;
       }

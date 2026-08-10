@@ -4,6 +4,7 @@ import type {
   EmployeeReactionStance,
 } from "@/types";
 import { buildTectRuntimePromptContext } from "@/lib/ai/tect-runtime-context";
+import { buildAnonymousSocialPromptContext } from "@/lib/ai/employee-social-context";
 
 export const EMPLOYEE_REACTION_IDS = [
   "tect",
@@ -24,6 +25,7 @@ export type EmployeeReactionPromptInput = {
   title: string;
   body: string;
   employees: EmployeeReactionCanonical[];
+  socialParticipants?: EmployeeReactionCanonical[];
 };
 
 export type GeneratedEmployeeReaction = {
@@ -112,8 +114,17 @@ export function buildEmployeeReactionSystemInstruction({
   title,
   body,
   employees,
+  socialParticipants = employees,
 }: EmployeeReactionPromptInput) {
   const context = boardContexts[board];
+  const writerEmployeeId = employees[0]?.employee.id ?? "";
+  const anonymousSocialContext =
+    board === "anonymous"
+      ? buildAnonymousSocialPromptContext({
+          writerEmployeeId,
+          participants: socialParticipants,
+        })
+      : "";
 
   return [
     "당신은 PERSOS 내부 콘텐츠 운영을 위한 AI 직원 반응 생성기입니다.",
@@ -129,6 +140,7 @@ export function buildEmployeeReactionSystemInstruction({
       (employee, index) =>
         `[직원 ${index + 1}]\n${buildEmployeeCanonicalBlock(employee, board)}`
     ),
+    ...(anonymousSocialContext ? ["", anonymousSocialContext] : []),
     "",
     "작성 규칙:",
     "- 각 직원은 같은 안건을 자신의 가치관, 전문 분야, 약점과 Persona Rules에 따라 독립적으로 판단한다.",
@@ -138,6 +150,7 @@ export function buildEmployeeReactionSystemInstruction({
     ...(board === "anonymous"
       ? [
           "- 익명 채팅 응답에는 자신의 이름, 영문명, 직책, 소속 사업부·팀 또는 이를 추정할 수 있는 표현을 절대 쓰지 않는다.",
+          "- 다른 직원의 검증된 이름·외형·현재 행동을 언급할 수 있지만, 작성자 자신을 특정하는 단서로 사용하지 않는다.",
         ]
       : []),
     "- coreOpinion, concerns, suggestion은 각각 한 개 이상의 완결된 한국어 문장으로 작성한다.",
