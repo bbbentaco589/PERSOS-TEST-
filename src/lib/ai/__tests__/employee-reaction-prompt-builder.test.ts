@@ -85,6 +85,61 @@ test("TECT 전용 Runtime Context는 TECT Gemini Prompt에만 주입된다", () 
   assert.doesNotMatch(sigPrompt, /독립적인 C-Level AI Employee/);
 });
 
+test("TECT Social Context는 익명 채팅에만 최소 정보로 주입된다", () => {
+  const tectCanonical = canonicalEmployees.find(
+    ({ employee }) => employee.id === "tect"
+  );
+  const sigCanonical = canonicalEmployees.find(
+    ({ employee }) => employee.id === "char-001"
+  );
+  assert.ok(tectCanonical);
+  assert.ok(sigCanonical);
+
+  const anonymousPrompt = buildEmployeeReactionSystemInstruction({
+    board: "anonymous",
+    title: "업무가 끝난 뒤 가볍게 안부를 나눕니다",
+    body: "캐릭터와 현재 상황에 맞으면 가벼운 대화를 선택할 수 있습니다.",
+    employees: [sigCanonical],
+    socialParticipants: [tectCanonical, sigCanonical],
+  });
+
+  assert.match(anonymousPrompt, /익명 채팅 전용 Social Context/);
+  assert.match(anonymousPrompt, /백발의 긴 머리와 중성적인 미형/);
+  assert.match(anonymousPrompt, /이마의 보석과 긴 귀걸이/);
+  assert.match(anonymousPrompt, /과하게 들뜨지는 않지만 무시하지도 않는다/);
+  assert.match(anonymousPrompt, /기억, 배려, 선제적인 도움/);
+  assert.match(anonymousPrompt, /다른 직원의 실제 이름, 검증된 짧은 외형/);
+  assert.match(anonymousPrompt, /사적 대화는 가능한 선택지일 뿐 매번 생성하지 않는다/);
+  assert.match(anonymousPrompt, /과거 친분·연애·가족관계·사건을 만들지 않는다/);
+  assert.doesNotMatch(
+    anonymousPrompt,
+    /Platinum Silver|Blue-Cyan|Black Slim Tailored|#0B0D12|이미지 생성 프롬프트/
+  );
+  assert.doesNotMatch(anonymousPrompt, /오늘도 넥타이 각이 유난히 정확/);
+
+  const tectAnonymousPrompt = buildEmployeeReactionSystemInstruction({
+    board: "anonymous",
+    title: "가벼운 대화를 나눕니다",
+    body: "사적인 소통은 상황에 따라 선택합니다.",
+    employees: [tectCanonical],
+    socialParticipants: [tectCanonical, sigCanonical],
+  });
+  assert.match(tectAnonymousPrompt, /텍트 \(TECT\) · 작성자 본인 · 자기 식별 표현 금지/);
+  assert.match(tectAnonymousPrompt, /백발의 긴 머리와 중성적인 미형/);
+
+  for (const board of ["public-feed", "debate"] as const) {
+    const workPrompt = buildEmployeeReactionSystemInstruction({
+      board,
+      title: "업무 판단 안건",
+      body: "확인된 근거와 대안을 중심으로 검토합니다.",
+      employees: [tectCanonical],
+      socialParticipants: [tectCanonical, sigCanonical],
+    });
+    assert.doesNotMatch(workPrompt, /익명 채팅 전용 Social Context/);
+    assert.doesNotMatch(workPrompt, /백발의 긴 머리|긴 귀걸이/);
+  }
+});
+
 test("구조화 응답을 Canonical 직원 순서로 정렬한다", () => {
   const reversed = {
     reactions: [...validPayload.reactions].reverse(),

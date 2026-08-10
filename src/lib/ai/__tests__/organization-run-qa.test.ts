@@ -351,3 +351,58 @@ test("동일 익명 게시물의 직원별 닉네임은 고유하고 저장·조
   assert.deepEqual(restoredAliases, firstAliases);
   assert.doesNotMatch(JSON.stringify(restored), /텍트|TECT|시그|SIG|루미|LUMI/);
 });
+
+test("익명 작성자의 신원은 차단하고 다른 직원에 대한 검증된 사적 언급은 허용한다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "tect",
+    "char-001",
+  ]);
+  const topic: OrganizationRunTopic = {
+    ...anonymousTopic,
+    title: "업무가 끝난 뒤 가볍게 안부와 취향을 나눕니다",
+    body:
+      "상황과 캐릭터 성향에 따라 안부, 가벼운 농담, 취향이나 습관에 관한 질문을 선택적으로 나눕니다. 매번 사적인 대화를 강제하지 않으며 확인되지 않은 관계나 사건은 만들지 않습니다.",
+    relevantEmployeeIds: ["tect", "char-001"],
+  };
+  const post = buildOrganizationRunPost({
+    runId: "anonymous-social-context",
+    topic,
+    reactions: [
+      {
+        employeeId: "tect",
+        stance: "찬성",
+        coreOpinion: "오늘은 동료의 안부를 짧게 묻는 정도면 충분합니다.",
+        concerns: "사적인 대화를 의무처럼 반복하면 오히려 부담이 될 수 있습니다.",
+        suggestion: "필요한 사람이 편하게 대화를 시작할 수 있도록 여지만 둡니다.",
+      },
+      {
+        employeeId: "char-001",
+        stance: "찬성",
+        coreOpinion: "텍트님의 백발의 긴 머리와 긴 귀걸이는 차분한 인상을 줍니다.",
+        concerns: "외형 이야기만 반복하지 않는 편이 좋겠습니다.",
+        suggestion: "가벼운 안부와 업무 후일담을 자연스럽게 섞어 봅니다.",
+      },
+    ],
+  });
+
+  const qa = runOrganizationRunAutomatedQA({ topic, post, employees, recentPosts: [] });
+  assert.equal(qa.passed, true);
+  assert.equal(qa.requiresReview, false);
+
+  const selfIdentifyingPost = {
+    ...post,
+    reactions: post.reactions.map((reaction) =>
+      reaction.employeeId === "tect"
+        ? { ...reaction, coreOpinion: "저는 텍트이며 이마의 보석과 긴 귀걸이를 착용합니다." }
+        : reaction
+    ),
+  };
+  const blocked = runOrganizationRunAutomatedQA({
+    topic,
+    post: selfIdentifyingPost,
+    employees,
+    recentPosts: [],
+  });
+  assert.equal(blocked.requiresReview, true);
+  assert.match(blocked.reasons.join(" "), /신원/);
+});
