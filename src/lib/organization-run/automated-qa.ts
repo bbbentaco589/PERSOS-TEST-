@@ -70,11 +70,20 @@ function hasAuthorityActionContext(
   const backward = new RegExp(`(?:${action.source}).{0,80}(?:${subject.source})`, "is");
   return value
     .split(/[.!?\n]+/)
+    .flatMap((sentence) =>
+      sentence.split(/[,;]|(?:그리고|하지만|다만|반면|하며|하되|하고)/)
+    )
+    .filter(
+      (clause) =>
+        !/(?:포함|행사|실행|집행|결정|확정|승인|체결|서명|발표|공표|확약|보장|채용|해고|징계|지급|송금|결제|투자|매수|매도)(?:을|를)?\s*(?:하지\s*않|하지\s*말|하지\s*못|않기로|보류|금지)/.test(
+          clause
+        )
+    )
     .some(
-      (sentence) =>
-        forward.test(sentence) ||
-        backward.test(sentence) ||
-        Boolean(directAction?.test(sentence))
+      (clause) =>
+        forward.test(clause) ||
+        backward.test(clause) ||
+        Boolean(directAction?.test(clause))
     );
 }
 

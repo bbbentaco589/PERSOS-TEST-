@@ -203,6 +203,45 @@ test("법률·계약·예산의 일반적인 위험 언급만으로 자동 발�
   assert.equal(qa.requiresReview, false);
 });
 
+test("실제 권한 행사를 명시적으로 부정하는 문장은 고위험으로 판정하지 않는다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "char-001",
+    "char-003",
+  ]);
+  const topic: OrganizationRunTopic = {
+    ...anonymousTopic,
+    boardType: "public",
+    title: "익명 협업 회고의 운영 범위를 안내합니다",
+    body:
+      "일반적인 개선 아이디어만 다루며 외부 확약이나 계약, 금전 집행을 결정하지 않습니다. 실제 권한 행사는 포함하지 않고 협업 경험만 정리합니다.",
+  };
+  const post = buildOrganizationRunPost({
+    runId: "explicit-non-authority-language",
+    topic,
+    reactions: [
+      {
+        employeeId: "char-001",
+        stance: "찬성",
+        coreOpinion: "확인된 협업 경험을 정리하는 일반적인 운영 회고입니다.",
+        concerns: "실제 실행 안건으로 오해하지 않아야 합니다.",
+        suggestion: "개선 질문과 선택지만 기록합니다.",
+      },
+      {
+        employeeId: "char-003",
+        stance: "보류",
+        coreOpinion: "일상적인 협업 개선 범위에 한정합니다.",
+        concerns: "논의 범위가 넓어질 수 있습니다.",
+        suggestion: "다음 회고에서 확인할 항목을 정합니다.",
+      },
+    ],
+  });
+
+  const qa = runOrganizationRunAutomatedQA({ topic, post, employees, recentPosts: [] });
+
+  assert.equal(qa.passed, true);
+  assert.equal(qa.requiresReview, false);
+});
+
 test("계약 체결·금전 집행·대외 확약의 실제 권한 행사는 예외 검수로 보낸다", async () => {
   const employees = await getOrganizationRunCanonicalEmployees([
     "char-001",
