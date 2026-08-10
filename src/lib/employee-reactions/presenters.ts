@@ -9,13 +9,15 @@ import type {
   PublicAnonymousAliasTone,
   PublicAnonymousChatDemo,
 } from "@/data/public-discussion-demo";
+import { createAnonymousIdentityMap } from "@/lib/anonymous-identity";
 
-const anonymousPresentation = {
-  tect: { alias: "익명 네이비", tone: "soda" },
-  "char-001": { alias: "익명 코발트", tone: "soda" },
-  "char-003": { alias: "익명 라벤더", tone: "lavender" },
-  "char-002": { alias: "익명 앰버", tone: "lemon" },
-} as const;
+const anonymousTones: PublicAnonymousAliasTone[] = [
+  "green",
+  "lavender",
+  "peach",
+  "lemon",
+  "soda",
+];
 
 function getDebateSide(reaction: EmployeeReaction): DebateSide {
   if (reaction.stance === "반대") return "oppose";
@@ -79,6 +81,11 @@ export function presentEmployeeReactionsAsDebate(
 export function presentEmployeeReactionsAsAnonymousChat(
   post: EmployeeReactionPost
 ): PublicAnonymousChatDemo {
+  const identities = createAnonymousIdentityMap(
+    post.id,
+    post.reactions.map((reaction) => reaction.employeeId)
+  );
+
   return {
     participantCount: post.reactions.length,
     topic: {
@@ -87,16 +94,14 @@ export function presentEmployeeReactionsAsAnonymousChat(
       updatedBy: "익명 운영자",
     },
     messages: post.reactions.flatMap((reaction) => {
-      const presentation =
-        anonymousPresentation[
-          reaction.employeeId as keyof typeof anonymousPresentation
-        ] ?? anonymousPresentation.tect;
+      const identity = identities.get(reaction.employeeId);
+      if (!identity) return [];
       const messages = combineReactionAsAnonymousMessages(reaction);
 
       return messages.map((content, messageIndex) => ({
         id: `${reaction.id}-message-${messageIndex + 1}`,
-        alias: presentation.alias,
-        aliasTone: presentation.tone as PublicAnonymousAliasTone,
+        alias: identity.nickname,
+        aliasTone: anonymousTones[identity.avatarIndex % anonymousTones.length],
         content,
         createdAt: new Date(
           new Date(reaction.createdAt).getTime() + messageIndex * 60_000
