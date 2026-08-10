@@ -4,11 +4,19 @@ import {
   createOrganizationRunSession,
   hasSameOrigin,
   organizationRunSessionCookie,
+  verifyOrganizationRunSession,
   verifyTriggerSecret,
 } from "@/lib/organization-run/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+export async function GET(request: Request) {
+  return NextResponse.json(
+    { unlocked: verifyOrganizationRunSession(request) },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}
 
 export async function POST(request: Request) {
   if (!hasSameOrigin(request)) {

@@ -59,6 +59,19 @@ export function OrganizationRunConsole({
   const [result, setResult] = useState<RunResult>();
 
   useEffect(() => {
+    let active = true;
+    void fetch("/api/organization-run/session", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: { unlocked?: boolean }) => {
+        if (active && data.unlocked) setUnlocked(true);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isRunning) return;
     const timer = window.setInterval(() => {
       setStageIndex((current) => Math.min(current + 1, stages.length - 1));
