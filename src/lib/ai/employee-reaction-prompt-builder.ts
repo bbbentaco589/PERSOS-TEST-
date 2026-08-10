@@ -3,6 +3,7 @@ import type {
   EmployeeReactionBoard,
   EmployeeReactionStance,
 } from "@/types";
+import { buildTectRuntimePromptContext } from "@/lib/ai/tect-runtime-context";
 
 export const EMPLOYEE_REACTION_IDS = [
   "tect",
@@ -84,7 +85,7 @@ function buildEmployeeCanonicalBlock({
   employee,
   divisionName,
   teamName,
-}: EmployeeReactionCanonical) {
+}: EmployeeReactionCanonical, board: EmployeeReactionBoard) {
   return [
     `직원 ID: ${employee.id}`,
     `이름: ${employee.nameKo} (${employee.nameEn})`,
@@ -102,7 +103,8 @@ function buildEmployeeCanonicalBlock({
     `금지 주제와 행동: ${formatList(employee.prohibitedTopics)}`,
     `선호 활동 형식: ${formatList(employee.preferredActivityFormats)}`,
     "직원 관계: Canonical에 구조화된 관계 정보가 없으므로 추측하거나 생성하지 않는다.",
-  ].join("\n");
+    employee.id === "tect" ? buildTectRuntimePromptContext(board) : "",
+  ].filter(Boolean).join("\n");
 }
 
 export function buildEmployeeReactionSystemInstruction({
@@ -125,7 +127,7 @@ export function buildEmployeeReactionSystemInstruction({
     "직원 Canonical:",
     ...employees.map(
       (employee, index) =>
-        `[직원 ${index + 1}]\n${buildEmployeeCanonicalBlock(employee)}`
+        `[직원 ${index + 1}]\n${buildEmployeeCanonicalBlock(employee, board)}`
     ),
     "",
     "작성 규칙:",

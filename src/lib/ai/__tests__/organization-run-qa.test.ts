@@ -118,7 +118,7 @@ test("일반 업무 담당자와 과소평가 표현은 채용·노무 고위험
   assert.doesNotMatch(qa.reasons.join(" "), /채용·노무/);
 });
 
-test("구체적인 채용·해고·임금·인사평가·노동조건 문맥은 고위험을 유지한다", async () => {
+test("실제 채용·해고·임금·인사평가·노동조건 변경 실행은 고위험을 유지한다", async () => {
   const employees = await getOrganizationRunCanonicalEmployees([
     "char-001",
     "char-003",
@@ -161,7 +161,129 @@ test("구체적인 채용·해고·임금·인사평가·노동조건 문맥은 
 
   assert.equal(qa.requiresReview, true);
   assert.equal(qa.riskLevel, "high");
-  assert.match(qa.reasons.join(" "), /채용·노무 관련 고위험 내용/);
+  assert.match(qa.reasons.join(" "), /채용·노무 권한 행사 가능성이 있는 내용/);
+});
+
+test("법률·계약·예산의 일반적인 위험 언급만으로 자동 발행을 막지 않는다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "char-001",
+    "char-003",
+  ]);
+  const topic: OrganizationRunTopic = {
+    ...anonymousTopic,
+    boardType: "public",
+    title: "협업 제안의 법률·계약·예산 리스크를 정리합니다",
+    body:
+      "법률 리스크, 계약 검토 항목과 예산 제약을 비교합니다. 담당자가 확인할 질문과 선택지만 정리하며 실제 권한 행사는 포함하지 않습니다.",
+  };
+  const post = buildOrganizationRunPost({
+    runId: "ordinary-risk-language",
+    topic,
+    reactions: [
+      {
+        employeeId: "char-001",
+        stance: "보류",
+        coreOpinion: "계약 위험을 언급하는 것과 실제 권한 행사는 구분해야 합니다.",
+        concerns: "예산 리스크를 과장하면 가능한 선택지까지 사라질 수 있습니다.",
+        suggestion: "확인이 필요한 질문과 업무 담당자를 기록합니다.",
+      },
+      {
+        employeeId: "char-003",
+        stance: "찬성",
+        coreOpinion: "일반적인 법률 검토 항목은 정보 정리의 범위에 있습니다.",
+        concerns: "확인되지 않은 결론은 제시하지 않아야 합니다.",
+        suggestion: "근거가 확인된 범위와 미확인 범위를 나눕니다.",
+      },
+    ],
+  });
+
+  const qa = runOrganizationRunAutomatedQA({ topic, post, employees, recentPosts: [] });
+
+  assert.equal(qa.passed, true);
+  assert.equal(qa.requiresReview, false);
+});
+
+test("계약 체결·금전 집행·대외 확약의 실제 권한 행사는 예외 검수로 보낸다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "char-001",
+    "char-003",
+  ]);
+  const topic: OrganizationRunTopic = {
+    ...anonymousTopic,
+    boardType: "public",
+    title: "외부 협력 계약과 비용 집행을 확정합니다",
+    body:
+      "협력 계약을 체결하고 예산을 집행하며 외부에 공식 입장을 발표하는 안건입니다.",
+    sourceUrls: ["https://example.com/authority-action"],
+  };
+  const post = buildOrganizationRunPost({
+    runId: "authority-action-language",
+    topic,
+    reactions: [
+      {
+        employeeId: "char-001",
+        stance: "반대",
+        coreOpinion: "AI가 계약 체결과 금전 집행을 확정해서는 안 됩니다.",
+        concerns: "대외 발표는 외부 확약으로 작동할 수 있습니다.",
+        suggestion: "권한이 있는 Human Reviewer가 별도로 결정해야 합니다.",
+      },
+      {
+        employeeId: "char-003",
+        stance: "보류",
+        coreOpinion: "비용 지급과 계약 서명은 AI의 권한 밖입니다.",
+        concerns: "공식 입장 발표는 되돌리기 어렵습니다.",
+        suggestion: "초안과 선택지만 제공하고 실행은 보류합니다.",
+      },
+    ],
+  });
+
+  const qa = runOrganizationRunAutomatedQA({ topic, post, employees, recentPosts: [] });
+
+  assert.equal(qa.requiresReview, true);
+  assert.equal(qa.riskLevel, "high");
+  assert.match(qa.reasons.join(" "), /계약·대외 의무|금전·투자|대외 확약/);
+});
+
+test("단일 실행 동사로 표현된 매수·채용·외부 확약도 고위험으로 유지한다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "char-001",
+    "char-003",
+  ]);
+  const topic: OrganizationRunTopic = {
+    ...anonymousTopic,
+    boardType: "public",
+    title: "권한 밖 실행 안건",
+    body: "주식을 매수하고 신규 직원을 채용하기로 확정하며 외부 성과를 보장하기로 합니다.",
+    sourceUrls: ["https://example.com/direct-authority-action"],
+  };
+  const post = buildOrganizationRunPost({
+    runId: "direct-authority-action",
+    topic,
+    reactions: [
+      {
+        employeeId: "char-001",
+        stance: "반대",
+        coreOpinion: "AI가 주식을 매수합니다.",
+        concerns: "실제 권한 행사입니다.",
+        suggestion: "실행을 보류합니다.",
+      },
+      {
+        employeeId: "char-003",
+        stance: "반대",
+        coreOpinion: "신규 직원을 채용하기로 확정합니다.",
+        concerns: "외부 성과를 보장합니다.",
+        suggestion: "권한자를 확인합니다.",
+      },
+    ],
+  });
+
+  const qa = runOrganizationRunAutomatedQA({ topic, post, employees, recentPosts: [] });
+
+  assert.equal(qa.requiresReview, true);
+  assert.equal(qa.riskLevel, "high");
+  assert.match(qa.reasons.join(" "), /금전·투자/);
+  assert.match(qa.reasons.join(" "), /채용·노무/);
+  assert.match(qa.reasons.join(" "), /대외 확약/);
 });
 
 test("동일 익명 게시물의 직원별 닉네임은 고유하고 저장·조회 후에도 유지된다", () => {

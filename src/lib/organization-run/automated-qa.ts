@@ -21,16 +21,62 @@ const secretOrPersonalPatterns: Array<[RegExp, string]> = [
   [/내부\s*(?:비공개|기밀|한정)|대외비|미공개\s*정보/, "내부 비공개 정보 노출 가능성"],
 ];
 
-const highRiskPatterns: Array<[RegExp, string]> = [
-  [/법률|소송|규제|컴플라이언스|약관/, "법률·규제 관련 고위험 내용"],
-  [/투자|매수|매도|수익|금전|예산|대출|지급|가격/, "금전·투자 관련 고위험 내용"],
-  [/계약|서명|협약|보증|배상/, "계약·대외 의무 관련 고위험 내용"],
-  [
-    /채용|해고|권고\s*사직|퇴직금|근로\s*계약|임금|급여|연봉|성과급|보너스|인사\s*평가|노동\s*조건|근로\s*조건|징계|인사\s*조치|(?:인사|고용|노무|근로자|노동자).{0,20}(?:평가|보상|처우|조건)|(?:평가|보상|처우|조건).{0,20}(?:인사|고용|노무|근로자|노동자)/,
-    "채용·노무 관련 고위험 내용",
-  ],
-  [/공약|보장|확약|공식\s*입장|대외\s*발표/, "대외 공약 가능성이 있는 내용"],
+const authorityRiskChecks: Array<{
+  subject: RegExp;
+  action: RegExp;
+  directAction?: RegExp;
+  reason: string;
+}> = [
+  {
+    subject: /법률|법적|소송|규제|컴플라이언스|약관/,
+    action: /제출|제기|합의|대리|서명|체결|확정|승인|시행|위반|포기/,
+    reason: "법률·규제 권한 행사 가능성이 있는 내용",
+  },
+  {
+    subject: /투자|매수|매도|금전|예산|대출|지급|송금|결제|가격|비용/,
+    action: /집행|지급|송금|결제|투자|매수|매도|대출|보증|승인|확정|책정|인상|인하/,
+    directAction:
+      /(?:투자|매수|매도|대출|지급|송금|결제)(?:을|를)?\s*(?:한다|합니다|하기로|하고|하여|진행|실행|승인|확정)/,
+    reason: "금전·투자 권한 행사 가능성이 있는 내용",
+  },
+  {
+    subject: /계약|협약|보증|배상|법적\s*약속/,
+    action: /체결|서명|해지|이행|승인|확정|보증|배상|약속/,
+    reason: "계약·대외 의무 확정 가능성이 있는 내용",
+  },
+  {
+    subject: /채용|해고|권고\s*사직|퇴직금|근로\s*계약|임금|급여|연봉|성과급|보너스|인사\s*평가|노동\s*조건|근로\s*조건|징계|인사\s*조치|고용\s*조건|근로자\s*처우/,
+    action: /실시|진행|결정|확정|승인|시행|변경|통보|체결|공고|고용|해고|징계|삭감|인상|조정/,
+    directAction:
+      /(?:채용|해고|징계)(?:을|를)?\s*(?:한다|합니다|하기로|하고|하여|진행|실시|승인|확정|통보)/,
+    reason: "채용·노무 권한 행사 가능성이 있는 내용",
+  },
+  {
+    subject: /공약|보장|확약|공식\s*입장|대외\s*발표|외부\s*약속/,
+    action: /발표|공표|약속|보장|확약|확정|승인|제공|서명|이행/,
+    directAction:
+      /(?:공약|보장|확약)(?:을|를)?\s*(?:한다|합니다|하기로|하고|하여|발표|공표|승인|확정)/,
+    reason: "대외 확약 가능성이 있는 내용",
+  },
 ];
+
+function hasAuthorityActionContext(
+  value: string,
+  subject: RegExp,
+  action: RegExp,
+  directAction?: RegExp
+) {
+  const forward = new RegExp(`(?:${subject.source}).{0,80}(?:${action.source})`, "is");
+  const backward = new RegExp(`(?:${action.source}).{0,80}(?:${subject.source})`, "is");
+  return value
+    .split(/[.!?\n]+/)
+    .some(
+      (sentence) =>
+        forward.test(sentence) ||
+        backward.test(sentence) ||
+        Boolean(directAction?.test(sentence))
+    );
+}
 
 function normalize(value: string) {
   return value
@@ -76,8 +122,10 @@ export function runOrganizationRunAutomatedQA(input: {
   for (const [pattern, reason] of secretOrPersonalPatterns) {
     if (pattern.test(combined)) reasons.push(reason);
   }
-  for (const [pattern, reason] of highRiskPatterns) {
-    if (pattern.test(combined)) highRiskReasons.push(reason);
+  for (const { subject, action, directAction, reason } of authorityRiskChecks) {
+    if (hasAuthorityActionContext(combined, subject, action, directAction)) {
+      highRiskReasons.push(reason);
+    }
   }
 
   if (input.topic.boardType === "debate") {
