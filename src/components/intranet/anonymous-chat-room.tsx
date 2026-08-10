@@ -54,7 +54,7 @@ const aliasPresentation: Record<
 };
 
 function getAnonymousAlias(message: PublicAnonymousMessage) {
-  return aliasPresentation[message.aliasTone].name;
+  return message.alias;
 }
 
 function formatChatTime(value: string) {
@@ -99,7 +99,7 @@ function AnonymousMessageRow({
         />
       ) : null}
       <Image
-        alt={`${presentation.name} 동물 가면 프로필`}
+        alt={`${message.alias} 동물 가면 프로필`}
         className="size-9 shrink-0 rounded-full border border-yellow-200/20 object-cover"
         height={36}
         src={presentation.image}
@@ -110,7 +110,7 @@ function AnonymousMessageRow({
           <span
             className={cn("text-xs font-semibold", presentation.nameClass)}
           >
-            {presentation.name}
+            {message.alias}
           </span>
           {replyTarget ? (
             <span className="text-[9px] text-zinc-600">

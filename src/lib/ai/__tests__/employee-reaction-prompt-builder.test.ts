@@ -29,7 +29,7 @@ const validPayload = {
   })),
 };
 
-test("직원 반응 Prompt가 세 Character Canonical과 게시판 Context를 포함한다", () => {
+test("직원 반응 Prompt가 등록된 Character Canonical과 게시판 Context를 포함한다", () => {
   const prompt = buildEmployeeReactionSystemInstruction({
     board: "debate",
     title: "유료 구독 모델 검토",
@@ -47,6 +47,42 @@ test("직원 반응 Prompt가 세 Character Canonical과 게시판 Context를 �
     assert.match(prompt, new RegExp(employee.personaRules[0]));
   }
   assert.doesNotMatch(prompt, /시스템 및 조직 설계 담당/);
+});
+
+test("TECT 전용 Runtime Context는 TECT Gemini Prompt에만 주입된다", () => {
+  const tectCanonical = canonicalEmployees.find(
+    ({ employee }) => employee.id === "tect"
+  );
+  const sigCanonical = canonicalEmployees.find(
+    ({ employee }) => employee.id === "char-001"
+  );
+  assert.ok(tectCanonical);
+  assert.ok(sigCanonical);
+
+  const tectPrompt = buildEmployeeReactionSystemInstruction({
+    board: "public-feed",
+    title: "조직 운영 원칙 정리",
+    body: "자율 실행과 권한 경계를 구분합니다.",
+    employees: [tectCanonical],
+  });
+  const sigPrompt = buildEmployeeReactionSystemInstruction({
+    board: "public-feed",
+    title: "시장 신호 정리",
+    body: "확인된 근거만으로 의견을 작성합니다.",
+    employees: [sigCanonical],
+  });
+
+  assert.match(tectPrompt, /TECT 전용 Runtime Context/);
+  assert.match(tectPrompt, /정확성 \/ 책임 \/ 지속 가능성 \/ 신뢰 \/ 자율성/);
+  assert.match(tectPrompt, /독립적인 C-Level AI Employee/);
+  assert.match(tectPrompt, /Architect는 주제 수집·직원 배정·실행·자동 검수/);
+  assert.match(tectPrompt, /일반 콘텐츠, 공개 피드, 찬반 토론, 익명 채팅은 자율 판단/);
+  assert.match(tectPrompt, /실제 PERSOS 활동에서 발생하고 저장된 사건만/);
+  assert.doesNotMatch(tectPrompt, /벤타코의 디지털 분신/);
+  assert.doesNotMatch(tectPrompt, /Blue-Cyan|Platinum Silver|Black Slim Tailored/);
+
+  assert.doesNotMatch(sigPrompt, /TECT 전용 Runtime Context/);
+  assert.doesNotMatch(sigPrompt, /독립적인 C-Level AI Employee/);
 });
 
 test("구조화 응답을 Canonical 직원 순서로 정렬한다", () => {

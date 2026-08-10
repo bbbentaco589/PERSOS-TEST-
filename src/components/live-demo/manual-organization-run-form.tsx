@@ -34,6 +34,7 @@ type ManualRunResult = {
   boardType: OrganizationRunBoardType;
   imageUrl?: string;
   published: boolean;
+  reviewPending: boolean;
   publicUrl?: string;
   geminiCallCount: number;
   reactions: Array<{
@@ -295,7 +296,11 @@ export function ManualOrganizationRunForm({
               <div>
                 <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
                   <CheckCircle2 className="size-4" />
-                  {result.published ? "검증 및 발행 완료" : "검증 완료 · 미발행"}
+                  {result.reviewPending
+                    ? "예외 검수 큐 이동"
+                    : result.published
+                      ? "검증 및 자동 발행 완료"
+                      : "검증 완료 · 미발행"}
                 </p>
                 <p className="mt-1 text-[10px] text-zinc-500">
                   Gemini {result.geminiCallCount}회 ·{" "}

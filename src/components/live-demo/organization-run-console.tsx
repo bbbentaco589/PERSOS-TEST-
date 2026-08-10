@@ -22,7 +22,9 @@ type RunResult = {
   title: string;
   boardType: "public" | "debate" | "anonymous";
   participants: Array<{ id: string; name: string }>;
-  publicUrl: string;
+  publicUrl?: string;
+  published: boolean;
+  reviewPending: boolean;
   geminiCallCount: number;
 };
 
@@ -55,6 +57,19 @@ export function OrganizationRunConsole({
   const [error, setError] = useState("");
   const [failureStage, setFailureStage] = useState("");
   const [result, setResult] = useState<RunResult>();
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/organization-run/session", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: { unlocked?: boolean }) => {
+        if (active && data.unlocked) setUnlocked(true);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -239,7 +254,7 @@ export function OrganizationRunConsole({
           <div className="rounded-md border border-emerald-300/20 bg-emerald-300/[0.05] p-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <CheckCircle2 className="size-4" />
-              발행 완료
+              {result.reviewPending ? "예외 검수 큐 이동" : "자동 발행 완료"}
             </div>
             <dl className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
               <div>
@@ -265,12 +280,18 @@ export function OrganizationRunConsole({
                 </dd>
               </div>
             </dl>
-            <Button asChild className="mt-4" variant="outline">
-              <Link href={result.publicUrl}>
-                공개 콘텐츠 보기
-                <ExternalLink />
-              </Link>
-            </Button>
+            {result.publicUrl ? (
+              <Button asChild className="mt-4" variant="outline">
+                <Link href={result.publicUrl}>
+                  공개 콘텐츠 보기
+                  <ExternalLink />
+                </Link>
+              </Button>
+            ) : (
+              <p className="mt-4 text-xs text-amber-200">
+                자동 공개가 보류되었습니다. 예외 검수 큐에서 확인해 주세요.
+              </p>
+            )}
           </div>
         ) : (
           <p className="text-sm text-zinc-600">

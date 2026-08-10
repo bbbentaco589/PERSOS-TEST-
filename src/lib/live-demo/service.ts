@@ -1,4 +1,9 @@
-import { AIErrorCode, AIProviderError, isAIProviderError } from "@/lib/ai";
+import {
+  AIErrorCode,
+  AIProviderError,
+  DEFAULT_GEMINI_MODEL,
+  isAIProviderError,
+} from "@/lib/ai";
 import { runAutomatedQA } from "@/lib/live-demo/automated-qa";
 import {
   assertContentWindow,
@@ -117,7 +122,7 @@ async function saveFailureUsage(
     id: createId("usage"),
     runId,
     provider: "gemini",
-    model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+    model: process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL,
     promptTokens: 0,
     outputTokens: 0,
     totalTokens: 0,
@@ -345,26 +350,7 @@ async function generateSlot(
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= config.maxRetries; attempt += 1) {
-    const reserved = await repositories.liveDemo.reserveGenerationCall(
-      config.maxTotalCalls
-    );
-    if (!reserved) {
-      const limitError = new AIProviderError(
-        AIErrorCode.RateLimited,
-        "Live Demo Gemini 호출 Hard Cap 또는 Kill Switch에 도달했습니다.",
-        429
-      );
-      await repositories.liveDemo.updateGenerationRun({
-        ...run,
-        attempt,
-        status: LiveDemoGenerationStatus.LimitReached,
-        finishedAt: new Date().toISOString(),
-        failureReason: limitError.message,
-      });
-      throw limitError;
-    }
-
-    let usageSaved = false;
+    let failureUsageSaved = false;
     try {
       const contexts = await Promise.all(
         slot.personaIds.map((personaId) =>
@@ -379,21 +365,42 @@ async function generateSlot(
           )
         )
       );
-      const result = await generator.generateContents({
-        contentType: slot.contentType,
-        topicId: slot.topicId,
-        topicTitle: slot.topicTitle,
-        topicDescription: slot.topicDescription,
-        contexts,
-        expectedCount,
-        stance: slot.stance,
-        round: slot.round,
-        replyToId: slot.replyToId,
-      });
-      await repositories.liveDemo.saveUsageLog(toUsageLog(run.id, result));
-      usageSaved = true;
+      const generatedValues: LiveDemoStructuredContent[] = [];
+      for (const context of contexts.slice(0, expectedCount)) {
+        const reserved = await repositories.liveDemo.reserveGenerationCall(
+          config.maxTotalCalls
+        );
+        if (!reserved) {
+          throw new AIProviderError(
+            AIErrorCode.RateLimited,
+            "Live Demo Gemini 호출 Hard Cap 또는 Kill Switch에 도달했습니다.",
+            429
+          );
+        }
+        try {
+          const independentResult = await generator.generateContents({
+            contentType: slot.contentType,
+            topicId: slot.topicId,
+            topicTitle: slot.topicTitle,
+            topicDescription: slot.topicDescription,
+            contexts: [context],
+            expectedCount: 1,
+            stance: slot.stance,
+            round: slot.round,
+            replyToId: slot.replyToId,
+          });
+          await repositories.liveDemo.saveUsageLog(
+            toUsageLog(run.id, independentResult)
+          );
+          generatedValues.push(independentResult.value[0]);
+        } catch (error) {
+          await saveFailureUsage(repositories.liveDemo, run.id, error);
+          failureUsageSaved = true;
+          throw error;
+        }
+      }
 
-      const candidates = result.value.map((item, index) =>
+      const candidates = generatedValues.map((item, index) =>
         createDraft(item, slot, index, now)
       );
       const recent = await repositories.liveDemo.listGeneratedContents({
@@ -401,7 +408,7 @@ async function generateSlot(
       });
       const qaResults = candidates.map((candidate, index) =>
         runAutomatedQA({
-          content: result.value[index],
+          content: generatedValues[index],
           expectedContentType: slot.contentType,
           expectedTopicId: slot.topicId,
           expectedPersonaIds: slot.personaIds,
@@ -462,7 +469,7 @@ async function generateSlot(
       return published;
     } catch (error) {
       lastError = error;
-      if (!usageSaved) {
+      if (!failureUsageSaved) {
         await saveFailureUsage(repositories.liveDemo, run.id, error);
       }
       if (attempt >= config.maxRetries) break;

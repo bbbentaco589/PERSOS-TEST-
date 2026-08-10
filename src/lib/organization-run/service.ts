@@ -1,14 +1,17 @@
 import { randomUUID } from "node:crypto";
 
 import type {
+  EmployeeReactionPost,
   ManualOrganizationRunInput,
   ManualOrganizationRunResult,
   OrganizationRunBoardType,
+  OrganizationRunReviewItem,
   OrganizationRunResult,
   OrganizationRunStage,
 } from "@/types";
 
 import { getOrganizationRunCanonicalEmployees } from "./canonical-employees";
+import { runOrganizationRunAutomatedQA } from "./automated-qa";
 import { GeminiOrganizationRunGenerator } from "./gemini-generator";
 import { getOrganizationRunPublisher } from "./kv-publisher";
 import { createManualOrganizationRunTopic } from "./manual-input";
@@ -22,6 +25,33 @@ import type {
 const LOCK_TTL_SECONDS = 180;
 const RATE_LIMIT = 6;
 const RATE_WINDOW_SECONDS = 60 * 60;
+
+function requiresFounderReview(env: NodeJS.ProcessEnv = process.env) {
+  return env.AI_REQUIRE_FOUNDER_REVIEW?.trim().toLowerCase() === "true";
+}
+
+function createReviewItem(input: {
+  runId: string;
+  boardType: OrganizationRunBoardType;
+  title: string;
+  reasons: string[];
+  riskLevel: OrganizationRunReviewItem["riskLevel"];
+  post?: OrganizationRunReviewItem["post"];
+}) {
+  const now = new Date().toISOString();
+  return {
+    id: `review-${input.runId}`,
+    runId: input.runId,
+    status: "review_pending" as const,
+    boardType: input.boardType,
+    title: input.title,
+    post: input.post,
+    reasons: input.reasons,
+    riskLevel: input.riskLevel,
+    createdAt: now,
+    updatedAt: now,
+  } satisfies OrganizationRunReviewItem;
+}
 
 export class OrganizationRunError extends Error {
   constructor(
@@ -43,12 +73,16 @@ export async function runAIOrganization(input: {
   generator: OrganizationRunGenerator;
   publisher: OrganizationRunPublisher;
   forcedBoardType?: OrganizationRunBoardType;
+  fullReviewMode?: boolean;
   onProgress?: OrganizationRunProgress;
 }): Promise<OrganizationRunResult> {
   const runId = randomUUID();
   const lockToken = randomUUID();
   let geminiCallCount = 0;
   let stage: OrganizationRunError["stage"] = "topic";
+  let queuedForReview = false;
+  let topicForFailure: { boardType: OrganizationRunBoardType; title: string } | undefined;
+  let postForFailure: EmployeeReactionPost | undefined;
 
   const allowed = await input.publisher.consumeRateLimit(
     RATE_LIMIT,
@@ -88,6 +122,7 @@ export async function runAIOrganization(input: {
       forcedBoardType: input.forcedBoardType,
     });
     geminiCallCount += 1;
+    topicForFailure = { boardType: topic.boardType, title: topic.title };
     let validation = validateOrganizationRunTopic(topic, existingSummaries);
     if (!validation.valid) {
       topic = await input.generator.generateTopic({
@@ -98,9 +133,20 @@ export async function runAIOrganization(input: {
         forcedBoardType: input.forcedBoardType,
       });
       geminiCallCount += 1;
+      topicForFailure = { boardType: topic.boardType, title: topic.title };
       validation = validateOrganizationRunTopic(topic, existingSummaries);
     }
     if (!validation.valid) {
+      await input.publisher.saveReviewItem(
+        createReviewItem({
+          runId,
+          boardType: topic.boardType,
+          title: topic.title,
+          reasons: validation.errors,
+          riskLevel: "medium",
+        })
+      );
+      queuedForReview = true;
       throw new OrganizationRunError(
         `주제 검증 실패: ${validation.errors.join(" ")}`,
         "validation",
@@ -122,7 +168,7 @@ export async function runAIOrganization(input: {
       topic,
       employees,
     });
-    geminiCallCount += 1;
+    geminiCallCount += employees.length;
 
     stage = "validation";
     input.onProgress?.("validation");
@@ -143,6 +189,43 @@ export async function runAIOrganization(input: {
       topic,
       reactions,
     });
+    postForFailure = post;
+    const qa = runOrganizationRunAutomatedQA({
+      topic,
+      post,
+      employees,
+      recentPosts: existingPosts,
+    });
+    const fullReviewMode = input.fullReviewMode ?? requiresFounderReview();
+    if (qa.requiresReview || fullReviewMode) {
+      stage = "review";
+      const reviewItem = createReviewItem({
+        runId,
+        boardType: topic.boardType,
+        title: topic.title,
+        post,
+        reasons: fullReviewMode
+          ? [...qa.reasons, "초기 테스트 전건 검수 모드"]
+          : qa.reasons,
+        riskLevel: fullReviewMode && qa.riskLevel === "low" ? "medium" : qa.riskLevel,
+      });
+      await input.publisher.saveReviewItem(reviewItem);
+      queuedForReview = true;
+      return {
+        runId,
+        status: "completed",
+        stage: "completed",
+        boardType: topic.boardType,
+        title: topic.title,
+        participantIds: employeeIds,
+        geminiCallCount,
+        post,
+        published: false,
+        reviewPending: true,
+        reviewItemId: reviewItem.id,
+      };
+    }
+
     stage = "publishing";
     input.onProgress?.("publishing");
     await input.publisher.publish(post, runId);
@@ -157,8 +240,26 @@ export async function runAIOrganization(input: {
       publicUrl: `/discussion/${post.slug}`,
       geminiCallCount,
       post,
+      published: true,
+      reviewPending: false,
     };
   } catch (error) {
+    if (!queuedForReview && topicForFailure) {
+      try {
+        await input.publisher.saveReviewItem(
+          createReviewItem({
+            runId,
+            boardType: topicForFailure.boardType,
+            title: topicForFailure.title,
+            reasons: ["Runtime 시스템 오류로 자동 공개를 보류함"],
+            riskLevel: "high",
+            post: postForFailure,
+          })
+        );
+      } catch {
+        // Preserve the original runtime error when the exception queue is unavailable.
+      }
+    }
     if (error instanceof OrganizationRunError) throw error;
     throw new OrganizationRunError(
       error instanceof Error ? error.message : "조직 실행에 실패했습니다.",
@@ -203,11 +304,14 @@ export async function runManualAIOrganization(input: {
   generator: OrganizationRunGenerator;
   publisher: OrganizationRunPublisher;
   manualInput: ManualOrganizationRunInput;
+  fullReviewMode?: boolean;
   onProgress?: OrganizationRunProgress;
 }): Promise<ManualOrganizationRunResult> {
   const runId = randomUUID();
   const lockToken = randomUUID();
   let stage: OrganizationRunError["stage"] = "topic";
+  let queuedForReview = false;
+  let postForFailure: EmployeeReactionPost | undefined;
 
   const allowed = await input.publisher.consumeRateLimit(
     RATE_LIMIT,
@@ -284,6 +388,42 @@ export async function runManualAIOrganization(input: {
     }
 
     const post = buildOrganizationRunPost({ runId, topic, reactions });
+    postForFailure = post;
+    const qa = runOrganizationRunAutomatedQA({
+      topic,
+      post,
+      employees,
+      recentPosts: existingPosts,
+    });
+    const fullReviewMode = input.fullReviewMode ?? requiresFounderReview();
+    if (input.manualInput.publish && (qa.requiresReview || fullReviewMode)) {
+      stage = "review";
+      const reviewItem = createReviewItem({
+        runId,
+        boardType: topic.boardType,
+        title: topic.title,
+        post,
+        reasons: fullReviewMode
+          ? [...qa.reasons, "초기 테스트 전건 검수 모드"]
+          : qa.reasons,
+        riskLevel: fullReviewMode && qa.riskLevel === "low" ? "medium" : qa.riskLevel,
+      });
+      await input.publisher.saveReviewItem(reviewItem);
+      queuedForReview = true;
+      return {
+        runId,
+        status: "completed",
+        stage: "completed",
+        boardType: topic.boardType,
+        title: topic.title,
+        participantIds: topic.relevantEmployeeIds,
+        geminiCallCount: employees.length,
+        post,
+        published: false,
+        reviewPending: true,
+        reviewItemId: reviewItem.id,
+      };
+    }
     if (input.manualInput.publish) {
       stage = "publishing";
       input.onProgress?.("publishing");
@@ -300,11 +440,28 @@ export async function runManualAIOrganization(input: {
       publicUrl: input.manualInput.publish
         ? `/discussion/${post.slug}`
         : undefined,
-      geminiCallCount: 1,
+      geminiCallCount: employees.length,
       post,
       published: input.manualInput.publish,
+      reviewPending: false,
     };
   } catch (error) {
+    if (!queuedForReview) {
+      try {
+        await input.publisher.saveReviewItem(
+          createReviewItem({
+            runId,
+            boardType: input.manualInput.boardType,
+            title: input.manualInput.title,
+            reasons: ["Runtime 시스템 오류로 자동 공개를 보류함"],
+            riskLevel: "high",
+            post: postForFailure,
+          })
+        );
+      } catch {
+        // Preserve the original runtime error when the exception queue is unavailable.
+      }
+    }
     if (error instanceof OrganizationRunError) throw error;
     throw new OrganizationRunError(
       error instanceof Error ? error.message : "수동 조직 실행에 실패했습니다.",

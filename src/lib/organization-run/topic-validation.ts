@@ -70,6 +70,18 @@ export function validateOrganizationRunTopic(
     errors.push("Architect는 직원 반응 참여자가 아닙니다.");
   }
   if (
+    (topic.sourceUrls?.length ?? 0) > 5 ||
+    topic.sourceUrls?.some((url) => {
+      try {
+        return new URL(url).protocol !== "https:";
+      } catch {
+        return true;
+      }
+    })
+  ) {
+    errors.push("출처는 최대 5개의 HTTPS URL이어야 합니다.");
+  }
+  if (
     PROHIBITED_PATTERNS.some((pattern) =>
       pattern.test(`${topic.title} ${topic.body}`)
     )

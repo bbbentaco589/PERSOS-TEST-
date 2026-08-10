@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
 
 import {
   buildEmployeeReactionSystemInstruction,
@@ -16,7 +17,6 @@ import type {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const MAX_MESSAGE_LENGTH = 4_000;
 const VALID_BOARDS: EmployeeReactionBoard[] = [
   "investor-demo",
@@ -120,38 +120,42 @@ export async function POST(request: Request) {
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), getTimeoutMs());
-  const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
+  const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
 
   try {
     const canonicalEmployees = await getCanonicalEmployees();
     const client = new GoogleGenAI({ apiKey });
-    const result = await client.models.generateContent({
-      model,
-      contents: `게시글 제목:\n${title}\n\n게시글 본문:\n${message}`,
-      config: {
-        abortSignal: controller.signal,
-        systemInstruction: buildEmployeeReactionSystemInstruction({
-          board,
-          title,
-          body: message,
-          employees: canonicalEmployees,
-        }),
-        responseMimeType: "application/json",
-        responseJsonSchema: createEmployeeReactionResponseSchema(),
-        temperature: 0.65,
-        maxOutputTokens: 2_200,
-      },
-    });
-    const responseText = result.text?.trim();
+    const generated = await Promise.all(
+      canonicalEmployees.map(async (canonical) => {
+        const employeeIds = [canonical.employee.id];
+        const result = await client.models.generateContent({
+          model,
+          contents: `게시글 제목:\n${title}\n\n게시글 본문:\n${message}`,
+          config: {
+            abortSignal: controller.signal,
+            systemInstruction: buildEmployeeReactionSystemInstruction({
+              board,
+              title,
+              body: message,
+              employees: [canonical],
+            }),
+            responseMimeType: "application/json",
+            responseJsonSchema: createEmployeeReactionResponseSchema(employeeIds),
+            temperature: 0.65,
+            maxOutputTokens: 900,
+          },
+        });
+        const responseText = result.text?.trim();
+        if (!responseText) {
+          throw new StructuredEmployeeReactionError(
+            `${canonical.employee.id} Gemini가 비어 있는 응답을 반환했습니다.`
+          );
+        }
+        return parseEmployeeReactions(responseText, employeeIds)[0];
+      })
+    );
 
-    if (!responseText) {
-      return NextResponse.json(
-        { error: "Gemini가 비어 있는 응답을 반환했습니다." },
-        { status: 502 }
-      );
-    }
-
-    const reactions = parseEmployeeReactions(responseText).map((reaction) => {
+    const reactions = generated.map((reaction) => {
       const canonical = canonicalEmployees.find(
         ({ employee }) => employee.id === reaction.employeeId
       );

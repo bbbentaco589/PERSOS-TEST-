@@ -1,6 +1,8 @@
 import type {
   EmployeeReactionBoard,
   EmployeeReactionPost,
+  OrganizationRunReviewItem,
+  OrganizationRunReviewStatus,
   OrganizationRunTopic,
 } from "@/types";
 import type {
@@ -26,6 +28,12 @@ export interface OrganizationRunPublisher {
   getPost(slug: string): Promise<EmployeeReactionPost | undefined>;
   listTopicSummaries(): Promise<string[]>;
   publish(post: EmployeeReactionPost, runId: string): Promise<void>;
+  listReviewItems(
+    status?: OrganizationRunReviewStatus
+  ): Promise<OrganizationRunReviewItem[]>;
+  getReviewItem(id: string): Promise<OrganizationRunReviewItem | undefined>;
+  saveReviewItem(item: OrganizationRunReviewItem): Promise<void>;
+  updateReviewItem(item: OrganizationRunReviewItem): Promise<void>;
   acquireExecutionLock(token: string, ttlSeconds: number): Promise<boolean>;
   releaseExecutionLock(token: string): Promise<void>;
   consumeRateLimit(limit: number, windowSeconds: number): Promise<boolean>;
