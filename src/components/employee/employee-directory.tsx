@@ -15,11 +15,15 @@ const divisionOrder = new Map<string, number>(
   publicDivisionOrder.map((id, index) => [id, index])
 );
 const teamOrder = new Map(teams.map((team) => [team.id, team.displayOrder]));
+const canonicalPersonaOrder = new Map(
+  ["tect", "sig", "lo-pay-park", "lumi", "pixeur", "ottucksoon"].map((slug, index) => [slug, index])
+);
 const publicCharacters = characters
   .filter(isPublicCharacter)
   .toSorted((a, b) => {
-    const statusDifference = (a.status === "Active" ? 0 : 1) - (b.status === "Active" ? 0 : 1);
-    if (statusDifference !== 0) return statusDifference;
+    const canonicalDifference = (canonicalPersonaOrder.get(a.slug) ?? canonicalPersonaOrder.size)
+      - (canonicalPersonaOrder.get(b.slug) ?? canonicalPersonaOrder.size);
+    if (canonicalDifference !== 0) return canonicalDifference;
 
     const divisionDifference = (divisionOrder.get(a.divisionId) ?? Number.MAX_SAFE_INTEGER)
       - (divisionOrder.get(b.divisionId) ?? Number.MAX_SAFE_INTEGER);
@@ -29,8 +33,6 @@ const publicCharacters = characters
       - (teamOrder.get(b.teamId) ?? Number.MAX_SAFE_INTEGER);
     if (teamDifference !== 0) return teamDifference;
 
-    if (a.slug === "tect") return -1;
-    if (b.slug === "tect") return 1;
     return a.nameKo.localeCompare(b.nameKo, "ko");
   });
 const expertiseOptions = [...new Set(publicCharacters.flatMap((character) => character.specialtiesKo))].sort((a, b) => a.localeCompare(b, "ko"));
