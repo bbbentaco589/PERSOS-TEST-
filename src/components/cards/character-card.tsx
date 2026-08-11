@@ -5,6 +5,7 @@ import { ArrowUpRight, BadgeCheck, CircleCheck } from "lucide-react";
 import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
 import { DivisionIcon } from "@/components/brand/division-icon";
 import { Badge } from "@/components/ui/badge";
+import { divisionAccentBackgrounds } from "@/constants/assets";
 import { divisions, teams } from "@/data";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { Character } from "@/types";
@@ -55,7 +56,10 @@ export function CharacterCard({ character }: { character: Character }) {
             src={character.profileImage}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-white/[0.025]" />
-          <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: character.brandColor }} />
+          <div
+            className="absolute inset-x-0 bottom-0 h-1"
+            style={{ background: divisionAccentBackgrounds[character.divisionId] ?? "#22D3EE" }}
+          />
           <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-md border border-white/10 bg-black/60 px-2 py-1.5 backdrop-blur-md">
             <DivisionIcon className="size-7" divisionId={character.divisionId} />
             <span className="max-w-32 truncate text-[9px] font-medium text-zinc-200">{division?.nameKo}</span>

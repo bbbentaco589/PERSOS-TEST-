@@ -17,6 +17,15 @@ export const divisionIconAssets: Record<string, string> = {
   "division-studio": "/assets/divisions/v1.1/technology.png",
 };
 
+export const divisionAccentBackgrounds: Record<string, string> = {
+  "division-strategy": "linear-gradient(90deg, #EF4444 0%, #A855F7 50%, #2563EB 100%)",
+  "division-governance": "#F4B942",
+  "division-entertainment": "#EC167D",
+  "division-editorial": "#8B5CF6",
+  "division-intelligence": "#14B8A6",
+  "division-studio": "#0EA5E9",
+};
+
 export const discussionCategoryIconAssets = {
   debate: "/assets/boards/v1/debate.png",
   public: "/assets/boards/v1/public-feed.png",
