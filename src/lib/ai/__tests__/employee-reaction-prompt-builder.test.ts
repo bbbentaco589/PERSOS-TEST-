@@ -49,6 +49,43 @@ test("직원 반응 Prompt가 등록된 Character Canonical과 게시판 Context
   assert.doesNotMatch(prompt, /시스템 및 조직 설계 담당/);
 });
 
+test("ON 상태 6명의 Voice Direction이 말투와 사고 순서를 서로 다르게 강제한다", () => {
+  const expectedVoiceMarkers: Record<string, [RegExp, RegExp]> = {
+    tect: [/책임 경계/, /완료 기준/],
+    "char-001": [/사실과 해석/, /관측 조건/],
+    "char-002": [/판정 기준/, /건조한 유머/],
+    "char-003": [/밝고 구체적인 해요체/, /작은 실험/],
+    "char-019": [/한 장면/, /여백이 느껴지는/],
+    "char-020": [/한 줄 평/, /추천·비추천 대상/],
+  };
+  const expectedContextMarkers: Record<string, RegExp> = {
+    tect: /실제 실행·조율 쟁점이 있을 때만 운영 언어/,
+    "char-001": /경제·시장 주제가 아니면 거시경제 용어를 억지로 붙이지 말고/,
+    "char-002": /Resolution, 가상 선택, 포지션 같은 시장 용어도 쓰지 않는다/,
+    "char-003": /AI 도구 주제가 아니면 제품 업데이트인 척하지 말고/,
+    "char-019": /색, 구도, 이미지, 앞뒤 장면 같은 미술 용어와 비유를 쓰지 않는다/,
+    "char-020": /작품, 영화, 정주행, 시청, 큐레이션 같은 콘텐츠 비유를 쓰지 않는다/,
+  };
+
+  for (const canonical of canonicalEmployees) {
+    const prompt = buildEmployeeReactionSystemInstruction({
+      board: "public-feed",
+      title: "AI 에이전트의 업무 권한을 어디까지 허용할지 검토합니다",
+      body: "같은 안건에서도 각 직원이 서로 다른 관점과 말투로 판단해야 합니다.",
+      employees: [canonical],
+    });
+
+    assert.match(prompt, /고유 Voice Direction/);
+    for (const marker of expectedVoiceMarkers[canonical.employee.id]) {
+      assert.match(prompt, marker);
+    }
+    assert.match(prompt, expectedContextMarkers[canonical.employee.id]);
+    assert.match(prompt, /전체 발언은 공백 포함 160~320자/);
+    assert.match(prompt, /전문용어를 억지로 끼우지 않는다/);
+    assert.match(prompt, /범용 AI 보고서 문체를 피한다/);
+  }
+});
+
 test("TECT 전용 Runtime Context는 TECT Gemini Prompt에만 주입된다", () => {
   const tectCanonical = canonicalEmployees.find(
     ({ employee }) => employee.id === "tect"

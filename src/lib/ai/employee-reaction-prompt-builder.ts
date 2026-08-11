@@ -5,6 +5,7 @@ import type {
 } from "@/types";
 import { buildTectRuntimePromptContext } from "@/lib/ai/tect-runtime-context";
 import { buildAnonymousSocialPromptContext } from "@/lib/ai/employee-social-context";
+import { getCharacterPromptProfile } from "@/lib/ai/character-prompt-profile";
 
 export const EMPLOYEE_REACTION_IDS = [
   "tect",
@@ -90,6 +91,7 @@ function buildEmployeeCanonicalBlock({
   divisionName,
   teamName,
 }: EmployeeReactionCanonical, board: EmployeeReactionBoard) {
+  const voice = getCharacterPromptProfile(employee);
   return [
     `직원 ID: ${employee.id}`,
     `이름: ${employee.nameKo} (${employee.nameEn})`,
@@ -106,6 +108,15 @@ function buildEmployeeCanonicalBlock({
     `허용 주제: ${formatList(employee.allowedTopics)}`,
     `금지 주제와 행동: ${formatList(employee.prohibitedTopics)}`,
     `선호 활동 형식: ${formatList(employee.preferredActivityFormats)}`,
+    "고유 Voice Direction:",
+    `- 말투: ${voice.speakingStyle}`,
+    `- 판단 순서: ${voice.judgmentGuide}`,
+    `- 첫 문장: ${voice.openingMove}`,
+    `- 문장 호흡: ${voice.sentenceRhythm}`,
+    `- 고유 어휘: ${voice.signatureLanguage}`,
+    `- 필드별 역할: ${voice.fieldStrategy}`,
+    `- 문맥 적합성: ${voice.contextRule}`,
+    `- 피할 표현: ${voice.avoid}`,
     "직원 관계: Canonical에 구조화된 관계 정보가 없으므로 추측하거나 생성하지 않는다.",
     employee.id === "tect" ? buildTectRuntimePromptContext(board) : "",
   ].filter(Boolean).join("\n");
@@ -129,7 +140,7 @@ export function buildEmployeeReactionSystemInstruction({
       : "";
 
   return [
-    "당신은 PERSOS 내부 콘텐츠 운영을 위한 AI 직원 반응 생성기입니다.",
+    "당신은 제공된 PERSOS 직원 한 명의 관점으로 사고하고 직접 글을 쓰는 독립 작성자입니다.",
     "반드시 제공된 Character Canonical만 사용하며 이름, 직무, 조직, 성격과 설정을 변경하거나 새로 만들지 마세요.",
     `게시판: ${context.label}`,
     `게시판 목적: ${context.purpose}`,
@@ -145,7 +156,9 @@ export function buildEmployeeReactionSystemInstruction({
     ...(anonymousSocialContext ? ["", anonymousSocialContext] : []),
     "",
     "작성 규칙:",
-    "- 각 직원은 같은 안건을 자신의 가치관, 전문 분야, 약점과 Persona Rules에 따라 독립적으로 판단한다.",
+    "- Character Canonical의 Voice Direction은 장식이 아니라 최우선 작성 규칙이다. 내용뿐 아니라 첫 문장, 어휘, 문장 길이와 판단 순서에서 개성을 보여준다.",
+    "- 게시글을 요약하거나 바꿔 말하지 말고, 이 직원만 먼저 발견할 구체적인 마찰·기회·장면 하나를 선택한다.",
+    "- 전문 분야가 안건과 직접 맞지 않으면 전문용어를 억지로 끼우지 않는다. 그 직원의 가치관과 사고 습관으로만 판단한다.",
     "- 이 요청에는 한 직원의 Canonical만 제공된다. 다른 직원의 관점이나 말투를 대신 작성하지 않는다.",
     "- 찬성, 보류, 반대 중 하나를 선택한다.",
     "- 확인되지 않은 수치, 계약, 시장 사실, 과거 경력과 직원 관계를 만들지 않는다.",
@@ -155,7 +168,11 @@ export function buildEmployeeReactionSystemInstruction({
           "- 다른 직원의 검증된 이름·외형·현재 행동을 언급할 수 있지만, 작성자 자신을 특정하는 단서로 사용하지 않는다.",
         ]
       : []),
-    "- coreOpinion, concerns, suggestion은 각각 한 개 이상의 완결된 한국어 문장으로 작성한다.",
+    "- coreOpinion, concerns, suggestion은 저장 필드일 뿐이며, 화면에서 이어 읽었을 때 한 사람이 자연스럽게 쓴 하나의 발언이 되어야 한다.",
+    "- 세 필드에서 같은 주장이나 게시글의 표현을 반복하지 않는다. concerns에는 핵심 우려 하나만, suggestion에는 다음 행동 하나만 둔다.",
+    "- 전체 발언은 공백 포함 160~320자 정도로 제한한다. 특별한 이유가 없으면 각 필드는 한 문장만 쓴다.",
+    "- '중요합니다', '필요합니다', '검토해야 합니다', '수 있습니다'를 연속해서 쓰는 범용 AI 보고서 문체를 피한다.",
+    "- 이름, 직책, 소속을 자기소개처럼 반복하지 않는다.",
     "- 요청된 JSON Schema 이외의 설명을 반환하지 않는다.",
   ].join("\n");
 }
@@ -188,9 +205,9 @@ export function createEmployeeReactionResponseSchema(
               type: "string",
               enum: [...EMPLOYEE_REACTION_STANCES],
             },
-            coreOpinion: { type: "string", minLength: 1 },
-            concerns: { type: "string", minLength: 1 },
-            suggestion: { type: "string", minLength: 1 },
+            coreOpinion: { type: "string", minLength: 20, maxLength: 140 },
+            concerns: { type: "string", minLength: 15, maxLength: 100 },
+            suggestion: { type: "string", minLength: 15, maxLength: 110 },
           },
         },
       },
