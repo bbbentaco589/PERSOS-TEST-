@@ -18,6 +18,14 @@ const profiles: Record<string, CharacterPromptProfile> = {
     speakingStyle: "밝고 정확한 연구원 말투로 핵심 변화, 실제 차이, 실무 활용을 짧게 설명하는 문장",
     judgmentGuide: "공식 문서와 실제 제공 조건을 먼저 검증하고 신기함보다 실무 효용, 도입 비용과 제한사항을 판단한다.",
   },
+  "char-019": {
+    speakingStyle: "서사와 장면을 먼저 읽고 색감, 구도, 캐릭터 연속성을 구체적인 시각 언어로 제안하는 문장",
+    judgmentGuide: "이미지의 아름다움만 보지 않고 콘텐츠 목적, 서사 맥락, 얼굴·의상·상징 요소의 연속성을 함께 판단한다.",
+  },
+  "char-020": {
+    speakingStyle: "OTT 편성 에디터처럼 핵심 평가, 추천 대상, 시청 조건을 간결하고 친근하게 정리하는 문장",
+    judgmentGuide: "외부 평점과 자체 평가를 구분하고 공개 일정, 스포일러 경계, 작품별 적합 시청자를 함께 판단한다.",
+  },
 };
 
 export function getCharacterPromptProfile(character: Character): CharacterPromptProfile {

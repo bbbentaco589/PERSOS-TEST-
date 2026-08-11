@@ -171,12 +171,14 @@ test("public boardType은 공개 피드 저장 값으로 정규화한다", () =>
   assert.equal(post.board, "public-feed");
 });
 
-test("SIG를 중복 없이 후보군에 포함하고 TECT 없이도 2명 배정이 가능하다", () => {
+test("ON 상태인 6명을 반응 후보군에 포함하고 TECT 없이도 2명 배정이 가능하다", () => {
   assert.deepEqual(ORGANIZATION_RUN_EMPLOYEE_IDS, [
     "tect",
     "char-001",
-    "char-003",
     "char-002",
+    "char-003",
+    "char-019",
+    "char-020",
   ]);
   const validation = validateOrganizationRunTopic(
     {
@@ -214,7 +216,7 @@ test("수동 실행은 주제를 생성하지 않고 반응과 검증만 수행�
   assert.equal(publisher.published, 0);
 });
 
-test("수동 발행 선택 시 이미지와 게시글을 함께 저장한다", async () => {
+test("수동 발행 선택 시 ON 상태인 6명의 반응과 이미지·게시글을 함께 저장한다", async () => {
   const publisher = new MemoryPublisher();
   const { generator } = createGenerator([validTopic]);
   const result = await runManualAIOrganization({
@@ -222,12 +224,15 @@ test("수동 발행 선택 시 이미지와 게시글을 함께 저장한다", a
     publisher,
     manualInput: {
       ...manualInput,
+      employeeIds: [...ORGANIZATION_RUN_EMPLOYEE_IDS],
       imageUrl: "https://assets.example.com/persos/manual-topic.png",
       publish: true,
     },
   });
 
   assert.equal(result.published, true);
+  assert.equal(result.geminiCallCount, 6);
+  assert.equal(result.post.reactions.length, 6);
   assert.match(result.publicUrl ?? "", /^\/discussion\//);
   assert.equal(publisher.published, 1);
   assert.equal(

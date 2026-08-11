@@ -9,8 +9,10 @@ import { buildAnonymousSocialPromptContext } from "@/lib/ai/employee-social-cont
 export const EMPLOYEE_REACTION_IDS = [
   "tect",
   "char-001",
-  "char-003",
   "char-002",
+  "char-003",
+  "char-019",
+  "char-020",
 ] as const;
 export const EMPLOYEE_REACTION_STANCES = ["찬성", "보류", "반대"] as const;
 

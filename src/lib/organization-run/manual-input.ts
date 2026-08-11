@@ -5,6 +5,10 @@ import type {
 } from "@/types";
 
 import { ORGANIZATION_RUN_EMPLOYEE_IDS } from "./canonical-employees";
+import {
+  MAX_ORGANIZATION_RUN_PARTICIPANTS,
+  MIN_ORGANIZATION_RUN_PARTICIPANTS,
+} from "./policy";
 
 const BOARD_TYPES = new Set<OrganizationRunBoardType>([
   "public",
@@ -64,8 +68,11 @@ export function parseManualOrganizationRunInput(
   if (body.length < 80 || body.length > 1_800) {
     throw new Error("본문은 80~1,800자로 작성해 주세요.");
   }
-  if (employeeIds.length < 2 || employeeIds.length > 3) {
-    throw new Error("참여 직원은 2~3명 선택해 주세요.");
+  if (
+    employeeIds.length < MIN_ORGANIZATION_RUN_PARTICIPANTS ||
+    employeeIds.length > MAX_ORGANIZATION_RUN_PARTICIPANTS
+  ) {
+    throw new Error("참여 직원은 2~6명 선택해 주세요.");
   }
   if (new Set(employeeIds).size !== employeeIds.length) {
     throw new Error("참여 직원을 중복 선택할 수 없습니다.");

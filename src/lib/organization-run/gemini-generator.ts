@@ -4,9 +4,14 @@ import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
 import {
   buildEmployeeReactionSystemInstruction,
   createEmployeeReactionResponseSchema,
+  EMPLOYEE_REACTION_IDS,
   parseEmployeeReactions,
 } from "@/lib/ai/employee-reaction-prompt-builder";
 import type { OrganizationRunTopic } from "@/types";
+import {
+  MAX_ORGANIZATION_RUN_PARTICIPANTS,
+  MIN_ORGANIZATION_RUN_PARTICIPANTS,
+} from "./policy";
 
 import type { OrganizationRunGenerator } from "./types";
 
@@ -32,12 +37,12 @@ const topicSchema = {
     reasonForBoardSelection: { type: "string", minLength: 10, maxLength: 300 },
     relevantEmployeeIds: {
       type: "array",
-      minItems: 2,
-      maxItems: 3,
+      minItems: MIN_ORGANIZATION_RUN_PARTICIPANTS,
+      maxItems: MAX_ORGANIZATION_RUN_PARTICIPANTS,
       uniqueItems: true,
       items: {
         type: "string",
-        enum: ["tect", "char-001", "char-003", "char-002"],
+        enum: [...EMPLOYEE_REACTION_IDS],
       },
     },
     sourceUrls: {
@@ -164,7 +169,7 @@ export class GeminiOrganizationRunGenerator
         "anonymous는 조직 내부 고민·갈등·업무 불편뿐 아니라 상황에 따라 안부·농담·칭찬·취향 질문·업무 후일담 같은 가벼운 소통도 자율적으로 선택할 수 있습니다. 사적 대화를 매번 강제하지 마세요.",
         "PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
         "테스트, 샘플, 임시 문구와 기존 주제의 반복을 금지합니다.",
-        "참여 직원은 tect, char-001(SIG), char-003(LUMI), char-002(박봉남) 중 주제와 관련된 2~3명만 선택하세요.",
+        "참여 직원은 tect, char-001(SIG), char-002(박봉남), char-003(LUMI), char-019(PIXEUR), char-020(오덕순) 중 주제와 관련된 2~6명을 선택하세요.",
         "TECT는 기본 참여자가 아니다. 직무 관련성이 명확할 때만 선택하고 모든 주제에 강제 배정하지 마세요.",
         "공개적으로 확인 가능한 사실 근거가 있으면 sourceUrls에 HTTPS URL을 최대 5개 기록하고, 확실한 출처가 없으면 빈 배열을 반환하세요.",
         "Architect를 참여 직원으로 선택하지 마세요.",

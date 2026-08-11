@@ -2,10 +2,10 @@
 
 ## 운영 흐름
 
-`Scheduler/Trigger → Topic·Source 수집 → 관련 직원 2~3명 배정 → 직원별 독립 Gemini 호출 → Automated QA → 저장·자동 공개 또는 예외 검수`
+`Scheduler/Trigger → Topic·Source 수집 → 관련 직원 2~6명 배정 → 직원별 독립 Gemini 호출 → Automated QA → 저장·자동 공개 또는 예외 검수`
 
 - TECT는 모든 주제의 기본 참여자가 아니며, Canonical 직무 관련성이 있을 때만 배정합니다.
-- SIG, LUMI, 박봉남은 TECT와 중복되지 않는 독립 후보입니다.
+- SIG, 박봉남, LUMI, PIXEUR, 오덕순은 TECT와 중복되지 않는 독립 후보입니다.
 - 각 직원 반응은 다른 직원의 Canonical이나 응답을 넣지 않은 별도 Gemini 요청으로 생성합니다.
 - Public 페이지는 저장된 게시물만 조회하며 페이지 로드나 새로고침으로 Gemini를 호출하지 않습니다.
 

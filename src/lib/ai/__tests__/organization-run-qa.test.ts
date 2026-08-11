@@ -349,7 +349,10 @@ test("동일 익명 게시물의 직원별 닉네임은 고유하고 저장·조
 
   assert.equal(new Set(firstAliases).size, post.reactions.length);
   assert.deepEqual(restoredAliases, firstAliases);
-  assert.doesNotMatch(JSON.stringify(restored), /텍트|TECT|시그|SIG|루미|LUMI/);
+  assert.doesNotMatch(
+    JSON.stringify(restored),
+    /텍트|TECT|시그|SIG|박봉남|Lo-Pay|루미|LUMI|픽세르|PIXEUR|오덕순|O-TTucksoon/
+  );
 });
 
 test("익명 작성자의 신원은 차단하고 다른 직원에 대한 검증된 사적 언급은 허용한다", async () => {

@@ -1,5 +1,9 @@
 import { ORGANIZATION_RUN_EMPLOYEE_IDS } from "./canonical-employees";
 import type { OrganizationRunTopic } from "@/types";
+import {
+  MAX_ORGANIZATION_RUN_PARTICIPANTS,
+  MIN_ORGANIZATION_RUN_PARTICIPANTS,
+} from "./policy";
 
 const BOARD_TYPES = new Set(["public", "debate", "anonymous"]);
 const PROHIBITED_PATTERNS = [
@@ -48,10 +52,10 @@ export function validateOrganizationRunTopic(
     errors.push("주제 요약은 20~300자여야 합니다.");
   }
   if (
-    topic.relevantEmployeeIds.length < 2 ||
-    topic.relevantEmployeeIds.length > 3
+    topic.relevantEmployeeIds.length < MIN_ORGANIZATION_RUN_PARTICIPANTS ||
+    topic.relevantEmployeeIds.length > MAX_ORGANIZATION_RUN_PARTICIPANTS
   ) {
-    errors.push("참여 직원은 2~3명이어야 합니다.");
+    errors.push("참여 직원은 2~6명이어야 합니다.");
   }
   if (
     new Set(topic.relevantEmployeeIds).size !==

@@ -5,6 +5,10 @@ import type {
 } from "@/types";
 import type { EmployeeReactionCanonical } from "@/lib/ai/employee-reaction-prompt-builder";
 import { getEmployeeSocialSelfIdentifyingTerms } from "@/lib/ai/employee-social-context";
+import {
+  MAX_ORGANIZATION_RUN_PARTICIPANTS,
+  MIN_ORGANIZATION_RUN_PARTICIPANTS,
+} from "@/lib/organization-run/policy";
 
 export type OrganizationRunQAResult = {
   passed: boolean;
@@ -120,8 +124,8 @@ export function runOrganizationRunAutomatedQA(input: {
 
   const employeeIds = input.employees.map(({ employee }) => employee.id);
   if (
-    employeeIds.length < 2 ||
-    employeeIds.length > 3 ||
+    employeeIds.length < MIN_ORGANIZATION_RUN_PARTICIPANTS ||
+    employeeIds.length > MAX_ORGANIZATION_RUN_PARTICIPANTS ||
     new Set(employeeIds).size !== employeeIds.length ||
     input.post.reactions.length !== employeeIds.length ||
     input.post.reactions.some((reaction) => !employeeIds.includes(reaction.employeeId))

@@ -20,6 +20,10 @@ import type {
   OrganizationRunBoardType,
 } from "@/types";
 import { cn } from "@/lib/utils";
+import {
+  MAX_ORGANIZATION_RUN_PARTICIPANTS,
+  MIN_ORGANIZATION_RUN_PARTICIPANTS,
+} from "@/lib/organization-run/policy";
 
 export type ManualOrganizationRunEmployee = {
   id: string;
@@ -76,7 +80,9 @@ export function ManualOrganizationRunForm({
   const [body, setBody] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [employeeIds, setEmployeeIds] = useState<string[]>(() =>
-    employees.slice(0, 3).map((employee) => employee.id)
+    employees
+      .slice(0, MAX_ORGANIZATION_RUN_PARTICIPANTS)
+      .map((employee) => employee.id)
   );
   const [publish, setPublish] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -87,8 +93,8 @@ export function ManualOrganizationRunForm({
     () =>
       title.trim().length >= 12 &&
       body.trim().length >= 80 &&
-      employeeIds.length >= 2 &&
-      employeeIds.length <= 3 &&
+      employeeIds.length >= MIN_ORGANIZATION_RUN_PARTICIPANTS &&
+      employeeIds.length <= MAX_ORGANIZATION_RUN_PARTICIPANTS &&
       !isRunning,
     [body, employeeIds.length, isRunning, title]
   );
@@ -98,7 +104,7 @@ export function ManualOrganizationRunForm({
       if (current.includes(employeeId)) {
         return current.filter((id) => id !== employeeId);
       }
-      if (current.length >= 3) return current;
+      if (current.length >= MAX_ORGANIZATION_RUN_PARTICIPANTS) return current;
       return [...current, employeeId];
     });
   }
@@ -215,7 +221,7 @@ export function ManualOrganizationRunForm({
             호출 직원
           </legend>
           <span className="text-[10px] text-zinc-600">
-            2~3명 선택 · {employeeIds.length}명
+            2~6명 선택 · {employeeIds.length}명
           </span>
         </div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
