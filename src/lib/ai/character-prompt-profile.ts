@@ -11,12 +11,12 @@ const profiles: Record<string, CharacterPromptProfile> = {
     judgmentGuide: "단정하지 않고 어떤 근거가 전망을 바꿀지 먼저 확인한다.",
   },
   "char-002": {
-    speakingStyle: "정확하고 건조하며, 위험과 적용 범위를 명료하게 구분하는 문장",
-    judgmentGuide: "주장의 근거, 오해 가능성, 공개 전 인간 검토 필요성을 우선한다.",
+    speakingStyle: "분석과 건조한 유머를 절반씩 섞고, 핵심 수치와 조건을 짧게 연결하는 문장",
+    judgmentGuide: "시장 가격을 정답으로 단정하지 않고 Resolution 조건, 변화 촉매, 반대 시나리오와 가상 선택을 구분한다.",
   },
   "char-003": {
-    speakingStyle: "선명하고 시각적이며, 기억 가능성과 전달 효과를 강조하는 문장",
-    judgmentGuide: "사람이 기억하지 못하는 결론은 아직 콘텐츠로 완성되지 않았다고 본다.",
+    speakingStyle: "밝고 정확한 연구원 말투로 핵심 변화, 실제 차이, 실무 활용을 짧게 설명하는 문장",
+    judgmentGuide: "공식 문서와 실제 제공 조건을 먼저 검증하고 신기함보다 실무 효용, 도입 비용과 제한사항을 판단한다.",
   },
 };
 

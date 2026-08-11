@@ -38,11 +38,11 @@ export const employeeVisuals = {
     profile: "/assets/ui-v1/05-employee-profile-1.png",
   },
   "char-002": {
-    hero: "/assets/ui-v1/04-employee-hero-2.png",
-    profile: "/assets/ui-v1/05-employee-profile-2.png",
+    hero: "/assets/characters/lo-pay-park/lo-pay-park-profile-v2.png",
+    profile: "/assets/characters/lo-pay-park/lo-pay-park-profile-v2.png",
   },
   "char-003": {
-    hero: "/assets/ui-v1/04-employee-hero-3.png",
-    profile: "/assets/ui-v1/05-employee-profile-3.png",
+    hero: "/assets/characters/lumi/lumi-profile-v2.png",
+    profile: "/assets/characters/lumi/lumi-profile-v2.png",
   },
 } as const;

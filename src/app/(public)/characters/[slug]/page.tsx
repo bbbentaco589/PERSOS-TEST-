@@ -91,9 +91,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           alt={`${character.nameKo}, ${character.jobTitleKo} 업무 공간 Hero`}
           className={character.profileStage === "Rough"
             ? "object-cover opacity-35"
-            : character.id === "char-003"
-                ? "object-cover object-[76%_center] sm:object-center"
-                : "object-cover object-center"}
+            : "object-cover object-center"}
           fill
           priority
           quality={92}
@@ -129,7 +127,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           <div data-asset-placeholder={!profileAssetAvailable ? "canonical-asset-pending" : character.profileStage === "Rough" ? "employee-profile" : undefined}>
             {profileAssetAvailable ? <Image alt={`${character.nameKo} 프로필`} className={character.profileStage === "Rough" ? "aspect-square w-full border border-dashed border-white/10 bg-white/[0.02] object-contain p-14 opacity-60" : "aspect-square w-full border border-white/10 object-cover object-center"} height={360} src={character.profileImage} width={360} /> : <div className="grid aspect-square w-full place-items-center border border-dashed border-cyan-300/20 bg-cyan-300/[0.03] p-5 text-center"><div><ImageOff className="mx-auto size-6 text-cyan-200/60" /><p className="mt-3 text-[11px] font-medium text-zinc-400">Canonical 원본 연결 대기</p><p className="mt-2 text-[9px] leading-4 text-zinc-600">승인된 정방형 Profile Source 필요</p></div></div>}
           </div>
-          <CoreCrystalBadge className="mt-4" label={character.publicVisibility && character.profileStage === "Approved" ? "Persona Core · Identity Active" : character.publicVisibility ? "Persona Core · 설정 검토 중" : "Persona Core · Draft / Unlisted"} />
+          <CoreCrystalBadge className="mt-4" label={character.publicVisibility && character.status === "Active" && character.profileStage === "Approved" ? "Persona Core · Identity Active" : character.publicVisibility ? "Persona Core · 설정 검토 중" : "Persona Core · Draft / Unlisted"} />
         </div>
         <div>
           <p className="text-[10px] font-semibold uppercase text-cyan-200">Employee Profile</p>
