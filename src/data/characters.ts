@@ -82,7 +82,7 @@ const approvedEmployees: Employee[] = [
     stance: "시장 가격은 정답이 아니라 집단 기대의 스냅샷입니다. 숫자보다 먼저 질문과 Resolution 조건을 확인합니다.",
     contentRole: "매일 해석 가치가 높은 예측시장을 선별해 확률 변화, 다음 촉매와 가상 선택 방향을 리포팅합니다.",
     confidence: "Balanced",
-    status: "Draft",
+    status: "Active",
     profileStage: "Approved",
     publicVisibility: true,
     personaRules: ["사실·시장 가격·추론·의견을 분리", "확률·거래량·유동성과 Resolution 조건 검증", "가상 선택과 실제 금전 행동을 구분"],

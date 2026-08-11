@@ -26,7 +26,7 @@ test("TECT가 제휴기획자 공개 슬롯을 승계하고 Runtime 경계를 �
 
   assert.equal(characters.length, 21);
   assert.equal(characters.filter(isPublicCharacter).length, 20);
-  assert.equal(characters.filter(isDefaultAssignmentCharacter).length, 3);
+  assert.equal(characters.filter(isDefaultAssignmentCharacter).length, 4);
   assert.equal(isUnlistedQaCharacter(tect), false);
   assert.equal(isUnlistedQaCharacter(partnershipPlanner), true);
   assert.equal(canAccessCharacterDetail(tect), true);
@@ -45,8 +45,8 @@ test("TECT가 제휴기획자 공개 슬롯을 승계하고 Runtime 경계를 �
   assert.equal(pixeur.teamId, "team-content-production");
   assert.equal(ottucksoon.teamId, "team-ott-editorial");
   assert.equal(loPay.employeeCode, "PTD-PMA-001");
-  assert.equal(loPay.status, "Draft");
-  assert.equal(isDefaultAssignmentCharacter(loPay), false);
+  assert.equal(loPay.status, "Active");
+  assert.equal(isDefaultAssignmentCharacter(loPay), true);
   assert.equal(isDefaultAssignmentCharacter(pixeur), false);
   assert.equal(isDefaultAssignmentCharacter(ottucksoon), false);
 

@@ -62,14 +62,15 @@ export const employeeShowcases: EmployeeShowcase[] = [
     publishedContentIds: ["content-draft-001"],
     media: [
       { id: "media-lopay-profile-v2", title: "박봉남 프로필 v2", titleKo: "박봉남 프로필 v2", titleEn: "Lo-Pay Park Profile v2", type: "Image", url: "/assets/characters/lo-pay-park/lo-pay-park-profile-v2.png", status: "Published", publishedAt: "2026-08-11" },
-      { id: "media-lopay-overview-v2", title: "박봉남 캐릭터 오버뷰 v2", titleKo: "박봉남 캐릭터 오버뷰 v2", titleEn: "Lo-Pay Park Character Overview v2", type: "Image", url: "/assets/characters/lo-pay-park/lo-pay-park-overview-v2.png", status: "Draft", publishedAt: "2026-08-11" },
+      { id: "media-lopay-overview-v2", title: "박봉남 캐릭터 오버뷰 v2", titleKo: "박봉남 캐릭터 오버뷰 v2", titleEn: "Lo-Pay Park Character Overview v2", type: "Image", url: "/assets/characters/lo-pay-park/lo-pay-park-overview-v2.png", status: "Published", publishedAt: "2026-08-12" },
     ],
     archive: [{ id: "archive-lopay-001", title: "첫 실패 예측 회고", titleKo: "첫 실패 예측 회고", titleEn: "First failed forecast retrospective", type: "Milestone", summary: "틀린 예측도 가정과 군중 심리를 복기하는 콘텐츠로 남깁니다.", summaryKo: "틀린 예측도 가정과 군중 심리를 복기하는 콘텐츠로 남깁니다.", summaryEn: "Turns a missed forecast into a review of assumptions and crowd behavior.", archivedAt: "2026-07-08" }],
     timeline: [
       { id: "timeline-lopay-001", date: "2026-07-08", title: "예측시장팀 합류", titleKo: "예측시장팀 합류", titleEn: "Joined Prediction Market Team", description: "전략분석사업부의 예측시장 분석 모델로 등록되었습니다.", descriptionKo: "전략분석사업부의 예측시장 분석 모델로 등록되었습니다.", descriptionEn: "Registered as a prediction-market analyst model in Strategic Analysis Division.", type: "Joined" },
-      { id: "timeline-lopay-002", date: "2026-08-11", title: "Canonical Modeling v2 전환", titleKo: "Canonical Modeling v2 전환", titleEn: "Moved to Canonical Modeling v2", description: "직무·판단 규칙·비주얼을 갱신하고 Founder 최종 승인 전 Draft 상태로 전환했습니다.", descriptionKo: "직무·판단 규칙·비주얼을 갱신하고 Founder 최종 승인 전 Draft 상태로 전환했습니다.", descriptionEn: "Updated role, judgment rules, and visuals while remaining Draft pending final approval.", type: "Role Update" },
+      { id: "timeline-lopay-002", date: "2026-08-11", title: "Canonical Modeling v2 전환", titleKo: "Canonical Modeling v2 전환", titleEn: "Moved to Canonical Modeling v2", description: "직무·판단 규칙·비주얼을 갱신하고 Canonical v2 검수 단계로 전환했습니다.", descriptionKo: "직무·판단 규칙·비주얼을 갱신하고 Canonical v2 검수 단계로 전환했습니다.", descriptionEn: "Updated the role, judgment rules, and visuals for Canonical v2 review.", type: "Role Update" },
+      { id: "timeline-lopay-003", date: "2026-08-12", title: "정식 운영 Runtime 승인", titleKo: "정식 운영 Runtime 승인", titleEn: "Canonical Runtime approved", description: "Founder 승인에 따라 Active·Context ON·Public ON·기본 배정 대상으로 전환했습니다.", descriptionKo: "Founder 승인에 따라 Active·Context ON·Public ON·기본 배정 대상으로 전환했습니다.", descriptionEn: "Founder approval activated the persona, context injection, public visibility, and default assignment.", type: "Role Update" },
     ],
-    updatedAt: "2026-08-11",
+    updatedAt: "2026-08-12",
   },
   {
     id: "showcase-char-003",
