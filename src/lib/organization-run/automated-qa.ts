@@ -120,17 +120,52 @@ export function runOrganizationRunAutomatedQA(input: {
       reaction.concerns,
       reaction.suggestion,
     ]),
+    ...(input.post.replies ?? []).map((reply) => reply.content),
+    ...(input.post.authorPosition
+      ? [
+          input.post.authorPosition.coreOpinion,
+          input.post.authorPosition.concerns,
+          input.post.authorPosition.suggestion,
+        ]
+      : []),
   ].join("\n");
 
   const employeeIds = input.employees.map(({ employee }) => employee.id);
+  const expectedReactionEmployeeIds = input.topic.boardType === "public"
+    ? employeeIds.filter((id) => id !== input.post.authorEmployeeId)
+    : employeeIds;
   if (
     employeeIds.length < MIN_ORGANIZATION_RUN_PARTICIPANTS ||
     employeeIds.length > MAX_ORGANIZATION_RUN_PARTICIPANTS ||
     new Set(employeeIds).size !== employeeIds.length ||
-    input.post.reactions.length !== employeeIds.length ||
-    input.post.reactions.some((reaction) => !employeeIds.includes(reaction.employeeId))
+    input.post.reactions.length !== expectedReactionEmployeeIds.length ||
+    input.post.reactions.some(
+      (reaction) => !expectedReactionEmployeeIds.includes(reaction.employeeId)
+    ) ||
+    (input.topic.boardType === "public" &&
+      (!input.post.authorEmployeeId ||
+        !employeeIds.includes(input.post.authorEmployeeId)))
   ) {
     reasons.push("직원 배정 또는 독립 응답 수가 정책과 일치하지 않음");
+  }
+
+  if (input.topic.boardType === "public") {
+    const reactionIds = new Set(
+      input.post.reactions.map((reaction) => reaction.id)
+    );
+    const parentIds = (input.post.replies ?? []).map(
+      (reply) => reply.parentReactionId
+    );
+    if (
+      (input.post.replies ?? []).some(
+        (reply) =>
+          reply.employeeId !== input.post.authorEmployeeId ||
+          !reactionIds.has(reply.parentReactionId)
+      ) ||
+      new Set(parentIds).size !== parentIds.length
+    ) {
+      reasons.push("게시자 대댓글 연결 또는 1회 제한이 올바르지 않음");
+    }
   }
 
   for (const [pattern, reason] of secretOrPersonalPatterns) {

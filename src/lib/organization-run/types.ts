@@ -7,6 +7,7 @@ import type {
 } from "@/types";
 import type {
   EmployeeReactionCanonical,
+  GeneratedEmployeeReply,
   GeneratedEmployeeReaction,
 } from "@/lib/ai/employee-reaction-prompt-builder";
 
@@ -19,6 +20,15 @@ export interface OrganizationRunGenerator {
     topic: OrganizationRunTopic;
     employees: EmployeeReactionCanonical[];
   }): Promise<GeneratedEmployeeReaction[]>;
+  generateAuthorReplies?(input: {
+    topic: OrganizationRunTopic;
+    author: EmployeeReactionCanonical;
+    authorOpinion: GeneratedEmployeeReaction;
+    comments: Array<{
+      commenter: EmployeeReactionCanonical;
+      comment: GeneratedEmployeeReaction;
+    }>;
+  }): Promise<GeneratedEmployeeReply[]>;
 }
 
 export interface OrganizationRunPublisher {

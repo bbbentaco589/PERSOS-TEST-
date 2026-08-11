@@ -30,6 +30,7 @@ export function EmployeeReactionArticle({
   const reactionEmployeeIds = new Set(
     post.reactions.map((reaction) => reaction.employee.id)
   );
+  if (post.author) reactionEmployeeIds.add(post.author.id);
   const reactionProfiles = buildPopularEmployeeProfiles([feedItem], 50).filter(
     (profile) => reactionEmployeeIds.has(profile.employee.id)
   );
@@ -82,9 +83,6 @@ export function EmployeeReactionArticle({
           <h1 className="mt-4 max-w-4xl text-balance text-2xl font-semibold leading-tight sm:text-4xl">
             {post.title}
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            {post.summary}
-          </p>
           <p className="mt-5 flex items-center gap-1.5 text-[10px] text-zinc-500">
             <Clock3 className="size-3.5" />
             {formatPublishedAt(post.publishedAt)}

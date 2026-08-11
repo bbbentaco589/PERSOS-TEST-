@@ -16,6 +16,10 @@ import { GeminiOrganizationRunGenerator } from "./gemini-generator";
 import { getOrganizationRunPublisher } from "./kv-publisher";
 import { createManualOrganizationRunTopic } from "./manual-input";
 import { buildOrganizationRunPost } from "./post-builder";
+import {
+  selectPublicFeedAuthorEmployeeId,
+  shouldGenerateAuthorReply,
+} from "./public-feed-interactions";
 import { validateOrganizationRunTopic } from "./topic-validation";
 import type {
   OrganizationRunGenerator,
@@ -68,6 +72,70 @@ export class OrganizationRunError extends Error {
 export type OrganizationRunProgress = (
   stage: Exclude<OrganizationRunStage, "idle" | "completed" | "failed">
 ) => void;
+
+async function generatePublicFeedInteractions(input: {
+  generator: OrganizationRunGenerator;
+  topic: Parameters<OrganizationRunGenerator["generateReactions"]>[0]["topic"];
+  employees: Parameters<OrganizationRunGenerator["generateReactions"]>[0]["employees"];
+  reactions: Awaited<ReturnType<OrganizationRunGenerator["generateReactions"]>>;
+}) {
+  if (input.topic.boardType !== "public") {
+    return { authorEmployeeId: undefined, replies: [], replyCallCount: 0 };
+  }
+
+  const authorEmployeeId = selectPublicFeedAuthorEmployeeId(
+    input.topic.relevantEmployeeIds
+  );
+  const author = input.employees.find(
+    ({ employee }) => employee.id === authorEmployeeId
+  );
+  const authorOpinion = input.reactions.find(
+    (reaction) => reaction.employeeId === authorEmployeeId
+  );
+  if (!author || !authorOpinion) {
+    throw new OrganizationRunError(
+      "공개 피드 게시자 판단을 찾지 못했습니다.",
+      "validation",
+      422,
+      false
+    );
+  }
+
+  const comments = input.reactions.flatMap((comment) => {
+    if (comment.employeeId === authorEmployeeId) return [];
+    const commenter = input.employees.find(
+      ({ employee }) => employee.id === comment.employeeId
+    );
+    if (!commenter) return [];
+    const commentText = [
+      comment.coreOpinion,
+      comment.concerns,
+      comment.suggestion,
+    ].join(" ");
+    return shouldGenerateAuthorReply({
+      interactionType: comment.interactionType,
+      commentText,
+      authorStance: authorOpinion.stance,
+      commentStance: comment.stance,
+    })
+      ? [{ commenter, comment }]
+      : [];
+  });
+
+  const replies = input.generator.generateAuthorReplies && comments.length
+    ? await input.generator.generateAuthorReplies({
+        topic: input.topic,
+        author,
+        authorOpinion,
+        comments,
+      })
+    : [];
+  return {
+    authorEmployeeId,
+    replies,
+    replyCallCount: replies.length,
+  };
+}
 
 export async function runAIOrganization(input: {
   generator: OrganizationRunGenerator;
@@ -184,10 +252,20 @@ export async function runAIOrganization(input: {
       );
     }
 
+    const interactions = await generatePublicFeedInteractions({
+      generator: input.generator,
+      topic,
+      employees,
+      reactions,
+    });
+    geminiCallCount += interactions.replyCallCount;
+
     const post = buildOrganizationRunPost({
       runId,
       topic,
       reactions,
+      authorEmployeeId: interactions.authorEmployeeId,
+      replies: interactions.replies,
     });
     postForFailure = post;
     const qa = runOrganizationRunAutomatedQA({
@@ -387,7 +465,20 @@ export async function runManualAIOrganization(input: {
       );
     }
 
-    const post = buildOrganizationRunPost({ runId, topic, reactions });
+    const interactions = await generatePublicFeedInteractions({
+      generator: input.generator,
+      topic,
+      employees,
+      reactions,
+    });
+
+    const post = buildOrganizationRunPost({
+      runId,
+      topic,
+      reactions,
+      authorEmployeeId: interactions.authorEmployeeId,
+      replies: interactions.replies,
+    });
     postForFailure = post;
     const qa = runOrganizationRunAutomatedQA({
       topic,
@@ -417,7 +508,7 @@ export async function runManualAIOrganization(input: {
         boardType: topic.boardType,
         title: topic.title,
         participantIds: topic.relevantEmployeeIds,
-        geminiCallCount: employees.length,
+        geminiCallCount: employees.length + interactions.replyCallCount,
         post,
         published: false,
         reviewPending: true,
@@ -440,7 +531,7 @@ export async function runManualAIOrganization(input: {
       publicUrl: input.manualInput.publish
         ? `/discussion/${post.slug}`
         : undefined,
-      geminiCallCount: employees.length,
+      geminiCallCount: employees.length + interactions.replyCallCount,
       post,
       published: input.manualInput.publish,
       reviewPending: false,

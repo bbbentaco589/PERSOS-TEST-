@@ -3,9 +3,12 @@ import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
 
 import {
   buildEmployeeReactionSystemInstruction,
+  buildEmployeeAuthorReplySystemInstruction,
+  createEmployeeAuthorReplyResponseSchema,
   createEmployeeReactionResponseSchema,
   EMPLOYEE_REACTION_IDS,
   parseEmployeeReactions,
+  parseEmployeeAuthorReply,
 } from "@/lib/ai/employee-reaction-prompt-builder";
 import type { OrganizationRunTopic } from "@/types";
 import {
@@ -206,5 +209,34 @@ export class GeminiOrganizationRunGenerator
       })
     );
     return independentResults;
+  }
+
+  async generateAuthorReplies({
+    topic,
+    author,
+    authorOpinion,
+    comments,
+  }: Parameters<NonNullable<OrganizationRunGenerator["generateAuthorReplies"]>>[0]) {
+    return Promise.all(
+      comments.map(async ({ commenter, comment }) => {
+        const text = await this.generateJson({
+          prompt: `댓글 작성자 ID: ${commenter.employee.id}\n댓글 유형: ${comment.interactionType ?? "독립 의견"}`,
+          systemInstruction: buildEmployeeAuthorReplySystemInstruction({
+            board: "public-feed",
+            title: topic.title,
+            body: topic.body,
+            author,
+            authorOpinion,
+            commenter,
+            comment,
+          }),
+          schema: createEmployeeAuthorReplyResponseSchema(
+            commenter.employee.id
+          ),
+          maxOutputTokens: 320,
+        });
+        return parseEmployeeAuthorReply(text, commenter.employee.id);
+      })
+    );
   }
 }

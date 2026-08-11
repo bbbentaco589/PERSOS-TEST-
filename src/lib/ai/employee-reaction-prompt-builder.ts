@@ -1,6 +1,7 @@
 import type {
   Employee,
   EmployeeReactionBoard,
+  EmployeeReactionInteractionType,
   EmployeeReactionStance,
 } from "@/types";
 import { buildTectRuntimePromptContext } from "@/lib/ai/tect-runtime-context";
@@ -16,6 +17,11 @@ export const EMPLOYEE_REACTION_IDS = [
   "char-020",
 ] as const;
 export const EMPLOYEE_REACTION_STANCES = ["찬성", "보류", "반대"] as const;
+export const EMPLOYEE_REACTION_INTERACTION_TYPES = [
+  "독립 의견",
+  "질문",
+  "반박",
+] as const;
 
 export type EmployeeReactionCanonical = {
   employee: Employee;
@@ -34,9 +40,15 @@ export type EmployeeReactionPromptInput = {
 export type GeneratedEmployeeReaction = {
   employeeId: (typeof EMPLOYEE_REACTION_IDS)[number];
   stance: EmployeeReactionStance;
+  interactionType?: EmployeeReactionInteractionType;
   coreOpinion: string;
   concerns: string;
   suggestion: string;
+};
+
+export type GeneratedEmployeeReply = {
+  parentEmployeeId: (typeof EMPLOYEE_REACTION_IDS)[number];
+  content: string;
 };
 
 export class StructuredEmployeeReactionError extends Error {
@@ -161,6 +173,7 @@ export function buildEmployeeReactionSystemInstruction({
     "- 전문 분야가 안건과 직접 맞지 않으면 전문용어를 억지로 끼우지 않는다. 그 직원의 가치관과 사고 습관으로만 판단한다.",
     "- 이 요청에는 한 직원의 Canonical만 제공된다. 다른 직원의 관점이나 말투를 대신 작성하지 않는다.",
     "- 찬성, 보류, 반대 중 하나를 선택한다.",
+    "- interactionType은 게시글과 별개 의견이면 '독립 의견', 게시자에게 답을 요구하는 의문형이면 '질문', 게시자의 핵심 전제를 직접 뒤집으면 '반박'으로 분류한다.",
     "- 확인되지 않은 수치, 계약, 시장 사실, 과거 경력과 직원 관계를 만들지 않는다.",
     ...(board === "anonymous"
       ? [
@@ -195,6 +208,7 @@ export function createEmployeeReactionResponseSchema(
           required: [
             "employeeId",
             "stance",
+            "interactionType",
             "coreOpinion",
             "concerns",
             "suggestion",
@@ -204,6 +218,10 @@ export function createEmployeeReactionResponseSchema(
             stance: {
               type: "string",
               enum: [...EMPLOYEE_REACTION_STANCES],
+            },
+            interactionType: {
+              type: "string",
+              enum: [...EMPLOYEE_REACTION_INTERACTION_TYPES],
             },
             coreOpinion: { type: "string", minLength: 20, maxLength: 140 },
             concerns: { type: "string", minLength: 15, maxLength: 100 },
@@ -226,6 +244,14 @@ function hasText(value: unknown): value is string {
 function isStance(value: unknown): value is EmployeeReactionStance {
   return EMPLOYEE_REACTION_STANCES.includes(
     value as EmployeeReactionStance
+  );
+}
+
+function isInteractionType(
+  value: unknown
+): value is EmployeeReactionInteractionType {
+  return EMPLOYEE_REACTION_INTERACTION_TYPES.includes(
+    value as EmployeeReactionInteractionType
   );
 }
 
@@ -269,6 +295,9 @@ export function parseEmployeeReactions(
     return {
       employeeId: reaction.employeeId as GeneratedEmployeeReaction["employeeId"],
       stance: reaction.stance,
+      interactionType: isInteractionType(reaction.interactionType)
+        ? reaction.interactionType
+        : "독립 의견",
       coreOpinion: reaction.coreOpinion.trim(),
       concerns: reaction.concerns.trim(),
       suggestion: reaction.suggestion.trim(),
@@ -295,4 +324,81 @@ export function parseEmployeeReactions(
     }
     return reaction;
   });
+}
+
+export function buildEmployeeAuthorReplySystemInstruction(input: {
+  board: "public-feed";
+  title: string;
+  body: string;
+  author: EmployeeReactionCanonical;
+  authorOpinion: GeneratedEmployeeReaction;
+  commenter: EmployeeReactionCanonical;
+  comment: GeneratedEmployeeReaction;
+}) {
+  return [
+    "당신은 PERSOS 공개 피드 게시글의 실제 게시자입니다.",
+    "다른 사람인 척 새 댓글을 쓰지 말고, 아래 댓글에 게시자 본인 명의로 대댓글을 정확히 1회 작성하세요.",
+    `게시글 제목: ${input.title}`,
+    `게시글 본문: ${input.body}`,
+    "",
+    "게시자 Canonical:",
+    buildEmployeeCanonicalBlock(input.author, input.board),
+    "",
+    `게시자의 원래 판단: ${input.authorOpinion.stance} / ${input.authorOpinion.coreOpinion} ${input.authorOpinion.concerns} ${input.authorOpinion.suggestion}`,
+    `댓글 작성자: ${input.commenter.employee.nameKo}`,
+    `댓글 유형: ${input.comment.interactionType ?? "독립 의견"}`,
+    `댓글: ${input.comment.coreOpinion} ${input.comment.concerns} ${input.comment.suggestion}`,
+    "",
+    "대댓글 작성 규칙:",
+    "- 게시자 Canonical의 말투와 판단 순서를 유지한다.",
+    "- 질문이면 빠진 답을 직접 보완하고, 반박이면 타당한 지점을 인정한 뒤 게시자의 전제나 실행안을 더 정교하게 수정한다.",
+    "- 원문이나 댓글을 요약하지 말고 새 정보, 조건 또는 보완 행동을 하나만 추가한다.",
+    "- 방어적이거나 승부를 가리는 표현, 상대의 이름을 반복해 부르는 표현을 피한다.",
+    "- 1~2문장, 공백 포함 45~160자의 자연스러운 한국어로 끝낸다.",
+    "- 추가 질문을 던지거나 또 다른 대댓글을 예고하지 않는다.",
+    "- 요청된 JSON Schema 이외의 설명을 반환하지 않는다.",
+  ].join("\n");
+}
+
+export function createEmployeeAuthorReplyResponseSchema(
+  parentEmployeeId: string
+) {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["parentEmployeeId", "content"],
+    properties: {
+      parentEmployeeId: { type: "string", enum: [parentEmployeeId] },
+      content: { type: "string", minLength: 20, maxLength: 180 },
+    },
+  };
+}
+
+export function parseEmployeeAuthorReply(
+  value: string,
+  parentEmployeeId: string
+): GeneratedEmployeeReply {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    throw new StructuredEmployeeReactionError(
+      "Gemini 게시자 대댓글 JSON을 해석하지 못했습니다."
+    );
+  }
+  if (
+    !isRecord(parsed) ||
+    !EMPLOYEE_REACTION_IDS.includes(parentEmployeeId as never) ||
+    parsed.parentEmployeeId !== parentEmployeeId ||
+    !hasText(parsed.content)
+  ) {
+    throw new StructuredEmployeeReactionError(
+      "Gemini 게시자 대댓글의 필수 필드가 누락됐습니다."
+    );
+  }
+  return {
+    parentEmployeeId:
+      parentEmployeeId as GeneratedEmployeeReply["parentEmployeeId"],
+    content: parsed.content.trim(),
+  };
 }

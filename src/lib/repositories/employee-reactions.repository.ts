@@ -7,12 +7,14 @@ import type {
   EmployeeReactionPost,
   EmployeeReactionPostView,
 } from "@/types";
+import { normalizePublicFeedAuthorship } from "@/lib/organization-run/public-feed-interactions";
 
 function clonePost(post: EmployeeReactionPost): EmployeeReactionPost {
-  return {
+  return normalizePublicFeedAuthorship({
     ...post,
     reactions: post.reactions.map((reaction) => ({ ...reaction })),
-  };
+    replies: (post.replies ?? []).map((reply) => ({ ...reply })),
+  });
 }
 
 async function listDynamicPosts(
@@ -98,22 +100,45 @@ export async function getEmployeeReactionPostView(
   post: EmployeeReactionPost,
   repositories: RepositoryBundle = getRepositories()
 ): Promise<EmployeeReactionPostView> {
+  const normalizedPost = normalizePublicFeedAuthorship(post);
+  const employeeIds = [...new Set([
+    ...normalizedPost.reactions.map((reaction) => reaction.employeeId),
+    ...(normalizedPost.replies ?? []).map((reply) => reply.employeeId),
+    ...(normalizedPost.authorEmployeeId
+      ? [normalizedPost.authorEmployeeId]
+      : []),
+  ])];
   const employees = await Promise.all(
-    post.reactions.map((reaction) =>
-      repositories.characters.getCharacterById(reaction.employeeId)
+    employeeIds.map((employeeId) =>
+      repositories.characters.getCharacterById(employeeId)
     )
+  );
+  const employeeById = new Map(
+    employeeIds.map((employeeId, index) => [employeeId, employees[index]])
   );
 
   return {
-    ...post,
-    reactions: post.reactions.map((reaction, index) => {
-      const employee = employees[index];
+    ...normalizedPost,
+    author: normalizedPost.authorEmployeeId
+      ? employeeById.get(normalizedPost.authorEmployeeId)
+      : undefined,
+    reactions: normalizedPost.reactions.map((reaction) => {
+      const employee = employeeById.get(reaction.employeeId);
       if (!employee) {
         throw new Error(
           `${reaction.employeeId} Character Canonical을 찾지 못했습니다.`
         );
       }
       return { ...reaction, employee };
+    }),
+    replies: (normalizedPost.replies ?? []).map((reply) => {
+      const employee = employeeById.get(reply.employeeId);
+      if (!employee) {
+        throw new Error(
+          `${reply.employeeId} Character Canonical을 찾지 못했습니다.`
+        );
+      }
+      return { ...reply, employee };
     }),
   };
 }

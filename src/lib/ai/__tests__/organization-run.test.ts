@@ -21,6 +21,10 @@ import { buildOrganizationRunPost } from "@/lib/organization-run/post-builder";
 import { parseManualOrganizationRunInput } from "@/lib/organization-run/manual-input";
 import { ORGANIZATION_RUN_EMPLOYEE_IDS } from "@/lib/organization-run/canonical-employees";
 import { validateOrganizationRunTopic } from "@/lib/organization-run/topic-validation";
+import {
+  normalizePublicFeedAuthorship,
+  shouldGenerateAuthorReply,
+} from "@/lib/organization-run/public-feed-interactions";
 
 const validTopic: OrganizationRunTopic = {
   boardType: "debate",
@@ -88,11 +92,24 @@ function createGenerator(topics: OrganizationRunTopic[]) {
     },
     async generateReactions({ employees }) {
       return employees.map(({ employee }, index) => ({
-        employeeId: employee.id as "tect" | "char-001" | "char-003" | "char-002",
+        employeeId:
+          employee.id as (typeof ORGANIZATION_RUN_EMPLOYEE_IDS)[number],
         stance: index === 0 ? "보류" : index === 1 ? "찬성" : "반대",
+        interactionType: index === 1 ? "질문" as const : "독립 의견" as const,
         coreOpinion: `${employee.nameKo}의 핵심 의견입니다.`,
         concerns: `${employee.nameKo}의 우려 사항입니다.`,
-        suggestion: `${employee.nameKo}의 실행 제안입니다.`,
+        suggestion:
+          index === 1
+            ? `${employee.nameKo}은 어떤 기준으로 보완할까요?`
+            : `${employee.nameKo}의 실행 제안입니다.`,
+      }));
+    },
+    async generateAuthorReplies({ comments }) {
+      return comments.map(({ commenter }) => ({
+        parentEmployeeId:
+          commenter.employee.id as (typeof ORGANIZATION_RUN_EMPLOYEE_IDS)[number],
+        content:
+          "질문의 전제를 반영해 실행 범위와 중단 기준을 게시 원칙에 보완하겠습니다.",
       }));
     },
   };
@@ -171,6 +188,55 @@ test("public boardType은 공개 피드 저장 값으로 정규화한다", () =>
   assert.equal(post.board, "public-feed");
 });
 
+test("기존 공개 글은 게시자를 댓글에서 제거하고 질문·반박에만 1회 답글 대상으로 분류한다", () => {
+  const legacyPost = buildOrganizationRunPost({
+    runId: "legacy-public-author",
+    topic: { ...validTopic, boardType: "debate" },
+    reactions: [
+      {
+        employeeId: "tect",
+        stance: "찬성",
+        coreOpinion: "게시자의 판단입니다.",
+        concerns: "책임 경계를 확인합니다.",
+        suggestion: "중단 기준을 둡니다.",
+      },
+      {
+        employeeId: "char-003",
+        stance: "반대",
+        coreOpinion: "다른 관점입니다.",
+        concerns: "예외가 남습니다.",
+        suggestion: "어디에서 멈출까요?",
+      },
+    ],
+  });
+  const normalized = normalizePublicFeedAuthorship({
+    ...legacyPost,
+    board: "public-feed",
+  });
+
+  assert.equal(normalized.authorEmployeeId, "tect");
+  assert.deepEqual(
+    normalized.reactions.map((reaction) => reaction.employeeId),
+    ["char-003"]
+  );
+  assert.equal(
+    shouldGenerateAuthorReply({
+      commentText: "어디에서 멈출까요?",
+      authorStance: "찬성",
+      commentStance: "반대",
+    }),
+    true
+  );
+  assert.equal(
+    shouldGenerateAuthorReply({
+      commentText: "별도의 관찰 의견입니다.",
+      authorStance: "보류",
+      commentStance: "보류",
+    }),
+    false
+  );
+});
+
 test("ON 상태인 6명을 반응 후보군에 포함하고 TECT 없이도 2명 배정이 가능하다", () => {
   assert.deepEqual(ORGANIZATION_RUN_EMPLOYEE_IDS, [
     "tect",
@@ -209,10 +275,17 @@ test("수동 실행은 주제를 생성하지 않고 반응과 검증만 수행�
   });
 
   assert.equal(getTopicCalls(), 0);
-  assert.equal(result.geminiCallCount, 2);
+  assert.equal(result.geminiCallCount, 3);
   assert.equal(result.published, false);
   assert.equal(result.publicUrl, undefined);
-  assert.equal(result.post.reactions.length, 2);
+  assert.equal(result.post.authorEmployeeId, "tect");
+  assert.equal(result.post.reactions.length, 1);
+  assert.equal(result.post.reactions[0].employeeId, "char-003");
+  assert.equal(result.post.replies?.length, 1);
+  assert.equal(
+    result.post.replies?.[0].parentReactionId,
+    result.post.reactions[0].id
+  );
   assert.equal(publisher.published, 0);
 });
 
@@ -231,8 +304,14 @@ test("수동 발행 선택 시 ON 상태인 6명의 반응과 이미지·게시�
   });
 
   assert.equal(result.published, true);
-  assert.equal(result.geminiCallCount, 6);
-  assert.equal(result.post.reactions.length, 6);
+  assert.equal(result.geminiCallCount, 7);
+  assert.equal(result.post.authorEmployeeId, "tect");
+  assert.equal(result.post.reactions.length, 5);
+  assert.equal(
+    result.post.reactions.some((reaction) => reaction.employeeId === "tect"),
+    false
+  );
+  assert.equal(result.post.replies?.length, 1);
   assert.match(result.publicUrl ?? "", /^\/discussion\//);
   assert.equal(publisher.published, 1);
   assert.equal(

@@ -8,6 +8,7 @@ import type {
 } from "@/types";
 
 import type { OrganizationRunPublisher } from "./types";
+import { normalizePublicFeedAuthorship } from "./public-feed-interactions";
 
 type PublishedBoard = Exclude<EmployeeReactionBoard, "investor-demo">;
 
@@ -69,11 +70,11 @@ function readKVConfig() {
 
 function normalizeStoredPost(post: EmployeeReactionPost) {
   const storedBoard = (post as unknown as { board: string }).board;
-  if (storedBoard !== "public") return post;
-  return {
+  const normalizedBoardPost = storedBoard === "public" ? {
     ...post,
     board: "public-feed" as const,
-  };
+  } : post;
+  return normalizePublicFeedAuthorship(normalizedBoardPost);
 }
 
 function uniqueSlugs(slugs: string[]) {

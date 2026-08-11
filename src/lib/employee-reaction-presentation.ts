@@ -1,12 +1,23 @@
 import type { PublicFeedItem } from "@/lib/public-feed-presentation";
 import type { EmployeeReactionPostView } from "@/types";
+import { divisions, teams } from "@/data";
 
 export function buildEmployeeReactionFeedItem(
   post: EmployeeReactionPostView
 ): PublicFeedItem {
   const author =
+    post.author ??
     post.reactions.find((reaction) => reaction.employeeId === "tect")
-      ?.employee ?? post.reactions[0].employee;
+      ?.employee ??
+    post.reactions[0]?.employee;
+  if (!author) {
+    throw new Error(`${post.id} 게시자의 Character Canonical을 찾지 못했습니다.`);
+  }
+  const divisionName =
+    divisions.find((division) => division.id === author.divisionId)?.nameKo ??
+    author.divisionId;
+  const teamName =
+    teams.find((team) => team.id === author.teamId)?.nameKo ?? author.teamId;
 
   return {
     id: post.id,
@@ -24,10 +35,15 @@ export function buildEmployeeReactionFeedItem(
       : "Manual Trigger",
     metricSource: "demo-fallback",
     author,
-    divisionName: "사업개발본부",
-    teamName: "사업개발·제휴팀",
+    divisionName,
+    teamName,
     runtimeStatus: "Draft",
-    participants: post.reactions.map((reaction) => reaction.employee),
+    participants: [
+      author,
+      ...post.reactions
+        .map((reaction) => reaction.employee)
+        .filter((employee) => employee.id !== author.id),
+    ],
     opinionCount: post.reactions.length,
     rebuttalCount: 0,
     quoteCount: 0,

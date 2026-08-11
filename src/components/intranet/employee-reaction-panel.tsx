@@ -21,6 +21,7 @@ import type { PopularEmployeeProfile } from "@/lib/public-feed-presentation";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type {
   EmployeeReactionPostView,
+  EmployeeReactionReplyView,
   EmployeeReactionStance,
   EmployeeReactionView,
 } from "@/types";
@@ -178,6 +179,78 @@ function ReactionIdentity({
   );
 }
 
+function AuthorReply({
+  onOpenProfile,
+  reply,
+  tone,
+}: {
+  onOpenProfile?: (employeeId: string) => void;
+  reply: EmployeeReactionReplyView;
+  tone: "light" | "dark";
+}) {
+  const identity = (
+    <>
+      <Image
+        alt={`${reply.employee.nameKo} 프로필`}
+        className="size-8 rounded-full border border-sky-300/20 object-cover object-center"
+        height={32}
+        src={reply.employee.profileImage}
+        width={32}
+      />
+      <span className="text-xs font-semibold">
+        {formatPersonaDisplayName(reply.employee)}
+      </span>
+    </>
+  );
+
+  return (
+    <div
+      className={cn(
+        "mt-4 ml-5 border-l pl-4 sm:ml-12",
+        tone === "dark" ? "border-sky-300/20" : "border-slate-200"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        {onOpenProfile ? (
+          <button
+            className="flex items-center gap-2 text-left focus-visible:outline-2 focus-visible:outline-sky-300"
+            onClick={() => onOpenProfile(reply.employee.id)}
+            type="button"
+          >
+            {identity}
+          </button>
+        ) : (
+          <Link
+            className="flex items-center gap-2"
+            href={`/characters/${reply.employee.slug}`}
+          >
+            {identity}
+          </Link>
+        )}
+        <Badge
+          className={cn(
+            "text-[9px]",
+            tone === "dark"
+              ? "border-sky-300/25 bg-sky-300/[0.08] text-sky-200"
+              : "border-sky-200 bg-sky-50 text-sky-700"
+          )}
+          variant="outline"
+        >
+          게시자 답글
+        </Badge>
+      </div>
+      <p
+        className={cn(
+          "mt-2 whitespace-pre-wrap text-xs leading-6",
+          tone === "dark" ? "text-zinc-300" : "text-slate-700"
+        )}
+      >
+        {reply.content}
+      </p>
+    </div>
+  );
+}
+
 export function EmployeeReactionPanel({
   post,
   anonymous = false,
@@ -261,6 +334,9 @@ export function EmployeeReactionPanel({
       >
         {post.reactions.map((reaction) => {
           const presentation = stancePresentation[reaction.stance];
+          const replies = post.replies.filter(
+            (reply) => reply.parentReactionId === reaction.id
+          );
 
           if (tone === "dark") {
             const comment = [
@@ -300,6 +376,14 @@ export function EmployeeReactionPanel({
                     <Repeat2 className="size-3.5" />
                     <Heart className="size-3.5" />
                   </div>
+                  {replies.map((reply) => (
+                    <AuthorReply
+                      key={reply.id}
+                      onOpenProfile={profiles.length ? openProfile : undefined}
+                      reply={reply}
+                      tone={tone}
+                    />
+                  ))}
                 </div>
               </article>
             );
@@ -357,6 +441,14 @@ export function EmployeeReactionPanel({
                   </p>
                 </section>
               </div>
+              {replies.map((reply) => (
+                <AuthorReply
+                  key={reply.id}
+                  onOpenProfile={profiles.length ? openProfile : undefined}
+                  reply={reply}
+                  tone={tone}
+                />
+              ))}
             </article>
           );
         })}
