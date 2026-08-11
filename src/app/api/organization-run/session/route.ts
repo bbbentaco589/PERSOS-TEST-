@@ -7,9 +7,19 @@ import {
   verifyOrganizationRunSession,
   verifyTriggerSecret,
 } from "@/lib/organization-run/security";
+import {
+  checkRequestRateLimit,
+  resetRequestRateLimit,
+} from "@/lib/security/request-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const SESSION_RATE_LIMIT = {
+  scope: "organization-run-session",
+  limit: 5,
+  windowSeconds: 15 * 60,
+} as const;
 
 export async function GET(request: Request) {
   return NextResponse.json(
@@ -21,6 +31,24 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!hasSameOrigin(request)) {
     return NextResponse.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
+  }
+
+  const rateLimit = await checkRequestRateLimit(request, SESSION_RATE_LIMIT);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        error: rateLimit.available
+          ? "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
+          : "요청 보호 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+      },
+      {
+        status: rateLimit.available ? 429 : 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "Retry-After": String(rateLimit.retryAfter),
+        },
+      }
+    );
   }
 
   let body: unknown;
@@ -44,7 +72,9 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
+    await resetRequestRateLimit(request, SESSION_RATE_LIMIT.scope);
     const response = NextResponse.json({ unlocked: true });
+    response.headers.set("Cache-Control", "no-store");
     response.cookies.set(
       organizationRunSessionCookie.name,
       createOrganizationRunSession(),
