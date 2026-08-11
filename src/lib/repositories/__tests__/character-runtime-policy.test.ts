@@ -24,13 +24,26 @@ test("TECT가 제휴기획자 공개 슬롯을 승계하고 Runtime 경계를 �
   assert.equal(tect.teamId, "team-business-development-partnerships");
   assert.equal(tect.gender, "Undisclosed");
 
-  assert.equal(characters.length, 19);
-  assert.equal(characters.filter(isPublicCharacter).length, 18);
+  assert.equal(characters.length, 21);
+  assert.equal(characters.filter(isPublicCharacter).length, 20);
   assert.equal(characters.filter(isDefaultAssignmentCharacter).length, 4);
   assert.equal(isUnlistedQaCharacter(tect), false);
   assert.equal(isUnlistedQaCharacter(partnershipPlanner), true);
   assert.equal(canAccessCharacterDetail(tect), true);
   assert.equal(isDefaultAssignmentCharacter(tect), true);
+
+  const sig = characters.find((character) => character.slug === "sig");
+  const pixeur = characters.find((character) => character.slug === "pixeur");
+  const ottucksoon = characters.find((character) => character.slug === "ottucksoon");
+  assert.ok(sig);
+  assert.ok(pixeur);
+  assert.ok(ottucksoon);
+  assert.equal(sig.employeeCode, "PTD-EIA-001");
+  assert.equal(sig.teamId, "team-economy-industry-analysis");
+  assert.equal(pixeur.teamId, "team-content-production");
+  assert.equal(ottucksoon.teamId, "team-ott-editorial");
+  assert.equal(isDefaultAssignmentCharacter(pixeur), false);
+  assert.equal(isDefaultAssignmentCharacter(ottucksoon), false);
 
   assert.equal(new Set(characters.map((character) => character.id)).size, characters.length);
   assert.equal(new Set(characters.map((character) => character.slug)).size, characters.length);

@@ -64,7 +64,6 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     ...(character.gender ? [{ icon: UserRound, label: "Gender", value: character.gender === "Undisclosed" ? "알 수 없음 / 비공개" : character.gender }] : []),
     { icon: MessageSquareText, label: "게시된 토론", value: `${recentDiscussions.length}건` },
   ];
-  const copyPosition = character.id === "char-001" ? "lg:ml-auto lg:text-right" : "";
   const heroAssetAvailable = hasLocalPublicAsset(character.heroImage);
   const profileAssetAvailable = hasLocalPublicAsset(character.profileImage);
   const runtimeStatusLabel = character.publicVisibility
@@ -92,9 +91,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           alt={`${character.nameKo}, ${character.jobTitleKo} 업무 공간 Hero`}
           className={character.profileStage === "Rough"
             ? "object-cover opacity-35"
-            : character.id === "char-001"
-              ? "object-cover object-[24%_center] sm:object-center"
-              : character.id === "char-003"
+            : character.id === "char-003"
                 ? "object-cover object-[76%_center] sm:object-center"
                 : "object-cover object-center"}
           fill
@@ -106,17 +103,17 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           <div className="flex flex-col items-center gap-3 text-center text-zinc-500"><ImageOff className="size-8 text-cyan-200/60" /><p className="text-xs font-medium">Canonical 원본 에셋 연결 대기</p><p className="max-w-xs text-[10px] leading-5 text-zinc-600">저해상도 Preview를 Production Asset으로 대체하지 않습니다.</p></div>
         </div>}
         <div className="absolute inset-0 bg-gradient-to-t from-[#07080a] via-black/15 to-transparent" />
-        <div className={character.slug === "tect" ? "absolute inset-0 bg-gradient-to-t from-[#0b0d12] via-transparent to-transparent sm:bg-gradient-to-r sm:via-[#0b0d12]/55" : character.id === "char-001" ? "absolute inset-0 bg-gradient-to-l from-black/75 via-transparent to-black/15" : "absolute inset-0 bg-gradient-to-r from-black/80 via-black/15 to-transparent"} />
+        <div className={character.slug === "tect" ? "absolute inset-0 bg-gradient-to-t from-[#0b0d12] via-transparent to-transparent sm:bg-gradient-to-r sm:via-[#0b0d12]/55" : "absolute inset-0 bg-gradient-to-r from-black/80 via-black/15 to-transparent"} />
         <div className="relative flex min-h-[560px] items-end p-5 sm:min-h-[620px] sm:p-8 lg:p-10">
-          <div className={`max-w-xl ${copyPosition}`}>
-            <div className={`flex flex-wrap items-center gap-2 ${character.id === "char-001" ? "lg:justify-end" : ""}`}>
+          <div className="max-w-xl">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant={character.publicVisibility && character.profileStage === "Approved" ? "accent" : "outline"}><Radio className="mr-1 size-3" />{runtimeStatusLabel}</Badge>
               <Badge variant="outline">{character.employeeCode} · {character.nameEn}</Badge>
             </div>
             <p className="mt-5 text-xs font-medium uppercase text-cyan-200">{character.jobTitleEn}</p>
             <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">{formatPersonaDisplayName(character)}</h1>
             <p className="mt-4 text-balance text-lg leading-8 text-zinc-200">{showcase?.profile.headlineKo ?? character.hookKo}</p>
-            <div className={`mt-5 flex items-center gap-3 ${character.id === "char-001" ? "lg:justify-end" : ""}`}>
+            <div className="mt-5 flex items-center gap-3">
               {division ? <DivisionIcon divisionId={division.id} /> : null}
               <div>
                 <p className="text-xs font-medium">{division?.nameKo} → {team?.nameKo}</p>

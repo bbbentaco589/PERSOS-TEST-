@@ -16,12 +16,14 @@ export async function verifyRepositoryContract(repositories: RepositoryBundle) {
   ]);
   assert.equal(companies.length, 1, "Ptudio Company 레코드가 필요합니다.");
   assert.equal(divisions.length, 6, "공식 Division은 6개여야 합니다.");
-  assert.equal(teams.length, 18, "공식 Team은 18개여야 합니다.");
-  assert.equal(employees.filter((employee) => employee.status === "Active").length, 4);
+  assert.equal(teams.length, 19, "공식 Team은 19개여야 합니다.");
+  assert.equal(employees.filter((employee) => employee.status === "Active").length, 6);
   assert.equal((await repositories.organization.getTeamBySlug("ccgg-care"))?.divisionId, "division-intelligence");
-  assert.equal((await repositories.organization.getEmployeesByTeamId("team-ccgg-care"))[0]?.id, "char-001");
+  assert.equal((await repositories.organization.getEmployeesByTeamId("team-economy-industry-analysis"))[0]?.id, "char-001");
   assert.equal((await repositories.organization.getEmployeesByTeamId("team-prediction-market"))[0]?.id, "char-002");
   assert.equal((await repositories.organization.getEmployeesByTeamId("team-ai-research-engineering"))[0]?.id, "char-003");
+  assert.equal((await repositories.organization.getEmployeesByTeamId("team-content-production")).some((employee) => employee.id === "char-019"), true);
+  assert.equal((await repositories.organization.getEmployeesByTeamId("team-ott-editorial"))[0]?.id, "char-020");
 
   const [topics, sources, characters] = await Promise.all([
     repositories.topics.listTopics(),

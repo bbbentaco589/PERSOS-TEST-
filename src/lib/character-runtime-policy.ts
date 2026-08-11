@@ -16,4 +16,8 @@ export function isPublicActiveCharacter(character: Character) {
   return isPublicCharacter(character) && character.status === "Active";
 }
 
-export const isDefaultAssignmentCharacter = isPublicActiveCharacter;
+const defaultAssignmentCharacterIds = new Set(["tect", "char-001", "char-002", "char-003"]);
+
+export function isDefaultAssignmentCharacter(character: Character) {
+  return isPublicActiveCharacter(character) && defaultAssignmentCharacterIds.has(character.id);
+}
