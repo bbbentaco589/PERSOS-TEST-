@@ -33,6 +33,16 @@ const VALID_BOARDS: EmployeeReactionBoard[] = [
   "anonymous",
 ];
 
+function privateJson(body: unknown, init?: ResponseInit) {
+  return NextResponse.json(body, {
+    ...init,
+    headers: {
+      "Cache-Control": "no-store",
+      ...init?.headers,
+    },
+  });
+}
+
 function getTimeoutMs() {
   const value = Number(process.env.GEMINI_TIMEOUT_MS ?? 30_000);
   return Number.isFinite(value) && value >= 1_000 && value <= 120_000
@@ -82,7 +92,7 @@ async function getCanonicalEmployees() {
 
 export async function POST(request: Request) {
   if (!hasSameOrigin(request)) {
-    return NextResponse.json(
+    return privateJson(
       { error: "허용되지 않은 요청입니다." },
       { status: 403, headers: { "Cache-Control": "no-store" } }
     );
@@ -90,7 +100,7 @@ export async function POST(request: Request) {
 
   const contentLength = Number(request.headers.get("content-length") ?? 0);
   if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
-    return NextResponse.json(
+    return privateJson(
       { error: "요청 본문이 너무 큽니다." },
       { status: 413, headers: { "Cache-Control": "no-store" } }
     );
@@ -98,7 +108,7 @@ export async function POST(request: Request) {
 
   const rateLimit = await checkRequestRateLimit(request, CHAT_RATE_LIMIT);
   if (!rateLimit.allowed) {
-    return NextResponse.json(
+    return privateJson(
       {
         error: rateLimit.available
           ? "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
@@ -118,7 +128,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
+    return privateJson(
       { error: "요청 본문은 올바른 JSON이어야 합니다." },
       { status: 400 }
     );
@@ -136,14 +146,14 @@ export async function POST(request: Request) {
     : "investor-demo";
 
   if (!message) {
-    return NextResponse.json(
+    return privateJson(
       { error: "메시지를 입력해 주세요." },
       { status: 400 }
     );
   }
 
   if (message.length > MAX_MESSAGE_LENGTH || title.length > 300) {
-    return NextResponse.json(
+    return privateJson(
       {
         error: `본문은 ${MAX_MESSAGE_LENGTH.toLocaleString("ko-KR")}자, 제목은 300자 이하여야 합니다.`,
       },
@@ -153,7 +163,7 @@ export async function POST(request: Request) {
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
-    return NextResponse.json(
+    return privateJson(
       { error: "AI 응답 서비스를 사용할 수 없습니다." },
       { status: 503, headers: { "Cache-Control": "no-store" } }
     );
@@ -216,7 +226,7 @@ export async function POST(request: Request) {
       };
     });
 
-    return NextResponse.json(
+    return privateJson(
       { board, title, reactions },
       { headers: { "Cache-Control": "no-store" } }
     );
@@ -236,7 +246,7 @@ export async function POST(request: Request) {
           : "upstream request failed"
     );
 
-    return NextResponse.json(
+    return privateJson(
       {
         error: isTimeout
           ? "Gemini 응답 시간이 초과되었습니다."

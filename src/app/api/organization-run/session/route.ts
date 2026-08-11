@@ -21,8 +21,18 @@ const SESSION_RATE_LIMIT = {
   windowSeconds: 15 * 60,
 } as const;
 
+function privateJson(body: unknown, init?: ResponseInit) {
+  return NextResponse.json(body, {
+    ...init,
+    headers: {
+      "Cache-Control": "no-store",
+      ...init?.headers,
+    },
+  });
+}
+
 export async function GET(request: Request) {
-  return NextResponse.json(
+  return privateJson(
     { unlocked: verifyOrganizationRunSession(request) },
     { headers: { "Cache-Control": "no-store" } }
   );
@@ -30,12 +40,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!hasSameOrigin(request)) {
-    return NextResponse.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
+    return privateJson({ error: "허용되지 않은 요청입니다." }, { status: 403 });
   }
 
   const rateLimit = await checkRequestRateLimit(request, SESSION_RATE_LIMIT);
   if (!rateLimit.allowed) {
-    return NextResponse.json(
+    return privateJson(
       {
         error: rateLimit.available
           ? "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
@@ -55,7 +65,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "올바른 JSON이 필요합니다." }, { status: 400 });
+    return privateJson({ error: "올바른 JSON이 필요합니다." }, { status: 400 });
   }
   const secret =
     typeof body === "object" &&
@@ -67,13 +77,13 @@ export async function POST(request: Request) {
 
   try {
     if (!secret || !verifyTriggerSecret(secret)) {
-      return NextResponse.json(
+      return privateJson(
         { error: "운영 권한을 확인할 수 없습니다." },
         { status: 401 }
       );
     }
     await resetRequestRateLimit(request, SESSION_RATE_LIMIT.scope);
-    const response = NextResponse.json({ unlocked: true });
+    const response = privateJson({ unlocked: true });
     response.headers.set("Cache-Control", "no-store");
     response.cookies.set(
       organizationRunSessionCookie.name,
@@ -88,7 +98,7 @@ export async function POST(request: Request) {
     );
     return response;
   } catch {
-    return NextResponse.json(
+    return privateJson(
       { error: "운영 Secret이 서버에 설정되지 않았습니다." },
       { status: 503 }
     );
