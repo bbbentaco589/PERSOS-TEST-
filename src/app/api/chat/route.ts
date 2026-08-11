@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
+import { hasSameOrigin } from "@/lib/admin-auth/session";
 
 import {
   buildEmployeeReactionSystemInstruction,
@@ -10,6 +11,7 @@ import {
   StructuredEmployeeReactionError,
 } from "@/lib/ai/employee-reaction-prompt-builder";
 import { getRepositories } from "@/lib/repositories";
+import { checkRequestRateLimit } from "@/lib/security/request-rate-limit";
 import type {
   EmployeeReactionBoard,
 } from "@/types";
@@ -18,6 +20,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_MESSAGE_LENGTH = 4_000;
+const MAX_REQUEST_BYTES = 16_384;
+const CHAT_RATE_LIMIT = {
+  scope: "public-chat",
+  limit: 6,
+  windowSeconds: 10 * 60,
+} as const;
 const VALID_BOARDS: EmployeeReactionBoard[] = [
   "investor-demo",
   "public-feed",
@@ -73,6 +81,39 @@ async function getCanonicalEmployees() {
 }
 
 export async function POST(request: Request) {
+  if (!hasSameOrigin(request)) {
+    return NextResponse.json(
+      { error: "허용되지 않은 요청입니다." },
+      { status: 403, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? 0);
+  if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
+    return NextResponse.json(
+      { error: "요청 본문이 너무 큽니다." },
+      { status: 413, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
+  const rateLimit = await checkRequestRateLimit(request, CHAT_RATE_LIMIT);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        error: rateLimit.available
+          ? "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
+          : "요청 보호 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+      },
+      {
+        status: rateLimit.available ? 429 : 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "Retry-After": String(rateLimit.retryAfter),
+        },
+      }
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -113,8 +154,8 @@ export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
     return NextResponse.json(
-      { error: "서버에 GEMINI_API_KEY가 설정되지 않았습니다." },
-      { status: 503 }
+      { error: "AI 응답 서비스를 사용할 수 없습니다." },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
     );
   }
 
@@ -175,7 +216,10 @@ export async function POST(request: Request) {
       };
     });
 
-    return NextResponse.json({ board, title, reactions });
+    return NextResponse.json(
+      { board, title, reactions },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (error) {
     const isTimeout =
       error instanceof Error &&
@@ -189,20 +233,19 @@ export async function POST(request: Request) {
         ? "request timeout"
         : isStructuredResponseError
           ? "invalid structured response"
-          : error instanceof Error
-            ? error.message
-            : "unknown error"
+          : "upstream request failed"
     );
 
     return NextResponse.json(
       {
         error: isTimeout
           ? "Gemini 응답 시간이 초과되었습니다."
-          : isStructuredResponseError
-            ? error.message
-            : "Gemini 응답을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+          : "AI 응답을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
       },
-      { status: isTimeout ? 504 : 502 }
+      {
+        status: isTimeout ? 504 : 502,
+        headers: { "Cache-Control": "no-store" },
+      }
     );
   } finally {
     clearTimeout(timeout);

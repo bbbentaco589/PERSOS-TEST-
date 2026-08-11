@@ -13,6 +13,7 @@
     "test:repositories": "tsx --test src/lib/repositories/__tests__/*.test.ts",
     "test:ai": "tsx --test src/lib/ai/__tests__/*.test.ts src/lib/discussion-engine/__tests__/*.test.ts src/lib/live-demo/__tests__/*.test.ts",
     "test:auth": "tsx --test src/lib/admin-auth/__tests__/*.test.ts",
+    "test:security": "tsx --test src/lib/security/__tests__/*.test.ts",
     "test:core-flow": "tsx --test src/lib/__tests__/core-mvp-flow.test.ts",
     "demo:live": "tsx scripts/live-demo-runner.ts"
   },
@@ -24,7 +25,7 @@
     "clsx": "^2.1.1",
     "kysely": "^0.29.3",
     "lucide-react": "^1.23.0",
-    "next": "16.2.10",
+    "next": "16.3.0",
     "openai": "^6.46.0",
     "radix-ui": "^1.6.2",
     "react": "19.2.4",
