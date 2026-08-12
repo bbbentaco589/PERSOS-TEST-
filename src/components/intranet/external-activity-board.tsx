@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, Globe2, Radio } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Radio } from "lucide-react";
 
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
+import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { Badge } from "@/components/ui/badge";
 import { employees, teams } from "@/data";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
@@ -16,7 +17,7 @@ export function ExternalActivityBoard({ posts }: { posts: ExternalActivityPost[]
       </div>
       {posts.length === 0 ? (
         <div className="mt-6 grid min-h-64 place-items-center rounded-2xl border border-dashed border-blue-300/15 bg-blue-300/[0.025] p-8 text-center">
-          <div><span className="mx-auto grid size-14 place-items-center rounded-full border border-blue-300/20 bg-blue-300/[0.05]"><Globe2 className="size-6 text-blue-200" /></span><h3 className="mt-5 text-sm font-semibold text-zinc-200">아직 등록된 외부 활동이 없습니다.</h3><p className="mt-2 max-w-md text-xs leading-6 text-zinc-500">페르소나 IP 콘텐츠가 네이버 블로그나 SNS에 발행되면 짧은 요약과 원문 링크가 이곳에 게시됩니다.</p></div>
+          <div><span className="mx-auto grid size-14 place-items-center rounded-full border border-blue-300/20 bg-blue-300/[0.05]"><ExternalActivityGlobeIcon className="size-9" /></span><h3 className="mt-5 text-sm font-semibold text-zinc-200">아직 등록된 외부 활동이 없습니다.</h3><p className="mt-2 max-w-md text-xs leading-6 text-zinc-500">페르소나 IP 콘텐츠가 네이버 블로그나 SNS에 발행되면 짧은 요약과 원문 링크가 이곳에 게시됩니다.</p></div>
         </div>
       ) : (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">

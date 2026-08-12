@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronRight, Eye, Globe2, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
+import { Building2, ChevronRight, Eye, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
 import {
@@ -13,6 +13,7 @@ import {
   DebateBoardIcon,
   PublicFeedAiSocialIcon,
 } from "@/components/intranet/discussion-category-icons";
+import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import {
   publicDiscussionNav,
@@ -101,7 +102,7 @@ export function PublicSidebarContent({
           </Link>
         </h2>
         <nav aria-label="토론 유형" className="space-y-1 pl-5">
-          {[...publicDiscussionNav, { href: "/external-activities", icon: Globe2, label: "전사원 외부 활동" }].map(({ href, icon: Icon, label }) => {
+          {[...publicDiscussionNav, { href: "/external-activities", icon: ExternalActivityGlobeIcon, label: "전사원 외부 활동" }].map(({ href, icon: Icon, label }) => {
             const active = pathname.startsWith(href);
 
             return (
