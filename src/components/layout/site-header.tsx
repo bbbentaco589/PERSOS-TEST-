@@ -11,7 +11,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/8 bg-[#07080a]/95">
       <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-6">
-        <Link aria-label="PERSOS 회사 소개" className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2" href="/about">
+        <Link aria-label="PERSOS 서비스 메인" className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2" href="/home">
           <span className="relative h-9 w-[108px] shrink-0 overflow-hidden sm:h-10 sm:w-[120px]">
             <Image alt="PERSOS Persona Operating System" className="scale-125 object-cover object-center" fill priority sizes="(max-width: 639px) 108px, 120px" src="/brand/persos-horizontal-transparent.png" unoptimized />
           </span>
