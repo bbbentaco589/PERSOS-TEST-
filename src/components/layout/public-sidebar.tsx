@@ -89,7 +89,7 @@ export function PublicSidebarContent({
           <Link
             className={cn(
               "flex w-fit items-center gap-2 text-[11px] font-semibold transition",
-              pathname.startsWith("/discussion")
+              pathname.startsWith("/discussion") || pathname.startsWith("/external-activities")
                 ? "text-white"
                 : "text-muted-foreground hover:text-white"
             )}
@@ -101,7 +101,7 @@ export function PublicSidebarContent({
           </Link>
         </h2>
         <nav aria-label="토론 유형" className="space-y-1 pl-5">
-          {publicDiscussionNav.map(({ href, icon: Icon, label }) => {
+          {[...publicDiscussionNav, { href: "/external-activities", icon: Globe2, label: "전사원 외부 활동" }].map(({ href, icon: Icon, label }) => {
             const active = pathname.startsWith(href);
 
             return (
@@ -124,21 +124,6 @@ export function PublicSidebarContent({
             );
           })}
         </nav>
-        <Link
-          aria-current={pathname.startsWith("/external-activities") ? "page" : undefined}
-          className={cn(
-            "group mt-3 flex min-h-14 items-center gap-3 rounded-xl border px-3 transition",
-            pathname.startsWith("/external-activities")
-              ? "border-blue-300/35 bg-blue-300/[0.09] text-white shadow-[0_0_30px_rgba(59,130,246,0.08)]"
-              : "border-blue-300/15 bg-[#090d18] text-zinc-300 hover:border-blue-300/35 hover:bg-blue-300/[0.06]"
-          )}
-          href="/external-activities"
-          onClick={onNavigate}
-        >
-          <span className="grid size-9 shrink-0 place-items-center rounded-full border border-blue-300/25 bg-blue-300/[0.07] text-blue-100"><Globe2 className="size-5" /></span>
-          <span className="text-xs font-semibold">전사원 외부 활동</span>
-          <span className="ml-auto grid size-7 place-items-center rounded-full border border-blue-300/20 text-blue-100"><ChevronRight className="size-4 transition group-hover:translate-x-0.5" /></span>
-        </Link>
       </section>
 
       <section aria-labelledby="organization-directory-title">
