@@ -3,17 +3,21 @@ import { ArrowUpRight, Database, FileSearch, MessagesSquare } from "lucide-react
 
 import { AdminShell } from "@/components/admin/admin-shell";
 import { LobbyEventManager } from "@/components/admin/lobby-event-manager";
+import { ExternalActivityManager } from "@/components/admin/external-activity-manager";
 import {
   IntegrationBadge,
   OperationsTable,
 } from "@/components/admin/operations-ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { discussions, knowledgeEntries, sources, topics } from "@/data";
+import { discussions, employees, knowledgeEntries, sources, topics } from "@/data";
 import {
   isLobbyEventStoreConfigured,
   listLobbyEventBanners,
 } from "@/lib/lobby-event-store";
+import { isExternalActivityStoreConfigured, listExternalActivityPosts } from "@/lib/external-activity-store";
+import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
+import { formatPersonaDisplayName } from "@/lib/persona-display";
 
 export const dynamic = "force-dynamic";
 
@@ -29,9 +33,11 @@ const modules = [
 ];
 
 export default async function AdminContentPage() {
-  const lobbyEventBanners = await listLobbyEventBanners({
-    includeInactive: true,
-  });
+  const [lobbyEventBanners, externalActivityPosts] = await Promise.all([
+    listLobbyEventBanners({ includeInactive: true }),
+    listExternalActivityPosts({ includeInactive: true }),
+  ]);
+  const personas = employees.filter(isPublicActiveCharacter).map((employee) => ({ id: employee.id, label: formatPersonaDisplayName(employee) }));
   const rows = topics.map((topic) => ({
     id: topic.id,
     cells: [
@@ -94,6 +100,8 @@ export default async function AdminContentPage() {
         initialBanners={lobbyEventBanners}
         storageConfigured={isLobbyEventStoreConfigured()}
       />
+
+      <ExternalActivityManager initialPosts={externalActivityPosts} personas={personas} storageConfigured={isExternalActivityStoreConfigured()} />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="flex items-center gap-3 border border-white/8 p-4">

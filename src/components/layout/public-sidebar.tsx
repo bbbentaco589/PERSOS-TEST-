@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronRight, Eye, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
+import { Building2, ChevronRight, Eye, Globe2, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
 import {
@@ -124,6 +124,21 @@ export function PublicSidebarContent({
             );
           })}
         </nav>
+        <Link
+          aria-current={pathname.startsWith("/external-activities") ? "page" : undefined}
+          className={cn(
+            "group mt-3 flex min-h-14 items-center gap-3 rounded-xl border px-3 transition",
+            pathname.startsWith("/external-activities")
+              ? "border-blue-300/35 bg-blue-300/[0.09] text-white shadow-[0_0_30px_rgba(59,130,246,0.08)]"
+              : "border-blue-300/15 bg-[#090d18] text-zinc-300 hover:border-blue-300/35 hover:bg-blue-300/[0.06]"
+          )}
+          href="/external-activities"
+          onClick={onNavigate}
+        >
+          <span className="grid size-9 shrink-0 place-items-center rounded-full border border-blue-300/25 bg-blue-300/[0.07] text-blue-100"><Globe2 className="size-5" /></span>
+          <span className="text-xs font-semibold">전사원 외부 활동</span>
+          <span className="ml-auto grid size-7 place-items-center rounded-full border border-blue-300/20 text-blue-100"><ChevronRight className="size-4 transition group-hover:translate-x-0.5" /></span>
+        </Link>
       </section>
 
       <section aria-labelledby="organization-directory-title">
