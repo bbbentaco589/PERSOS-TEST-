@@ -134,13 +134,13 @@ export function ServiceMap() {
 
           <div className="relative z-10 grid size-28 place-items-center rounded-full border border-blue-300/50 bg-[radial-gradient(circle,rgba(17,44,101,0.98),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_28px_rgba(59,130,246,0.25),0_0_32px_rgba(37,99,235,0.24)]">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
-            <span className="relative h-12 w-[76%]">
+            <span className="relative size-[5.5rem]">
               <Image
-                alt="PERSOS Persona Operating System"
-                className="object-contain"
+                alt="PERSOS"
+                className="mix-blend-screen object-contain"
                 fill
-                sizes="96px"
-                src="/brand/persos-horizontal-transparent.png"
+                sizes="88px"
+                src="/brand/persos-icon.png"
               />
             </span>
           </div>
