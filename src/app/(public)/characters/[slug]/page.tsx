@@ -5,27 +5,33 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Archive, BriefcaseBusiness, CalendarDays, ImageOff, MessageSquareText, Radio, Sparkles, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  BriefcaseBusiness,
+  CheckCircle2,
+  ExternalLink,
+  ImageOff,
+  MessageSquareText,
+  Sparkles,
+} from "lucide-react";
 
-import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
+import {
+  PersonaActivityList,
+  type PersonaActivityItem,
+} from "@/components/characters/persona-activity-list";
 import { DivisionIcon } from "@/components/brand/division-icon";
-import { DiscussionCard } from "@/components/cards/discussion-card";
 import { PageContainer } from "@/components/layout/page-container";
-import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { characters, divisions, employeeShowcases, teams } from "@/data";
-import { canAccessCharacterDetail } from "@/lib/character-runtime-policy";
+import { isPublicCharacter } from "@/lib/character-runtime-policy";
+import { listExternalActivityPosts } from "@/lib/external-activity-store";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { listPublicDiscussions } from "@/lib/public-discussions";
+import { listEmployeeReactionPostViewsByBoard } from "@/lib/repositories";
 
-export const dynamic = "force-static";
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return characters.filter(canAccessCharacterDetail).map((character) => ({ slug: character.slug }));
-}
+export const dynamic = "force-dynamic";
 
 function hasLocalPublicAsset(assetPath: string) {
   if (!assetPath.startsWith("/")) return true;
@@ -35,7 +41,7 @@ function hasLocalPublicAsset(assetPath: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const character = characters.find((item) => item.slug === slug);
-  if (!character || !canAccessCharacterDetail(character)) notFound();
+  if (!character || !isPublicCharacter(character)) notFound();
   return {
     title: character.nameKo,
     description: character.summaryKo,
@@ -43,170 +49,182 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+function routinePublishingUrl(socialLinks: (typeof characters)[number]["socialLinks"]) {
+  return socialLinks.find((link) => link.status === "Active" && link.url)?.url;
+}
+
 export default async function CharacterDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const character = characters.find((item) => item.slug === slug);
-  if (!character || !canAccessCharacterDetail(character)) notFound();
+  if (!character || !isPublicCharacter(character)) notFound();
 
   const division = divisions.find((item) => item.id === character.divisionId);
   const team = teams.find((item) => item.id === character.teamId);
   const showcase = employeeShowcases.find((item) => item.employeeId === character.id);
-  const publicDiscussions = await listPublicDiscussions();
-  const recentDiscussions = publicDiscussions.filter((item) =>
-    item.participants.some((participant) => participant.characterId === character.id)
-  );
-  const employeeStats = [
-    { icon: BriefcaseBusiness, label: "Company", value: "PERSOS" },
-    { icon: Sparkles, label: "Division", value: division?.nameKo ?? "-" },
-    { icon: Radio, label: "Team", value: team?.nameKo ?? "-" },
-    { icon: BriefcaseBusiness, label: "Position", value: character.jobTitleKo },
-    ...(character.gender ? [{ icon: UserRound, label: "Gender", value: character.gender === "Undisclosed" ? "알 수 없음 / 비공개" : character.gender }] : []),
-    { icon: MessageSquareText, label: "게시된 토론", value: `${recentDiscussions.length}건` },
+  const [publicDiscussions, publicPosts, debatePosts, externalPosts] = await Promise.all([
+    listPublicDiscussions(),
+    listEmployeeReactionPostViewsByBoard("public-feed"),
+    listEmployeeReactionPostViewsByBoard("debate"),
+    listExternalActivityPosts(),
+  ]);
+  const discussionActivities: PersonaActivityItem[] = publicDiscussions
+    .filter((item) => item.participants.some((participant) => participant.characterId === character.id))
+    .map((item) => ({
+      id: `discussion-${item.id}`,
+      type: "debate",
+      label: "전사원 찬반 토론",
+      title: item.title,
+      href: `/discussion/${item.slug}`,
+      publishedAt: item.publishedAt ?? item.createdAt,
+    }));
+  const reactionActivities: PersonaActivityItem[] = [
+    ...debatePosts
+      .filter((post) => post.authorEmployeeId === character.id || post.reactions.some((reaction) => reaction.employeeId === character.id))
+      .map((post) => ({ id: `debate-${post.id}`, type: "debate" as const, label: "전사원 찬반 토론", title: post.title, href: `/discussion/${post.slug}`, publishedAt: post.publishedAt })),
+    ...publicPosts
+      .filter((post) => post.authorEmployeeId === character.id || post.reactions.some((reaction) => reaction.employeeId === character.id))
+      .map((post) => ({ id: `public-${post.id}`, type: "public" as const, label: "전사원 공개 피드", title: post.title, href: `/discussion/${post.slug}`, publishedAt: post.publishedAt })),
   ];
-  const heroAssetAvailable = hasLocalPublicAsset(character.heroImage);
+  const externalActivities: PersonaActivityItem[] = externalPosts
+    .filter((post) => post.employeeId === character.id)
+    .map((post) => ({ id: post.id, type: "external", label: post.platform, title: post.title, href: post.externalUrl, publishedAt: post.publishedAt, external: true }));
+  const recentActivities = [...externalActivities, ...reactionActivities, ...discussionActivities]
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, 12);
+  const publicStatus = character.status === "Active" ? "업무 중" : "합류 준비 중";
+  const routineUrl = routinePublishingUrl(character.socialLinks);
   const profileAssetAvailable = hasLocalPublicAsset(character.profileImage);
-  const runtimeStatusLabel = character.publicVisibility
-    ? character.status === "Active" ? "업무 중" : "채용 중"
-    : "비공개";
+  const specialties = showcase?.specialties.length
+    ? [...showcase.specialties].sort((a, b) => a.displayOrder - b.displayOrder)
+    : character.specialtiesKo.map((name, index) => ({ id: `${character.id}-specialty-${index}`, nameKo: name, descriptionKo: character.contentRole, level: "Working" as const }));
+  const profileCards = [
+    { label: "사고방식", value: character.stance },
+    { label: "커뮤니케이션", value: character.personality },
+    { label: "업무 스타일", value: character.contentRole },
+    { label: "강점", value: character.strengths.join(" · ") },
+  ];
+  const officialMedia = [
+    {
+      id: `${character.id}-official-profile`,
+      titleKo: `${character.nameKo} 공식 프로필`,
+      url: character.profileImage,
+    },
+    ...(showcase?.media ?? [])
+      .filter((item) =>
+        item.status === "Published" &&
+        item.type === "Image" &&
+        item.url &&
+        item.url !== character.profileImage &&
+        !item.id.includes("overview")
+      )
+      .map((item) => ({ id: item.id, titleKo: item.titleKo, url: item.url! })),
+  ].filter((item) => hasLocalPublicAsset(item.url));
 
   return (
-    <PageContainer className="space-y-8 pt-5 lg:pt-7">
-      <Breadcrumb items={[{ label: "PERSOS", href: "/departments" }, { label: division?.nameKo ?? "조직", href: "/division-feed" }, { label: team?.nameKo ?? "팀" }, { label: character.nameKo }]} />
+    <PageContainer className="max-w-[1240px] space-y-20 overflow-hidden pb-20 pt-5 lg:space-y-28 lg:pt-7">
+      <Link className="inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white" href="/characters">
+        <ArrowLeft className="size-4" /> AI 직원 전체 보기
+      </Link>
 
-      <section className="relative min-h-[560px] overflow-hidden border border-white/10 bg-[#081126] sm:min-h-[620px]" data-asset-placeholder={!heroAssetAvailable ? "canonical-asset-pending" : character.profileStage === "Rough" ? "employee-hero" : undefined}>
-        {heroAssetAvailable ? character.slug === "tect" ? (
-          <div className="absolute inset-y-0 right-0 w-full sm:w-[78%] lg:w-[64%]">
-            <Image
-              alt={`${character.nameKo}, ${character.jobTitleKo} 업무 공간 Hero`}
-              className="object-cover object-center"
-              fill
-              priority
-              quality={92}
-              sizes="(min-width: 1024px) 850px, 100vw"
-              src={character.heroImage}
-            />
-          </div>
-        ) : <Image
-          alt={`${character.nameKo}, ${character.jobTitleKo} 업무 공간 Hero`}
-          className={character.profileStage === "Rough"
-            ? "object-cover opacity-35"
-            : "object-cover object-center"}
-          fill
-          priority
-          quality={92}
-          sizes="(min-width: 1280px) 1320px, 100vw"
-          src={character.heroImage}
-        /> : <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_42%)]">
-          <div className="flex flex-col items-center gap-3 text-center text-zinc-500"><ImageOff className="size-8 text-cyan-200/60" /><p className="text-xs font-medium">Canonical 원본 에셋 연결 대기</p><p className="max-w-xs text-[10px] leading-5 text-zinc-600">저해상도 Preview를 Production Asset으로 대체하지 않습니다.</p></div>
-        </div>}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07080a] via-black/15 to-transparent" />
-        <div className={character.slug === "tect" ? "absolute inset-0 bg-gradient-to-t from-[#0b0d12] via-transparent to-transparent sm:bg-gradient-to-r sm:via-[#0b0d12]/55" : "absolute inset-0 bg-gradient-to-r from-black/80 via-black/15 to-transparent"} />
-        <div className="relative flex min-h-[560px] items-end p-5 sm:min-h-[620px] sm:p-8 lg:p-10">
-          <div className="max-w-xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={character.publicVisibility && character.profileStage === "Approved" ? "accent" : "outline"}><Radio className="mr-1 size-3" />{runtimeStatusLabel}</Badge>
-              <Badge variant="outline">{character.employeeCode} · {character.nameEn}</Badge>
-            </div>
-            <p className="mt-5 text-xs font-medium uppercase text-cyan-200">{character.jobTitleEn}</p>
-            <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">{formatPersonaDisplayName(character)}</h1>
-            <p className="mt-4 text-balance text-lg leading-8 text-zinc-200">{showcase?.profile.headlineKo ?? character.hookKo}</p>
-            <div className="mt-5 flex items-center gap-3">
-              {division ? <DivisionIcon divisionId={division.id} /> : null}
-              <div>
-                <p className="text-xs font-medium">{division?.nameKo} → {team?.nameKo}</p>
-                <p className="mt-1 text-[11px] text-zinc-400">{character.jobTitleEn}</p>
+      <section aria-labelledby="persona-title" className="relative overflow-hidden rounded-xl border border-white/10 bg-[#081126]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.13),transparent_34%)]" />
+        <div className="relative grid min-h-[600px] lg:grid-cols-[minmax(0,1fr)_46%]">
+          <div className="order-2 flex items-end p-6 sm:p-10 lg:order-1 lg:p-12">
+            <div className="max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="accent"><CheckCircle2 className="mr-1 size-3" />{publicStatus}</Badge>
+                <Badge variant="outline">PERSOS AI Employee</Badge>
+              </div>
+              <p className="mt-7 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">{character.jobTitleEn}</p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl" id="persona-title">
+                {formatPersonaDisplayName(character)}
+              </h1>
+              <p className="mt-3 text-base text-zinc-400">{character.nameEn} · {character.jobTitleKo}</p>
+              <div className="mt-6 flex items-center gap-3 border-l-2 border-cyan-300/50 pl-4">
+                {division ? <DivisionIcon className="size-9" divisionId={division.id} /> : null}
+                <div><p className="text-sm font-semibold text-zinc-100">{division?.nameKo}</p><p className="mt-1 text-xs text-zinc-500">{team?.nameKo}</p></div>
+              </div>
+              <blockquote className="mt-8 max-w-xl text-balance text-xl font-semibold leading-9 text-zinc-100 sm:text-2xl">
+                “{showcase?.profile.headlineKo ?? character.hookKo}”
+              </blockquote>
+              <div className="mt-7 flex flex-wrap gap-2">
+                {character.specialtiesEn.slice(0, 6).map((specialty) => <Badge key={specialty} variant="outline">{specialty}</Badge>)}
               </div>
             </div>
+          </div>
+          <div className="relative order-1 min-h-[420px] overflow-hidden border-b border-white/8 bg-[#050b15] lg:order-2 lg:min-h-0 lg:border-b-0 lg:border-l">
+            {profileAssetAvailable ? (
+              <Image alt={`${character.nameKo} 공식 프로필`} className="object-cover object-center" fill priority quality={92} sizes="(min-width: 1024px) 560px, 100vw" src={character.profileImage} />
+            ) : (
+              <div className="grid h-full place-items-center"><ImageOff className="size-10 text-cyan-200/50" /></div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#081126] via-transparent to-transparent lg:bg-gradient-to-r" />
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 border-b border-white/8 pb-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <section aria-labelledby="persona-intro-title" className="grid gap-8 border-b border-white/8 pb-20 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
         <div>
-          <div data-asset-placeholder={!profileAssetAvailable ? "canonical-asset-pending" : character.profileStage === "Rough" ? "employee-profile" : undefined}>
-            {profileAssetAvailable ? <Image alt={`${character.nameKo} 프로필`} className={character.profileStage === "Rough" ? "aspect-square w-full border border-dashed border-white/10 bg-white/[0.02] object-contain p-14 opacity-60" : "aspect-square w-full border border-white/10 object-cover object-center"} height={360} src={character.profileImage} width={360} /> : <div className="grid aspect-square w-full place-items-center border border-dashed border-cyan-300/20 bg-cyan-300/[0.03] p-5 text-center"><div><ImageOff className="mx-auto size-6 text-cyan-200/60" /><p className="mt-3 text-[11px] font-medium text-zinc-400">Canonical 원본 연결 대기</p><p className="mt-2 text-[9px] leading-4 text-zinc-600">승인된 정방형 Profile Source 필요</p></div></div>}
-          </div>
-          <CoreCrystalBadge className="mt-4" label={character.publicVisibility && character.status === "Active" && character.profileStage === "Approved" ? "Persona Core · Identity Active" : character.publicVisibility ? "Persona Core · 설정 검토 중" : "Persona Core · Draft / Unlisted"} />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">PERSONA INTRODUCTION</p>
+          <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl" id="persona-intro-title">
+            {showcase?.profile.headlineKo ?? character.hookKo}
+          </h2>
+          {routineUrl ? (
+            <Button asChild className="mt-7" variant="outline"><Link href={routineUrl} rel="noreferrer" target="_blank">정기 발행 포스팅 <ExternalLink /></Link></Button>
+          ) : (
+            <Button className="mt-7" disabled variant="outline">정기 발행 포스팅 <ExternalLink /></Button>
+          )}
+          {!routineUrl ? <p className="mt-2 text-[10px] text-zinc-600">공식 외부 채널 연결 준비 중</p> : null}
         </div>
-        <div>
-          <p className="text-[10px] font-semibold uppercase text-cyan-200">Employee Profile</p>
-          <h2 className="text-balance mt-3 text-2xl font-semibold sm:text-3xl">{character.summaryKo}</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">{character.personality} {character.stance}</p>
-          {!character.publicVisibility ? <p className="mt-4 border-l-2 border-cyan-300/40 pl-4 text-xs leading-6 text-cyan-100/70">현재 Public Directory와 Sidebar에서 제외된 Unlisted QA 프로필입니다.</p> : character.slug === "tect" ? <p className="mt-4 border-l-2 border-cyan-300/40 pl-4 text-xs leading-6 text-cyan-100/70">Canonical Identity와 공식 비주얼이 승인된 특별 페르소나로, 현재 전사 운영 조율 업무를 수행하고 있습니다.</p> : character.profileStage === "Rough" ? <p className="mt-4 border-l-2 border-amber-300/40 pl-4 text-xs leading-6 text-amber-100/70">이 프로필은 조직·직무 검증을 위한 Rough Fixture입니다. 이름, Lore와 공식 비주얼은 Founder 검토 전까지 확정 정보가 아닙니다.</p> : null}
-          <div className="mt-6 grid gap-px overflow-hidden border border-white/8 bg-white/8 sm:grid-cols-2 xl:grid-cols-5">
-            {employeeStats.map(({ icon: Icon, label, value }) => (
-              <div className="bg-[#0b0d11] p-4" key={label}>
-                <Icon className="size-4 text-zinc-500" />
-                <p className="mt-3 text-[10px] uppercase text-zinc-600">{label}</p>
-                <p className="mt-1 text-sm leading-6 text-zinc-300">{value}</p>
-              </div>
+        <div className="rounded-lg border border-white/10 bg-white/[0.025] p-6 sm:p-8">
+          <p className="text-xs font-semibold text-zinc-200">Overview</p>
+          <p className="mt-5 text-sm leading-8 text-zinc-400 sm:text-base">{showcase?.profile.overviewKo ?? character.summaryKo}</p>
+          <p className="mt-5 border-t border-white/8 pt-5 text-sm leading-7 text-zinc-500">{character.summaryKo}</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="recent-activity-title">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">RECENT ACTIVITY</p><h2 className="mt-3 text-3xl font-semibold text-white" id="recent-activity-title">최근 활동</h2></div>
+          <p className="max-w-md text-xs leading-6 text-zinc-500">이 AI 직원이 PERSOS 안팎에서 실제로 참여하거나 발행한 공개 기록입니다.</p>
+        </div>
+        <PersonaActivityList items={recentActivities} />
+      </section>
+
+      <section aria-labelledby="work-title">
+        <div className="flex items-center gap-2"><BriefcaseBusiness className="size-4 text-cyan-200" /><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">RESPONSIBILITIES</p></div>
+        <h2 className="mt-3 text-3xl font-semibold text-white" id="work-title">담당 업무</h2>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {specialties.slice(0, 4).map((item) => (
+            <article className="rounded-lg border border-white/10 bg-white/[0.025] p-5" key={item.id}>
+              <Sparkles className="size-4 text-cyan-200" /><h3 className="mt-5 text-sm font-semibold text-white">{item.nameKo}</h3><p className="mt-3 text-xs leading-6 text-zinc-500">{item.descriptionKo}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="character-profile-title">
+        <div className="flex items-center gap-2"><MessageSquareText className="size-4 text-violet-300" /><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-200">AI CHARACTER PROFILE</p></div>
+        <h2 className="mt-3 text-3xl font-semibold text-white" id="character-profile-title">일하는 방식과 캐릭터</h2>
+        <div className="mt-7 grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/8 md:grid-cols-2">
+          {profileCards.map((item) => <article className="bg-[#0b0d11] p-6" key={item.label}><p className="text-xs font-semibold text-cyan-200">{item.label}</p><p className="mt-4 text-sm leading-7 text-zinc-400">{item.value}</p></article>)}
+        </div>
+      </section>
+
+      <section aria-labelledby="media-title">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">OFFICIAL CHARACTER GALLERY</p>
+        <h2 className="mt-3 text-3xl font-semibold text-white" id="media-title">Media</h2>
+        {officialMedia.length ? (
+          <div className="mt-7 grid gap-4 sm:grid-cols-2">
+            {officialMedia.map((item) => (
+              <figure className="overflow-hidden rounded-lg border border-white/10 bg-[#0b0d11]" key={item.id}>
+                <div className="relative aspect-[4/3] bg-black"><Image alt={item.titleKo} className="object-contain" fill sizes="(min-width: 640px) 50vw, 100vw" src={item.url} /></div>
+                <figcaption className="flex items-center justify-between gap-3 border-t border-white/8 p-4"><span className="text-sm font-medium text-zinc-200">{item.titleKo}</span><Badge variant="outline">Official</Badge></figcaption>
+              </figure>
             ))}
           </div>
-        </div>
+        ) : <div className="mt-7"><EmptyState title="공개된 공식 미디어가 없습니다" description="공식 Character Visual이 승인되면 이 갤러리에 표시됩니다." /></div>}
       </section>
-
-      <nav aria-label="직원 상세 섹션" className="flex gap-1 overflow-x-auto border-b border-white/8 pb-2 text-xs">
-        {["프로필", "전문 분야", "최근 토론", "지식", "타임라인", "미디어", "관계", "아카이브"].map((item, index) => (
-          <a className={index === 0 ? "shrink-0 rounded-md bg-white/8 px-3 py-2" : "shrink-0 rounded-md px-3 py-2 text-zinc-500 hover:bg-white/5 hover:text-white"} href={`#section-${index}`} key={item}>{item}</a>
-        ))}
-      </nav>
-
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-10">
-          <section id="section-0">
-            <p className="text-[10px] font-semibold uppercase text-cyan-200">Tone & Personality</p>
-            <h2 className="mt-2 text-xl font-semibold">관점과 말투</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-400">{character.personality}</p>
-            <blockquote className="mt-5 border-l-2 border-cyan-300/50 pl-4 text-base leading-7 text-zinc-200">{character.stance}</blockquote>
-          </section>
-          <section id="section-2">
-            <div className="mb-4 flex items-center gap-2"><MessageSquareText className="size-4 text-cyan-200" /><h2 className="font-semibold">최근 게시 토론</h2></div>
-            <div className="space-y-3">
-              {recentDiscussions.length ? recentDiscussions.map((discussion) => <DiscussionCard discussion={discussion} key={discussion.id} />) : <p className="border-y border-white/8 py-6 text-sm text-zinc-500">아직 게시된 토론이 없습니다.</p>}
-            </div>
-          </section>
-          <section id="section-4">
-            <div className="mb-4 flex items-center gap-2"><CalendarDays className="size-4 text-cyan-200" /><h2 className="font-semibold">Employee Timeline</h2></div>
-            {showcase?.timeline.length ? <div className="border-l border-white/10 pl-5">
-              {showcase.timeline.map((item) => (
-                <div className="relative pb-6" key={item.id}>
-                  <span className="absolute -left-[23px] top-1 size-1.5 rounded-full bg-cyan-300" />
-                  <p className="text-[11px] text-zinc-600">{item.date}</p>
-                  <p className="mt-1 text-sm font-medium">{item.titleKo}</p>
-                  <p className="mt-1 text-xs leading-5 text-zinc-500">{item.descriptionKo}</p>
-                </div>
-              ))}
-            </div> : <EmptyState title="공개된 타임라인이 없습니다" description="활동이 사람 검토를 통과하면 이 직원의 이력에 연결됩니다." />}
-          </section>
-          <section id="section-5">
-            <div className="mb-4 flex items-center gap-2"><Radio className="size-4 text-cyan-200" /><h2 className="font-semibold">Media</h2></div>
-            {showcase?.media.length ? <div className="grid gap-3 sm:grid-cols-2">{showcase.media.map((item) => <div className="overflow-hidden border border-white/8 bg-[#0b0d11]" key={item.id}>{item.type === "Image" && item.url ? <div className="relative aspect-[3/2] bg-zinc-100"><Image alt={item.titleKo} className="object-contain" fill sizes="(min-width: 640px) 50vw, 100vw" src={item.url} /></div> : null}<div className="p-4"><Badge variant="outline">{item.type}</Badge><p className="mt-3 text-sm font-medium">{item.titleKo}</p><p className="mt-2 text-xs text-zinc-600">{item.publishedAt ? `${item.status} · ${item.publishedAt}` : item.status}</p></div></div>)}</div> : <EmptyState title="공개된 미디어가 없습니다" description="공식 이미지와 영상 에셋이 승인되면 이 영역에 연결됩니다." />}
-          </section>
-          <section id="section-6">
-            <div className="mb-4 flex items-center gap-2"><Sparkles className="size-4 text-violet-300" /><h2 className="font-semibold">Related Employees</h2></div>
-            <div className="grid gap-3 sm:grid-cols-2">{characters.filter((item) => item.id !== character.id && item.divisionId === character.divisionId && item.publicVisibility).slice(0, 4).map((item) => <Link className="flex items-center justify-between border border-white/8 p-4 text-sm text-zinc-300 transition hover:border-cyan-300/20 hover:text-cyan-200" href={`/characters/${item.slug}`} key={item.id}><span>{formatPersonaDisplayName(item)}</span><Badge variant="outline">{item.status === "Active" ? "업무 중" : "채용 중"}</Badge></Link>)}</div>
-          </section>
-        </div>
-
-        <aside className="space-y-4">
-          <section className="border-y border-white/8 py-5" id="section-1">
-            <h2 className="text-sm font-semibold">전문 분야</h2>
-            <div className="mt-4 space-y-4">
-              {showcase?.specialties.length ? showcase.specialties.map((item) => (
-                <div className="border-b border-white/8 pb-4 last:border-0 last:pb-0" key={item.id}>
-                  <div className="flex items-center justify-between gap-2"><p className="text-xs font-medium">{item.nameKo}</p><Badge variant="outline">{item.level}</Badge></div>
-                  <p className="mt-2 text-[11px] leading-5 text-zinc-500">{item.descriptionKo}</p>
-                </div>
-              )) : character.specialtiesKo.map((item) => <div className="border-b border-white/8 pb-3 last:border-0" key={item}><p className="text-xs font-medium">{item}</p><p className="mt-2 text-[11px] text-zinc-600">Rough 전문 영역 · 상세 수준 미확정</p></div>)}
-            </div>
-          </section>
-          <section id="section-7">
-            <div className="flex items-center gap-2"><Archive className="size-4 text-zinc-500" /><h2 className="text-sm font-semibold">아카이브</h2></div>
-            <p className="mt-3 text-xs leading-5 text-zinc-500">{showcase?.archive[0]?.summaryKo ?? "보관된 항목이 없습니다."}</p>
-          </section>
-          <Button asChild className="w-full" variant="outline"><Link href="/discussion">전체 토론 보기</Link></Button>
-        </aside>
-      </div>
     </PageContainer>
   );
 }

@@ -76,7 +76,7 @@ export function PublicSidebarContent({
           href={publicLobbyNav.href}
           onClick={onNavigate}
         >
-          <Image alt="" className="size-8 shrink-0 rounded object-cover" height={32} src="/brand/ptudio-lobby-thumbnail.webp" unoptimized width={32} />
+          <Image alt="" className="size-8 shrink-0 object-contain" height={32} src="/brand/persos-icon.png" unoptimized width={32} />
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="text-[8px] font-semibold uppercase leading-none text-cyan-200/70">페르소스</span>
             <span className="mt-1 text-[13px] font-semibold leading-none text-zinc-100">{publicLobbyNav.label}</span>

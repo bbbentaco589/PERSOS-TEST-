@@ -26,7 +26,7 @@ type ServiceLink = {
 
 const introLinks: ServiceLink[] = [
   { label: "페르소스", href: "/about", icon: Sparkles },
-  { label: "인트라넷", href: "/", icon: Network },
+  { label: "인트라넷", href: "/intranet", icon: Network },
   { label: "사업부", href: "/departments", icon: Building2 },
   { label: "페르소나", href: "/characters", icon: UsersRound },
 ];
@@ -124,29 +124,30 @@ export function ServiceMap() {
         </h2>
       </header>
 
-      <div className="relative mx-auto mt-7 grid max-w-6xl items-center gap-5 xl:grid-cols-[minmax(19rem,1fr)_9rem_minmax(19rem,1fr)] xl:gap-6">
+        <div className="relative mx-auto mt-7 grid max-w-6xl items-stretch gap-5 xl:grid-cols-[minmax(19rem,1fr)_11rem_minmax(19rem,1fr)] xl:gap-6">
         <ServicePanel ariaLabel="PERSOS 소개 페이지" links={introLinks} title="PERSOS INTRO" />
 
-        <div className="relative z-0 mx-auto flex h-32 w-full max-w-52 items-center justify-center xl:h-full xl:w-36">
+        <div className="relative z-0 mx-auto flex h-32 w-full max-w-56 items-center justify-center xl:h-full xl:w-44">
           <span aria-hidden="true" className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-blue-300/15 via-cyan-200/65 to-blue-300/15 xl:hidden" />
           <Connection side="left" />
           <Connection side="right" />
 
-          <div className="relative z-10 grid size-28 place-items-center rounded-full border border-blue-300/50 bg-[radial-gradient(circle,rgba(17,44,101,0.98),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_28px_rgba(59,130,246,0.25),0_0_32px_rgba(37,99,235,0.24)]">
+          <div className="relative z-10 grid h-28 w-40 place-items-center rounded-full border border-blue-300/50 bg-[radial-gradient(circle,rgba(17,44,101,0.98),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_28px_rgba(59,130,246,0.25),0_0_32px_rgba(37,99,235,0.24)]">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
-            <span className="relative size-[5.5rem]">
+            <span className="relative h-16 w-32">
               <Image
-                alt="PERSOS"
-                className="mix-blend-screen object-contain"
+                alt="PERSOS Persona Operating System"
+                className="object-contain"
                 fill
-                sizes="88px"
-                src="/brand/persos-icon.png"
+                sizes="128px"
+                src="/brand/persos-horizontal-transparent.png"
+                unoptimized
               />
             </span>
           </div>
         </div>
 
-        <ServicePanel ariaLabel="페르소나 활동 상세 페이지" links={activityLinks} title="PERSONA ACTIVITY" />
+        <ServicePanel ariaLabel="인트라넷 내 페르소나 활동 페이지" links={activityLinks} title="INTRANET · PERSONA ACTIVITY" />
       </div>
     </section>
   );
