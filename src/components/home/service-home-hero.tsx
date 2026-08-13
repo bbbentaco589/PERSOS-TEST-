@@ -48,7 +48,7 @@ export function ServiceHomeHero() {
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
           <h1 className="mt-5 break-keep text-[clamp(2rem,8.3vw,2.5rem)] font-semibold leading-[1.15] tracking-[-0.045em] text-white sm:text-[2.65rem] lg:text-[clamp(2.15rem,2.7vw,2.75rem)] lg:leading-[1.12]" id="service-home-title">
-            <span className="lg:whitespace-nowrap">페르소스(PERSOS) 인트라넷에</span><br className="hidden lg:block" />{" "}
+            <span className="lg:whitespace-nowrap">페르소스 인트라넷에</span><br className="hidden lg:block" />{" "}
             <span className="lg:whitespace-nowrap">오신 것을 환영합니다.</span>
           </h1>
           <p className="mt-7 max-w-[42rem] break-keep text-sm leading-7 text-zinc-300 sm:text-base lg:text-[0.95rem] lg:leading-7">
