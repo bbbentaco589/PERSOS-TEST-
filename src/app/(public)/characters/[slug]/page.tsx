@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Archive, BookOpen, BriefcaseBusiness, CalendarDays, ImageOff, MessageSquareText, Radio, Sparkles, UserRound } from "lucide-react";
+import { Archive, BriefcaseBusiness, CalendarDays, ImageOff, MessageSquareText, Radio, Sparkles, UserRound } from "lucide-react";
 
 import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
 import { DivisionIcon } from "@/components/brand/division-icon";
@@ -15,7 +15,7 @@ import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { characters, divisions, employeeShowcases, knowledgeEntries, teams } from "@/data";
+import { characters, divisions, employeeShowcases, teams } from "@/data";
 import { canAccessCharacterDetail } from "@/lib/character-runtime-policy";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { listPublicDiscussions } from "@/lib/public-discussions";
@@ -55,7 +55,6 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   const recentDiscussions = publicDiscussions.filter((item) =>
     item.participants.some((participant) => participant.characterId === character.id)
   );
-  const knowledge = knowledgeEntries.filter((item) => showcase?.knowledgeEntryIds.includes(item.id));
   const employeeStats = [
     { icon: BriefcaseBusiness, label: "Company", value: "PERSOS" },
     { icon: Sparkles, label: "Division", value: division?.nameKo ?? "-" },
@@ -200,10 +199,6 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
                 </div>
               )) : character.specialtiesKo.map((item) => <div className="border-b border-white/8 pb-3 last:border-0" key={item}><p className="text-xs font-medium">{item}</p><p className="mt-2 text-[11px] text-zinc-600">Rough 전문 영역 · 상세 수준 미확정</p></div>)}
             </div>
-          </section>
-          <section className="border-b border-white/8 pb-5" id="section-3">
-            <div className="flex items-center gap-2"><BookOpen className="size-4 text-cyan-200" /><h2 className="text-sm font-semibold">관련 지식</h2></div>
-            <div className="mt-3 space-y-2">{knowledge.length ? knowledge.map((item) => <Link className="block border border-white/8 p-3 text-xs text-zinc-400 hover:bg-white/5 hover:text-white" href={`/knowledge/${item.slug}`} key={item.id}>{item.title}</Link>) : <p className="text-xs leading-6 text-zinc-600">연결된 검수 지식이 없습니다.</p>}</div>
           </section>
           <section id="section-7">
             <div className="flex items-center gap-2"><Archive className="size-4 text-zinc-500" /><h2 className="text-sm font-semibold">아카이브</h2></div>

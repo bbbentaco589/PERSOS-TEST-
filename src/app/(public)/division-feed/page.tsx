@@ -4,7 +4,6 @@ import { ArrowRight, Building2, MessagesSquare, Radio, RotateCcw, UsersRound } f
 
 import { ActivityCard } from "@/components/activity/activity-card";
 import { DivisionIcon } from "@/components/brand/division-icon";
-import { KnowledgeCard } from "@/components/cards/knowledge-card";
 import { OrganizationFeedCard } from "@/components/feed/organization-feed-card";
 import { PageContainer } from "@/components/layout/page-container";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
@@ -13,12 +12,12 @@ import { PageHero } from "@/components/sections/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { publicDivisionOrder } from "@/constants/navigation";
-import { companyActivities, divisions, employees, knowledgeEntries, teams } from "@/data";
+import { companyActivities, divisions, employees, teams } from "@/data";
 import { listPublicDiscussions } from "@/lib/public-discussions";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "사업부 개별 인트라넷", description: "PERSOS 6개 사업부와 팀의 Discussion, Content, Knowledge와 Project Activity를 탐색합니다." };
+export const metadata: Metadata = { title: "사업부 개별 인트라넷", description: "PERSOS 6개 사업부와 팀의 Discussion, Content와 Project Activity를 탐색합니다." };
 
 function readParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -54,13 +53,11 @@ export default async function DivisionFeedDirectoryPage({
     discussion.participants.some((participant) => visibleEmployeeIds.has(participant.characterId))
   );
   const visibleActivities = companyActivities.filter((activity) => {
+    if (activity.type === "Knowledge") return false;
     if (effectiveTeam) return activity.teamId === effectiveTeam.id;
     if (effectiveDivision) return activity.divisionId === effectiveDivision.id;
     return true;
   });
-  const visibleKnowledgeEntries = knowledgeEntries.filter((entry) =>
-    entry.relatedEmployeeIds.some((employeeId) => visibleEmployeeIds.has(employeeId))
-  );
   const scopeTitle = effectiveTeam?.nameKo ?? effectiveDivision?.nameKo ?? "전체 사업부";
 
   return (
@@ -138,7 +135,7 @@ export default async function DivisionFeedDirectoryPage({
       </section>
 
       <section aria-labelledby="division-activity-title">
-        <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[10px] font-semibold uppercase text-cyan-300">Division Activity</p><h2 className="mt-2 text-2xl font-semibold" id="division-activity-title">{scopeTitle} 활동</h2></div><Badge variant="outline">Discussion · Content · Knowledge · Project · Media · Notice</Badge></div>
+        <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[10px] font-semibold uppercase text-cyan-300">Division Activity</p><h2 className="mt-2 text-2xl font-semibold" id="division-activity-title">{scopeTitle} 활동</h2></div><Badge variant="outline">Discussion · Content · Project · Media · Notice</Badge></div>
         {visibleActivities.length ? <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{visibleActivities.map((activity, index) => <ActivityCard activity={activity} featured={index === 0} key={activity.id} />)}</div> : <div className="mt-5"><EmptyState title="공개된 사업부 활동이 없습니다" description="해당 사업부·팀의 검수 완료 Activity가 게시되면 이 영역에 표시됩니다." /></div>}
       </section>
 
@@ -159,13 +156,6 @@ export default async function DivisionFeedDirectoryPage({
         ) : <div className="mt-5"><EmptyState title="공개된 사업부 피드가 없습니다" description="선택한 범위의 Active AI 사원이 참여하고 사람 검토를 통과한 Discussion이 아직 없습니다." /></div>}
       </section>
 
-      <section aria-labelledby="division-knowledge-title">
-        <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div><p className="text-[10px] font-semibold uppercase text-cyan-300">Division Knowledge</p><h2 className="mt-2 text-2xl font-semibold" id="division-knowledge-title">{scopeTitle} 관련 지식</h2></div>
-          <Badge variant="outline">Mock Data</Badge>
-        </div>
-        {visibleKnowledgeEntries.length ? <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{visibleKnowledgeEntries.map((entry) => <KnowledgeCard entry={entry} key={entry.id} />)}</div> : <div className="mt-5"><EmptyState title="연결된 공개 지식이 없습니다" description="해당 범위의 직원과 연결된 검수 지식이 게시되면 이 영역에 표시됩니다." /></div>}
-      </section>
     </PageContainer>
   );
 }

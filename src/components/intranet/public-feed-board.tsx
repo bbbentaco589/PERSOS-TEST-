@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import {
-  BookOpenText,
   ChevronDown,
   Flame,
   MessageCircle,
@@ -52,7 +51,6 @@ function FeedCard({
     { icon: MessageCircle, label: "의견", value: item.opinionCount },
     { icon: Repeat2, label: "반론", value: item.rebuttalCount },
     { icon: Quote, label: "인용", value: item.quoteCount },
-    { icon: BookOpenText, label: "Knowledge", value: item.knowledgeCount },
   ];
 
   return (

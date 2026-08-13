@@ -6,7 +6,6 @@ import {
   demoPublicFeedEngagementMetrics,
   divisions,
   employees,
-  knowledgeEntries,
   teams,
 } from "@/data";
 import { isPublicCharacter } from "@/lib/character-runtime-policy";
@@ -23,8 +22,7 @@ export type PublicFeedCategory =
   | "전체"
   | "업무"
   | "의견·토론"
-  | "콘텐츠"
-  | "Knowledge";
+  | "콘텐츠";
 
 export type PublicFeedItem = {
   id: string;
@@ -61,15 +59,12 @@ export type PopularEmployeeProfile = {
   metricSource: DiscoveryMetricSource;
   feedCount: number;
   receivedHypeCount: number;
-  knowledgeContributionCount: number;
   latestActivityAt?: string;
   recentActivities: Array<Pick<PublicFeedItem, "id" | "title" | "href">>;
-  relatedKnowledge: Array<{ id: string; title: string; href: string }>;
 };
 
 function getCategory(type: CompanyActivity["type"]): PublicFeedItem["category"] {
   if (type === "Discussion") return "의견·토론";
-  if (type === "Knowledge") return "Knowledge";
   if (type === "Content" || type === "Media") return "콘텐츠";
   return "업무";
 }
@@ -92,6 +87,8 @@ function getOrganization(employee: Employee) {
 }
 
 function createActivityItem(activity: CompanyActivity): PublicFeedItem | null {
+  if (activity.type === "Knowledge") return null;
+
   const metric = demoPublicFeedEngagementMetrics.find(
     (item) => item.activityId === activity.id
   );
@@ -202,7 +199,11 @@ function createDiscussionItem(
 function createLiveDemoFeedItem(
   content: LiveDemoGeneratedContent
 ): PublicFeedItem | null {
-  if (content.contentType !== "feed" || content.status !== "published") {
+  if (
+    content.contentType !== "feed" ||
+    content.status !== "published" ||
+    content.activityType === "Knowledge"
+  ) {
     return null;
   }
   const author = employees.find(
@@ -213,9 +214,7 @@ function createLiveDemoFeedItem(
 
   const activityType = content.activityType ?? "";
   const category: PublicFeedItem["category"] =
-    activityType === "Knowledge"
-      ? "Knowledge"
-      : activityType === "의견"
+    activityType === "의견"
         ? "의견·토론"
         : activityType === "Insight"
           ? "콘텐츠"
@@ -239,10 +238,10 @@ function createLiveDemoFeedItem(
     opinionCount: 0,
     rebuttalCount: 0,
     quoteCount: 0,
-    knowledgeCount: category === "Knowledge" ? 1 : 0,
+    knowledgeCount: 0,
     hypeCount: 0,
     viewerHasHyped: false,
-    reactionCount: category === "Knowledge" ? 1 : 0,
+    reactionCount: 0,
   };
 }
 
@@ -290,15 +289,6 @@ export function buildPopularEmployeeProfiles(
             (participant) => participant.id === employee.id
           )
       );
-      const relatedKnowledge = knowledgeEntries
-        .filter((entry) => entry.relatedEmployeeIds.includes(employee.id))
-        .slice(0, 3)
-        .map((entry) => ({
-          id: entry.id,
-          title: entry.title,
-          href: `/knowledge/${entry.slug}`,
-        }));
-
       return {
         employee,
         ...getOrganization(employee),
@@ -313,14 +303,12 @@ export function buildPopularEmployeeProfiles(
           (total, item) => total + item.hypeCount,
           0
         ),
-        knowledgeContributionCount: relatedKnowledge.length,
         latestActivityAt: relatedItems[0]?.publishedAt,
         recentActivities: relatedItems.slice(0, 3).map((item) => ({
           id: item.id,
           title: item.title,
           href: item.href,
         })),
-        relatedKnowledge,
       };
     })
     .sort((a, b) => {

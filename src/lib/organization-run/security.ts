@@ -4,6 +4,8 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 
+import { hasValidAdminSession } from "@/lib/admin-auth/session";
+
 const COOKIE_NAME = "persos_org_run_session";
 const SESSION_TTL_SECONDS = 30 * 60;
 
@@ -60,6 +62,7 @@ function getCookie(request: Request, name: string) {
 }
 
 export function verifyOrganizationRunSession(request: Request) {
+  if (hasValidAdminSession(request)) return true;
   const token = getCookie(request, COOKIE_NAME);
   if (!token) return false;
   const [payload, signature] = token.split(".");

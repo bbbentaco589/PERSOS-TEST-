@@ -60,11 +60,13 @@ export function LobbyEventManager({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [imagePreviewError, setImagePreviewError] = useState(false);
 
   function resetForm() {
     setForm(emptyForm());
     setEditingId(null);
     setError("");
+    setImagePreviewError(false);
   }
 
   function editBanner(banner: LobbyEventBanner) {
@@ -72,6 +74,7 @@ export function LobbyEventManager({
     setForm(banner);
     setError("");
     setMessage("");
+    setImagePreviewError(false);
   }
 
   async function saveBanner(event: FormEvent<HTMLFormElement>) {
@@ -154,7 +157,7 @@ export function LobbyEventManager({
             로비 이벤트 배너
           </div>
           <p className="mt-2 text-xs leading-5 text-zinc-500">
-            로비 공지사항 캐러셀과 클릭 팝업에 표시할 내용을 최대 5개까지 관리합니다.
+            PERSOS NOTICE &amp; EVENT 배너 이미지, 노출 텍스트와 클릭 팝업 본문을 최대 5개까지 관리합니다.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -307,7 +310,10 @@ export function LobbyEventManager({
             </span>
             <Input
               maxLength={1000}
-              onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
+              onChange={(event) => {
+                setForm({ ...form, imageUrl: event.target.value });
+                setImagePreviewError(false);
+              }}
               placeholder="https://... 또는 /assets/..."
               required
               value={form.imageUrl}
@@ -315,6 +321,25 @@ export function LobbyEventManager({
             <span className="block text-[9px] text-zinc-600">
               https 이미지 URL 또는 기존 내부 Asset 경로를 지원합니다.
             </span>
+            {form.imageUrl ? (
+              <span className="relative block aspect-[16/6] overflow-hidden rounded-md border border-white/10 bg-black">
+                {imagePreviewError ? (
+                  <span className="grid h-full place-items-center px-4 text-center text-[11px] text-rose-300">
+                    이미지를 불러오지 못했습니다. 공개 HTTPS URL 또는 내부 Asset 경로인지 확인해 주세요.
+                  </span>
+                ) : (
+                  <Image
+                    alt="배너 이미지 미리보기"
+                    className="object-cover"
+                    fill
+                    onError={() => setImagePreviewError(true)}
+                    sizes="640px"
+                    src={form.imageUrl}
+                    unoptimized
+                  />
+                )}
+              </span>
+            ) : null}
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">

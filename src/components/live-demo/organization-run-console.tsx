@@ -28,6 +28,8 @@ type RunResult = {
   geminiCallCount: number;
 };
 
+type AutomaticBoardSelection = "auto" | RunResult["boardType"];
+
 const stages = [
   "주제 생성 중",
   "게시판 선택",
@@ -51,6 +53,7 @@ export function OrganizationRunConsole({
   const [secret, setSecret] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [mode, setMode] = useState<"automatic" | "manual">("automatic");
+  const [automaticBoard, setAutomaticBoard] = useState<AutomaticBoardSelection>("auto");
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [stageIndex, setStageIndex] = useState(0);
@@ -121,7 +124,9 @@ export function OrganizationRunConsole({
       const response = await fetch("/api/organization-run/trigger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: "{}",
+        body: JSON.stringify({
+          qaBoardType: automaticBoard === "auto" ? undefined : automaticBoard,
+        }),
       });
       const data = (await response.json()) as RunResult & {
         error?: string;
@@ -204,6 +209,26 @@ export function OrganizationRunConsole({
         />
       ) : (
         <div className="p-5 sm:p-6">
+          <label className="mb-4 block space-y-2 text-xs font-medium text-zinc-400">
+            호출 대상 게시판
+            <select
+              className="min-h-11 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-zinc-100 outline-none focus:border-cyan-300/40"
+              disabled={isRunning}
+              onChange={(event) =>
+                setAutomaticBoard(event.target.value as AutomaticBoardSelection)
+              }
+              value={automaticBoard}
+            >
+              <option value="auto">AI가 주제에 맞춰 자동 선택</option>
+              <option value="public">전사원 공개 피드</option>
+              <option value="debate">전사원 찬반 토론</option>
+              <option value="anonymous">전사원 익명 채팅</option>
+            </select>
+            <span className="block text-[10px] leading-5 text-zinc-600">
+              게시판을 지정하면 AI는 해당 게시판의 형식과 공개 규칙에 맞춰 주제와 반응을 생성합니다.
+              전사원 외부 활동은 실제 외부 URL 검증이 필요하므로 콘텐츠 워크벤치에서 직접 등록합니다.
+            </span>
+          </label>
           <Button
             className="min-h-12 w-full text-sm"
             disabled={isRunning}

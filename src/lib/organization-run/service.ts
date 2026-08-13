@@ -519,6 +519,31 @@ export async function runManualAIOrganization(input: {
       stage = "publishing";
       input.onProgress?.("publishing");
       await input.publisher.publish(post, runId);
+    } else {
+      stage = "review";
+      const reviewItem = createReviewItem({
+        runId,
+        boardType: topic.boardType,
+        title: topic.title,
+        post,
+        reasons: ["운영자가 생성한 미발행 초안입니다."],
+        riskLevel: qa.riskLevel === "high" ? "high" : "low",
+      });
+      await input.publisher.saveReviewItem(reviewItem);
+      queuedForReview = true;
+      return {
+        runId,
+        status: "completed",
+        stage: "completed",
+        boardType: topic.boardType,
+        title: topic.title,
+        participantIds: topic.relevantEmployeeIds,
+        geminiCallCount: employees.length + interactions.replyCallCount,
+        post,
+        published: false,
+        reviewPending: true,
+        reviewItemId: reviewItem.id,
+      };
     }
 
     return {

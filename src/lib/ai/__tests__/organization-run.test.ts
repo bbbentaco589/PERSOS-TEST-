@@ -287,6 +287,10 @@ test("수동 실행은 주제를 생성하지 않고 반응과 검증만 수행�
     result.post.reactions[0].id
   );
   assert.equal(publisher.published, 0);
+  assert.equal(result.reviewPending, true);
+  assert.equal(publisher.reviews.length, 1);
+  assert.equal(publisher.reviews[0].post?.id, result.post.id);
+  assert.match(publisher.reviews[0].reasons.join(" "), /미발행 초안/);
 });
 
 test("수동 발행 선택 시 ON 상태인 6명의 반응과 이미지·게시글을 함께 저장한다", async () => {

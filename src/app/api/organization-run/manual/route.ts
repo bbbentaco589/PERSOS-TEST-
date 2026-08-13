@@ -10,16 +10,30 @@ import {
   hasSameOrigin,
   verifyOrganizationRunSession,
 } from "@/lib/organization-run/security";
+import { checkRequestRateLimit } from "@/lib/security/request-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
+
+const MANUAL_REQUEST_LIMIT = {
+  scope: "organization-run-manual",
+  limit: 8,
+  windowSeconds: 60 * 60,
+} as const;
 
 export async function POST(request: Request) {
   if (!hasSameOrigin(request) || !verifyOrganizationRunSession(request)) {
     return NextResponse.json(
       { error: "운영 권한이 없거나 세션이 만료되었습니다.", stage: "auth" },
       { status: 401 }
+    );
+  }
+  const rateLimit = await checkRequestRateLimit(request, MANUAL_REQUEST_LIMIT);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "AI 호출 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.", stage: "rate_limit" },
+      { status: rateLimit.available ? 429 : 503, headers: { "Retry-After": String(rateLimit.retryAfter) } }
     );
   }
 

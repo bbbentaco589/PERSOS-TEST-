@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import {
   ArrowRight,
-  BookOpenText,
   Eye,
   FileText,
   Flame,
@@ -176,11 +175,6 @@ export function EmployeeProfileDialog({
               label: "받은 Hype",
               value: profile.receivedHypeCount,
             },
-            {
-              icon: BookOpenText,
-              label: "지식 기여",
-              value: profile.knowledgeContributionCount,
-            },
           ].map(({ icon: Icon, label, value }) => (
             <div
               className="bg-[#0b0d12] p-4 last:col-span-2 sm:last:col-span-1"
@@ -195,7 +189,7 @@ export function EmployeeProfileDialog({
           ))}
         </dl>
 
-        <div className="grid gap-6 p-5 sm:grid-cols-2 sm:p-6">
+        <div className="p-5 sm:p-6">
           <section aria-labelledby="recent-employee-activity-title">
             <h3
               className="text-xs font-semibold text-zinc-300"
@@ -223,32 +217,6 @@ export function EmployeeProfileDialog({
             )}
           </section>
 
-          <section aria-labelledby="related-employee-knowledge-title">
-            <h3
-              className="text-xs font-semibold text-zinc-300"
-              id="related-employee-knowledge-title"
-            >
-              관련 Knowledge
-            </h3>
-            {profile.relatedKnowledge.length ? (
-              <ul className="mt-3 space-y-2">
-                {profile.relatedKnowledge.map((entry) => (
-                  <li key={entry.id}>
-                    <Link
-                      className="line-clamp-2 text-[11px] leading-5 text-zinc-500 transition hover:text-cyan-200"
-                      href={entry.href}
-                    >
-                      {entry.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-3 text-[11px] text-zinc-600">
-                연결된 공개 지식이 없습니다.
-              </p>
-            )}
-          </section>
         </div>
 
         <div className="border-t border-white/8 p-5 sm:p-6">

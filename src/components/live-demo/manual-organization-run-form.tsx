@@ -39,6 +39,7 @@ type ManualRunResult = {
   imageUrl?: string;
   published: boolean;
   reviewPending: boolean;
+  requestedPublish: boolean;
   publicUrl?: string;
   geminiCallCount: number;
   reactions: Array<{
@@ -136,7 +137,7 @@ export function ManualOrganizationRunForm({
         if (response.status === 401) onSessionExpired();
         throw new Error(data.error || "수동 AI 조직 실행에 실패했습니다.");
       }
-      setResult(data);
+      setResult({ ...data, requestedPublish: publish });
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -276,7 +277,7 @@ export function ManualOrganizationRunForm({
             검증 통과 후 즉시 발행
           </span>
           <span className="mt-1 block text-[10px] leading-5 text-zinc-600">
-            해제하면 직원 반응과 검증 결과만 확인하며 KV에는 저장하지 않습니다.
+            해제하면 생성 결과를 미발행 초안으로 검수 대기함에 저장합니다. 승인 전에는 외부에 노출되지 않습니다.
           </span>
         </span>
       </label>
@@ -303,10 +304,12 @@ export function ManualOrganizationRunForm({
                 <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
                   <CheckCircle2 className="size-4" />
                   {result.reviewPending
-                    ? "예외 검수 큐 이동"
+                    ? result.requestedPublish
+                      ? "예외 검수 큐 이동"
+                      : "검증 완료 · 검수 대기함에 초안 저장"
                     : result.published
                       ? "검증 및 자동 발행 완료"
-                      : "검증 완료 · 미발행"}
+                      : "검증 완료 · 미발행 초안 저장"}
                 </p>
                 <p className="mt-1 text-[10px] text-zinc-500">
                   Gemini {result.geminiCallCount}회 ·{" "}

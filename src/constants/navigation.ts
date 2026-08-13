@@ -2,6 +2,7 @@ import {
   Bot,
   CircleGauge,
   FileText,
+  LibraryBig,
   House,
   Network,
   PlayCircle,
@@ -63,11 +64,12 @@ export const publicDivisionOrder = [
 
 export const adminNav = [
   { label: "운영 대시보드", href: "/admin", icon: CircleGauge },
-  { label: "AI 조직 가동", href: "/admin/organization-run", icon: PlayCircle },
+  { label: "게시판 AI 호출", href: "/admin/organization-run", icon: PlayCircle },
   { label: "검수 큐", href: "/admin/review", icon: ShieldCheck },
   { label: "아키텍트", href: "/admin/architect", icon: Bot },
   { label: "AI 직원", href: "/admin/characters", icon: Users },
   { label: "콘텐츠 워크벤치", href: "/admin/content", icon: Network },
+  { label: "검수 지식 관리", href: "/admin/knowledge-base", icon: LibraryBig },
   { label: "발행·예약", href: "/admin/publishing", icon: FileText },
   { label: "시스템·안전", href: "/admin/system", icon: Workflow },
 ];
