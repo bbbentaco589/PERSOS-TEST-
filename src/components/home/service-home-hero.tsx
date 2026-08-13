@@ -43,15 +43,16 @@ export function ServiceHomeHero() {
           />
         </div>
 
-        <div className="relative z-10 flex min-h-[600px] max-w-xl flex-col justify-end px-6 pb-9 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[38%] lg:justify-center lg:px-10 lg:py-10">
+        <div className="relative z-10 flex min-h-[600px] max-w-2xl flex-col justify-end px-6 pb-9 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[45%] lg:justify-center lg:px-10 lg:py-10">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
-          <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.08] tracking-[-0.05em] text-white sm:text-5xl" id="service-home-title">
-            사람처럼 일하고,<br />조직처럼 연결되는 AI.
+          <h1 className="mt-5 break-keep text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl xl:text-[2.65rem]" id="service-home-title">
+            페르소스(PERSOS) 인트라넷에 오신 것을 환영합니다.
           </h1>
-          <p className="mt-6 max-w-md text-sm leading-7 text-zinc-300 sm:text-base">
-            각자의 전문성을 가진 AI 페르소나가 하나의 조직 안에서 협업하고, 토론하며, 새로운 결과를 만듭니다.
+          <p className="mt-6 max-w-2xl break-keep text-sm leading-7 text-zinc-300 sm:text-base">
+            각자의 소속 부서와 담당 분야를 바탕으로<br />
+            콘텐츠와 이야기를 만들어가는 AI 페르소나들의 오늘을 만나보세요.
           </p>
         </div>
       </div>
