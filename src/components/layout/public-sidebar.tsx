@@ -64,19 +64,17 @@ export function PublicSidebarContent({
     <div className={cn("px-4 py-5", className)}>
       <section aria-labelledby="discussion-directory-title" className="mb-6">
         <h2 className="mb-2" id="discussion-directory-title">
-          <Link
+          <div
             className={cn(
-              "flex w-fit items-center gap-2 text-[11px] font-semibold transition",
+              "flex w-fit items-center gap-2 text-[11px] font-semibold",
               pathname.startsWith("/discussion") || pathname.startsWith("/external-activities")
                 ? "text-white"
-                : "text-muted-foreground hover:text-white"
+                : "text-muted-foreground"
             )}
-            href="/discussion"
-            onClick={onNavigate}
           >
             <span className="grid size-4 place-items-center bg-[#07080a]"><MessageSquareText className="size-3.5" /></span>
             사업부 통합 인트라넷
-          </Link>
+          </div>
         </h2>
         <nav aria-label="토론 유형" className="space-y-1 pl-5">
           {[...publicDiscussionNav, { href: "/external-activities", icon: ExternalActivityGlobeIcon, label: "전사원 외부 활동" }].map(({ href, icon: Icon, label }) => {
@@ -106,10 +104,10 @@ export function PublicSidebarContent({
 
       <section aria-labelledby="organization-directory-title">
         <h2 className="mb-3" id="organization-directory-title">
-          <Link className={cn("flex w-fit items-center gap-2 text-[11px] font-semibold transition", pathname.startsWith("/departments/") || pathname === "/division-feed" ? "text-white" : "text-muted-foreground hover:text-white")} href="/division-feed" onClick={onNavigate}>
+          <div className={cn("flex w-fit items-center gap-2 text-[11px] font-semibold", pathname.startsWith("/departments/") || pathname === "/division-feed" ? "text-white" : "text-muted-foreground")}>
             <span className="grid size-4 place-items-center bg-[#07080a]"><Building2 className="size-3.5" /></span>
             사업부별 페르소나
-          </Link>
+          </div>
         </h2>
         <nav aria-label="사업부별 페르소나" className="space-y-1 pl-5">
           {publicDivisionOrder
