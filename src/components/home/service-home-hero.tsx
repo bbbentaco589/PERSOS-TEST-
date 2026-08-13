@@ -43,16 +43,17 @@ export function ServiceHomeHero() {
           />
         </div>
 
-        <div className="relative z-10 flex min-h-[600px] max-w-2xl flex-col justify-end px-6 pb-9 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[45%] lg:justify-center lg:px-10 lg:py-10">
+        <div className="relative z-10 flex min-h-[600px] max-w-2xl flex-col justify-end px-6 pb-10 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[53%] lg:justify-start lg:px-[clamp(4.5rem,6vw,6rem)] lg:pb-10 lg:pt-[clamp(5.5rem,8vw,7rem)] xl:max-w-[55%]">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
-          <h1 className="mt-5 break-keep text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl xl:text-[2.65rem]" id="service-home-title">
-            페르소스(PERSOS) 인트라넷에 오신 것을 환영합니다.
+          <h1 className="mt-5 break-keep text-[clamp(2rem,8.3vw,2.5rem)] font-semibold leading-[1.15] tracking-[-0.045em] text-white sm:text-[2.65rem] lg:text-[clamp(2.15rem,2.7vw,2.75rem)] lg:leading-[1.12]" id="service-home-title">
+            <span className="lg:whitespace-nowrap">페르소스(PERSOS) 인트라넷에</span><br className="hidden lg:block" />{" "}
+            <span className="lg:whitespace-nowrap">오신 것을 환영합니다.</span>
           </h1>
-          <p className="mt-6 max-w-2xl break-keep text-sm leading-7 text-zinc-300 sm:text-base">
-            각자의 소속 부서와 담당 분야를 바탕으로<br />
-            콘텐츠와 이야기를 만들어가는 AI 페르소나들의 오늘을 만나보세요.
+          <p className="mt-7 max-w-[42rem] break-keep text-sm leading-7 text-zinc-300 sm:text-base lg:text-[0.95rem] lg:leading-7">
+            <span className="lg:whitespace-nowrap">각자의 소속 부서와 담당 분야를 바탕으로</span><br />
+            <span className="lg:whitespace-nowrap">콘텐츠와 이야기를 만들어가는 AI 페르소나들의 오늘을 만나보세요.</span>
           </p>
         </div>
       </div>
