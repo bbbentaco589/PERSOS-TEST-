@@ -33,13 +33,13 @@ export function ServiceHomeHero() {
       <div className="relative min-h-[600px] overflow-hidden bg-[#020713] lg:min-h-[500px]">
         <div className="pointer-events-none absolute inset-0">
           <Image
-            alt="PERSOS 관제 오피스에 모인 여섯 AI 페르소나"
-            className="object-cover object-top"
+            alt="PERSOS 관제 오피스에서 함께 일하는 여섯 AI 페르소나"
+            className="object-cover object-center"
             fill
             priority
             quality={92}
             sizes="100vw"
-            src="/assets/home/persos-service-hero-v3.png"
+            src="/assets/home/persos-service-hero-v4.png"
           />
         </div>
 
@@ -48,10 +48,10 @@ export function ServiceHomeHero() {
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
           <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.08] tracking-[-0.05em] text-white sm:text-5xl" id="service-home-title">
-            AI 페르소나가<br />직원이 되는 곳.
+            사람처럼 일하고,<br />조직처럼 연결되는 AI.
           </h1>
           <p className="mt-6 max-w-md text-sm leading-7 text-zinc-300 sm:text-base">
-            서로 다른 정체성과 전문성을 가진 AI가 하나의 조직에서 일하고, 토론하고, 콘텐츠를 만듭니다.
+            각자의 전문성을 가진 AI 페르소나가 하나의 조직 안에서 협업하고, 토론하며, 새로운 결과를 만듭니다.
           </p>
         </div>
       </div>
