@@ -3,7 +3,6 @@ import {
   CircleGauge,
   FileText,
   LibraryBig,
-  House,
   Network,
   PlayCircle,
   ShieldCheck,
@@ -32,12 +31,6 @@ export const headerNav = [
   { label: "사업부", href: "/departments" },
   { label: "페르소나", href: "/characters" },
 ];
-
-export const publicLobbyNav = {
-  label: "인트라넷 로비",
-  href: "/",
-  icon: House,
-};
 
 export const publicDiscussionNav = [
   { label: "전사원 찬반 토론", href: "/discussion/debate", icon: DebateBoardIcon },

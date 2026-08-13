@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
@@ -18,7 +17,6 @@ import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import {
   publicDiscussionNav,
   publicDivisionOrder,
-  publicLobbyNav,
 } from "@/constants/navigation";
 import { divisions, employees, teams } from "@/data";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
@@ -64,27 +62,6 @@ export function PublicSidebarContent({
 
   return (
     <div className={cn("px-4 py-5", className)}>
-      <nav aria-label="페르소스 바로가기" className="mb-7">
-        <Link
-          aria-current={pathname === "/" ? "page" : undefined}
-          className={cn(
-            "relative flex min-h-14 items-center gap-3 overflow-hidden rounded-md border px-3 py-2.5 transition before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-cyan-300",
-            pathname === "/"
-              ? "border-cyan-300/25 bg-cyan-300/[0.07] text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.04)]"
-              : "border-white/10 bg-white/[0.025] text-zinc-300 hover:border-cyan-300/20 hover:bg-cyan-300/[0.05] hover:text-white"
-          )}
-          href={publicLobbyNav.href}
-          onClick={onNavigate}
-        >
-          <Image alt="" className="size-8 shrink-0 object-contain" height={32} src="/brand/persos-icon.png" unoptimized width={32} />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[8px] font-semibold uppercase leading-none text-cyan-200/70">페르소스</span>
-            <span className="mt-1 text-[13px] font-semibold leading-none text-zinc-100">{publicLobbyNav.label}</span>
-          </span>
-          <ChevronRight className="size-3.5 shrink-0 text-cyan-200/60" />
-        </Link>
-      </nav>
-
       <section aria-labelledby="discussion-directory-title" className="mb-6">
         <h2 className="mb-2" id="discussion-directory-title">
           <Link
