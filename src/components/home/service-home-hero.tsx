@@ -35,15 +35,16 @@ export function ServiceHomeHero() {
           <Image
             alt=""
             aria-hidden="true"
-            className="object-cover object-center opacity-70 [filter:brightness(.76)_saturate(.92)]"
+            className="object-cover object-center opacity-90 [filter:brightness(.72)_saturate(.9)]"
             fill
             sizes="100vw"
-            src="/assets/home/persos-service-hero.png"
+            src="/assets/home/persos-control-room-background-v2.png"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,7,19,.9)_0%,rgba(3,10,24,.79)_25%,rgba(3,10,24,.42)_48%,rgba(2,7,19,.08)_76%,transparent_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,7,19,.78)_0%,rgba(2,7,19,.63)_23%,rgba(2,7,19,.35)_39%,rgba(2,7,19,.08)_62%,transparent_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,7,19,.12)_0%,transparent_38%,rgba(2,7,19,.28)_100%)]" />
         </div>
 
-        <div className="absolute inset-x-0 top-0 h-[58vw] max-h-[420px] min-h-[270px] lg:bottom-0 lg:left-[32%] lg:right-0 lg:h-auto lg:max-h-none [mask-image:linear-gradient(to_right,transparent_0%,rgba(0,0,0,.3)_10%,black_28%)]">
+        <div className="absolute inset-x-0 top-0 h-[58vw] max-h-[420px] min-h-[270px] lg:bottom-0 lg:left-[38%] lg:right-0 lg:h-auto lg:max-h-none [mask-image:linear-gradient(to_right,transparent_0%,transparent_4%,rgba(0,0,0,.35)_14%,black_26%)]">
           <Image
             alt="PERSOS 관제 공간에 모인 여섯 AI 페르소나"
             className="object-contain object-right-top [filter:brightness(1.16)_saturate(1.08)_contrast(.96)] lg:object-right"
