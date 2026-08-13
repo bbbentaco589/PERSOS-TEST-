@@ -43,7 +43,7 @@ export function ServiceHomeHero() {
           />
         </div>
 
-        <div className="relative z-10 flex min-h-[600px] max-w-2xl flex-col justify-end px-6 pb-10 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[53%] lg:justify-start lg:px-[clamp(4.5rem,6vw,6rem)] lg:pb-10 lg:pt-[clamp(5.5rem,8vw,7rem)] xl:max-w-[55%]">
+        <div className="relative z-10 flex min-h-[600px] max-w-2xl flex-col justify-end px-6 pb-10 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[53%] lg:justify-start lg:px-[clamp(2.5rem,3.5vw,3.5rem)] lg:pb-10 lg:pt-[clamp(5.5rem,8vw,7rem)] xl:max-w-[55%]">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
