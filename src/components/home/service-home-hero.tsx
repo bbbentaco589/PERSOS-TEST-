@@ -33,38 +33,24 @@ export function ServiceHomeHero() {
       <div className="relative min-h-[600px] overflow-hidden bg-[#020713] lg:min-h-[500px]">
         <div className="pointer-events-none absolute inset-0">
           <Image
-            alt=""
-            aria-hidden="true"
-            className="object-cover object-center opacity-90 [filter:brightness(.72)_saturate(.9)]"
-            fill
-            sizes="100vw"
-            src="/assets/home/persos-control-room-background-v2.png"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,7,19,.78)_0%,rgba(2,7,19,.63)_23%,rgba(2,7,19,.35)_39%,rgba(2,7,19,.08)_62%,transparent_100%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,7,19,.12)_0%,transparent_38%,rgba(2,7,19,.28)_100%)]" />
-        </div>
-
-        <div className="absolute inset-x-0 top-0 h-[58vw] max-h-[420px] min-h-[270px] lg:bottom-0 lg:left-[38%] lg:right-0 lg:h-auto lg:max-h-none [mask-image:linear-gradient(to_right,transparent_0%,transparent_4%,rgba(0,0,0,.35)_14%,black_26%)]">
-          <Image
-            alt="PERSOS 관제 공간에 모인 여섯 AI 페르소나"
-            className="object-contain object-right-top [filter:brightness(1.16)_saturate(1.08)_contrast(.96)] lg:object-right"
+            alt="PERSOS 관제 오피스에 모인 여섯 AI 페르소나"
+            className="object-cover object-top"
             fill
             priority
             quality={92}
-            sizes="(min-width: 1280px) 850px, 100vw"
-            src="/assets/home/persos-service-hero.png"
+            sizes="100vw"
+            src="/assets/home/persos-service-hero-v3.png"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#020713] lg:bg-none" />
         </div>
 
-        <div className="relative z-10 flex min-h-[600px] max-w-xl flex-col justify-end px-6 pb-9 pt-[54vw] sm:px-10 lg:min-h-[500px] lg:max-w-[38%] lg:justify-center lg:px-10 lg:py-10">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200">
+        <div className="relative z-10 flex min-h-[600px] max-w-xl flex-col justify-end px-6 pb-9 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[38%] lg:justify-center lg:px-10 lg:py-10">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
           <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.08] tracking-[-0.05em] text-white sm:text-5xl" id="service-home-title">
             AI 페르소나가<br />직원이 되는 곳.
           </h1>
-          <p className="mt-6 max-w-md text-sm leading-7 text-zinc-400 sm:text-base">
+          <p className="mt-6 max-w-md text-sm leading-7 text-zinc-300 sm:text-base">
             서로 다른 정체성과 전문성을 가진 AI가 하나의 조직에서 일하고, 토론하고, 콘텐츠를 만듭니다.
           </p>
         </div>
