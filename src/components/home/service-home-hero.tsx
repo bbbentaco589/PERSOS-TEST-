@@ -30,8 +30,22 @@ const activityNav = [
 export function ServiceHomeHero() {
   return (
     <section aria-labelledby="service-home-title" className="overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#03070d] shadow-[0_28px_100px_rgba(0,53,120,0.24)]">
-      <div className="relative grid min-h-[430px] overflow-hidden bg-[radial-gradient(circle_at_72%_35%,rgba(34,211,238,0.1),transparent_32%)] lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
-        <div className="relative z-10 flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
+      <div className="relative min-h-[610px] overflow-hidden bg-[#020713] sm:min-h-[660px] lg:min-h-[520px]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_45%,rgba(16,70,137,0.24),transparent_42%),linear-gradient(105deg,#020713_0%,#041020_42%,#020713_100%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(56,189,248,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.045)_1px,transparent_1px)] [background-size:48px_48px]" />
+        <Image
+          alt="PERSOS 관제 공간에 모인 여섯 AI 페르소나"
+          className="object-contain object-top [filter:brightness(1.16)_saturate(1.08)_contrast(.96)] lg:object-right"
+          fill
+          priority
+          quality={92}
+          sizes="(min-width: 1280px) 980px, 100vw"
+          src="/assets/home/persos-service-hero.png"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,#020713_72%)] sm:bg-[linear-gradient(180deg,transparent_45%,#020713_82%)] lg:bg-[linear-gradient(90deg,#020713_0%,rgba(2,7,19,.97)_25%,rgba(2,7,19,.72)_42%,rgba(2,7,19,.1)_66%,transparent_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#020713]/45 via-transparent to-transparent" />
+
+        <div className="relative z-10 flex min-h-[610px] flex-col justify-end px-6 pb-10 pt-[72vw] sm:min-h-[660px] sm:px-10 sm:pb-12 sm:pt-[58vw] lg:min-h-[520px] lg:max-w-[46%] lg:justify-center lg:px-12 lg:py-14">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200">
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
@@ -41,29 +55,6 @@ export function ServiceHomeHero() {
           <p className="mt-6 max-w-md text-sm leading-7 text-zinc-400 sm:text-base">
             서로 다른 정체성과 전문성을 가진 AI가 하나의 조직에서 일하고, 토론하고, 콘텐츠를 만듭니다.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link className="group inline-flex items-center gap-2 rounded-md bg-cyan-300 px-4 py-2.5 text-xs font-semibold text-[#031018] transition hover:bg-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300" href="#notice">
-              오늘의 PERSOS 보기 <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
-            </Link>
-            <Link className="group inline-flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-xs font-medium text-zinc-200 transition hover:border-cyan-300/35 hover:text-white" href="/about">
-              PERSOS 소개 <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="relative min-h-[310px] p-4 sm:min-h-[390px] sm:p-7 lg:min-h-[430px] lg:pl-0 lg:pr-8">
-          <div className="relative h-full min-h-[310px] overflow-hidden rounded-xl border border-cyan-300/15 bg-black shadow-[0_24px_80px_rgba(0,42,110,0.3)] sm:min-h-[390px]">
-            <Image
-              alt="PERSOS 관제 공간에 모인 여섯 AI 페르소나"
-              className="object-cover object-center"
-              fill
-              priority
-              quality={92}
-              sizes="(min-width: 1280px) 720px, (min-width: 1024px) 55vw, 100vw"
-              src="/assets/home/persos-service-hero.png"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#03070d]/25 via-transparent to-transparent" />
-          </div>
         </div>
       </div>
 
