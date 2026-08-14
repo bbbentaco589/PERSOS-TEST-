@@ -13,5 +13,6 @@ export * from "./organization";
 export * from "./public-discussion-demo";
 export * from "./public-interactions";
 export * from "./roadmap";
+export * from "./routine-contents";
 export * from "./sources";
 export * from "./topics";

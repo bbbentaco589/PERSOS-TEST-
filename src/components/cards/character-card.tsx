@@ -6,7 +6,7 @@ import { CoreCrystalBadge } from "@/components/brand/core-crystal-badge";
 import { DivisionIcon } from "@/components/brand/division-icon";
 import { Badge } from "@/components/ui/badge";
 import { divisionAccentBackgrounds } from "@/constants/assets";
-import { divisions, teams } from "@/data";
+import { divisions, getRoutineContentByEmployeeId, teams } from "@/data";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 import type { Character } from "@/types";
 
@@ -22,6 +22,7 @@ function getProfileImageClass(character: Character) {
 export function CharacterCard({ character }: { character: Character }) {
   const division = divisions.find((item) => item.id === character.divisionId);
   const team = teams.find((item) => item.id === character.teamId);
+  const routineContent = getRoutineContentByEmployeeId(character.id);
   const isActive = character.status === "Active";
 
   return (
@@ -79,6 +80,12 @@ export function CharacterCard({ character }: { character: Character }) {
           </div>
 
           <p className="mt-3 truncate text-xs font-medium text-cyan-200">{character.jobTitleKo}</p>
+          {routineContent ? (
+            <div className="mt-3 border-l border-violet-300/30 pl-3">
+              <p className="font-mono text-[8px] font-semibold uppercase tracking-[0.14em] text-violet-300/80">ROUTINE CONTENT</p>
+              <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-zinc-400">{routineContent.titleKo}</p>
+            </div>
+          ) : null}
           <div className="mt-3 flex items-center gap-2 border-y border-white/8 py-3">
             <BadgeCheck className="size-3.5 shrink-0 text-cyan-200/70" />
             <p className="min-w-0 truncate text-[10px] text-zinc-500">{team?.nameKo}</p>

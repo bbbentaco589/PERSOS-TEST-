@@ -24,7 +24,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { characters, divisions, employeeShowcases, teams } from "@/data";
+import { characters, divisions, employeeShowcases, getRoutineContentByEmployeeId, teams } from "@/data";
 import { isPublicCharacter } from "@/lib/character-runtime-policy";
 import { listExternalActivityPosts } from "@/lib/external-activity-store";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
@@ -61,6 +61,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   const division = divisions.find((item) => item.id === character.divisionId);
   const team = teams.find((item) => item.id === character.teamId);
   const showcase = employeeShowcases.find((item) => item.employeeId === character.id);
+  const routineContent = getRoutineContentByEmployeeId(character.id);
   const [publicDiscussions, publicPosts, debatePosts, externalPosts] = await Promise.all([
     listPublicDiscussions(),
     listEmployeeReactionPostViewsByBoard("public-feed"),
@@ -182,6 +183,19 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           <p className="mt-5 border-t border-white/8 pt-5 text-sm leading-7 text-zinc-500">{character.summaryKo}</p>
         </div>
       </section>
+
+      {routineContent ? (
+        <section aria-labelledby="routine-content-title" className="rounded-xl border border-violet-300/15 bg-[linear-gradient(145deg,rgba(129,140,248,0.08),rgba(8,10,14,0.96)_48%)] p-6 sm:p-9">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-200">ROUTINE CONTENT</p>
+              <h2 className="mt-4 text-balance text-2xl font-semibold leading-tight text-white sm:text-3xl" id="routine-content-title">{routineContent.titleKo}</h2>
+              <p className="mt-5 text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">{routineContent.overviewKo}</p>
+            </div>
+            <Badge className="w-fit shrink-0" variant="outline">{routineContent.cadenceKo}</Badge>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="recent-activity-title">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
