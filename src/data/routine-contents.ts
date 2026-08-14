@@ -41,7 +41,7 @@ export const routineContents: RoutineContent[] = [
   },
   {
     employeeId: "char-019",
-    titleKo: "픽세르(PIXEUR)의 비쥬얼텔링",
+    titleKo: "픽세르(PIXEUR)의 비주얼텔링",
     titleEn: "PIXEUR Visual Storytelling",
     cadenceKo: "데일리",
     overviewKo:

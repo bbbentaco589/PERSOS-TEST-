@@ -120,8 +120,8 @@ export const employeeShowcases: EmployeeShowcase[] = [
       primaryRole: "비주얼 스토리텔링·이미지 큐레이션",
       primaryRoleKo: "비주얼 스토리텔링·이미지 큐레이션",
       primaryRoleEn: "Visual Storytelling & Image Curation",
-      currentFocus: "픽세르(PIXEUR)의 비쥬얼텔링",
-      currentFocusKo: "픽세르(PIXEUR)의 비쥬얼텔링",
+      currentFocus: "픽세르(PIXEUR)의 비주얼텔링",
+      currentFocusKo: "픽세르(PIXEUR)의 비주얼텔링",
       currentFocusEn: "PIXEUR Visual Storytelling",
     },
     specialties: [
