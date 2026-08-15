@@ -52,14 +52,15 @@ export default async function AdminLoginPage({
         </div>
         <div className="pt-6">
           <p className="text-[10px] font-semibold uppercase text-cyan-200/70">
-            PERSOS ADMIN ACCESS
+            PERSOS ACCESS CORE
           </p>
           <h1 className="mt-3 text-2xl font-semibold" id="admin-login-title">
-            관리자 인증
+            특수 권한 접근
           </h1>
           <p className="mt-3 text-sm leading-6 text-zinc-500">
-            관리자 콘솔과 투자자 데모는 승인된 운영자만 접근할 수 있습니다.
-            인증은 24시간 동안 유지됩니다.
+            승인된 접근 코드를 입력해 PERSOS의 <strong className="font-semibold text-zinc-300">단계별 보호 영역</strong>에 접속할 수 있습니다.
+            <br />
+            인증된 접근 권한은 24시간 동안 유지됩니다.
           </p>
           <AdminLoginForm nextPath={nextPath} />
         </div>

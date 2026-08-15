@@ -53,7 +53,7 @@ export function AdminLoginForm({ nextPath }: { nextPath: string }) {
           className="text-xs font-medium text-zinc-300"
           htmlFor="admin-password"
         >
-          관리자 비밀번호
+          접근 코드
         </label>
         <div className="relative">
           <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
@@ -64,7 +64,7 @@ export function AdminLoginForm({ nextPath }: { nextPath: string }) {
             id="admin-password"
             name="password"
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="비밀번호를 입력하세요"
+            placeholder="승인된 코드를 입력하세요"
             required
             type="password"
             value={password}
@@ -86,7 +86,7 @@ export function AdminLoginForm({ nextPath }: { nextPath: string }) {
           </>
         ) : (
           <>
-            관리자 화면 열기
+            접근 권한 확인
             <ArrowRight />
           </>
         )}
