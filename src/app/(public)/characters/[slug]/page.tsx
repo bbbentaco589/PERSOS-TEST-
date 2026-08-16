@@ -102,7 +102,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     .map((post) => ({ id: post.id, type: "external", label: post.platform, title: post.title, href: post.externalUrl, publishedAt: post.publishedAt, external: true }));
   const recentActivities = [...externalActivities, ...reactionActivities, ...discussionActivities]
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, 5);
+    .slice(0, 3);
   const publicStatus = character.status === "Active" ? "업무 중" : "합류 준비 중";
   const routineUrl = routinePublishingUrl(character.socialLinks);
   const profileAssetAvailable = hasLocalPublicAsset(character.profileImage);

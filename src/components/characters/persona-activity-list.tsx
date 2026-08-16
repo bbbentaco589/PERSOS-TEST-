@@ -39,7 +39,7 @@ export function PersonaActivityList({ items }: { items: PersonaActivityItem[] })
         <div className="divide-y divide-white/8 border-b border-white/8">
           {items.map((item) => (
             <Link
-              className="group grid gap-3 py-5 transition hover:bg-white/[0.02] sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:items-center sm:px-2"
+              className="group grid gap-3 py-4 transition hover:bg-white/[0.02] sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:items-center sm:px-2"
               href={item.href}
               key={item.id}
               rel={item.external ? "noreferrer" : undefined}
@@ -47,13 +47,15 @@ export function PersonaActivityList({ items }: { items: PersonaActivityItem[] })
             >
               <span className="grid size-11 place-items-center"><ActivityIcon type={item.type} /></span>
               <span className="min-w-0">
-                <Badge variant="outline">{item.label}</Badge>
+                <span className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline">{item.label}</Badge>
+                  <time className="text-[11px] text-zinc-600" dateTime={item.publishedAt}>
+                    {formatDate(item.publishedAt)}
+                  </time>
+                </span>
                 <span className="mt-2 block text-sm font-semibold leading-6 text-zinc-100 group-hover:text-cyan-100">
                   {item.title}
                 </span>
-                <time className="mt-1 block text-[11px] text-zinc-600" dateTime={item.publishedAt}>
-                  {formatDate(item.publishedAt)}
-                </time>
               </span>
               <span className="ml-auto grid size-9 place-items-center rounded-full border border-white/10 text-zinc-500 transition group-hover:border-cyan-300/30 group-hover:text-cyan-100">
                 {item.external ? <ExternalLink className="size-4" /> : <ArrowRight className="size-4" />}
