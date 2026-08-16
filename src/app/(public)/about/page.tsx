@@ -60,6 +60,43 @@ const intranetActivities = [
   { label: "전사원 외부 활동", icon: ExternalActivityGlobeIcon },
 ] as const;
 
+function BrandNetworkVisual() {
+  return (
+    <div
+      aria-label="PERSOS와 연결된 XDOTX·CCGG 브랜드 네트워크"
+      className="relative mx-auto aspect-[1.12/1] w-full max-w-[660px] overflow-visible"
+      role="img"
+    >
+      <div className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle_at_68%_65%,rgba(34,211,238,0.2),transparent_32%),radial-gradient(circle_at_55%_40%,rgba(59,130,246,0.12),transparent_48%)] blur-2xl" />
+      <div className="absolute left-[54%] top-[27%] h-px w-[34%] origin-left rotate-[57deg] bg-gradient-to-r from-amber-200/70 via-cyan-200/75 to-cyan-300/20 shadow-[0_0_10px_rgba(103,232,249,0.4)]" />
+      <div className="absolute left-[50%] top-[28%] h-px w-[39%] origin-left rotate-[132deg] bg-gradient-to-r from-amber-200/60 via-slate-300/55 to-transparent shadow-[0_0_8px_rgba(251,191,36,0.25)]" />
+      <div className="absolute left-[27%] top-[70%] h-px w-[34%] origin-left -rotate-[10deg] bg-gradient-to-r from-slate-300/45 via-cyan-200/75 to-cyan-300/20 shadow-[0_0_10px_rgba(34,211,238,0.35)]" />
+
+      <div className="absolute left-[43%] top-[3%] grid size-[27%] place-items-center rounded-full border border-amber-200/35 bg-[#060b16]/90 shadow-[inset_0_0_30px_rgba(245,158,11,0.08),0_0_28px_rgba(245,158,11,0.08)]">
+        <div className="absolute -inset-[9%] rounded-full border border-amber-200/15" />
+        <div className="absolute -inset-[18%] rounded-full border border-dashed border-amber-100/10" />
+        <Image alt="XDOTX" className="object-contain p-[16%]" fill sizes="180px" src="/assets/about/xdotx-logo.png" />
+      </div>
+
+      <div className="absolute bottom-[8%] left-[2%] grid size-[28%] place-items-center overflow-hidden rounded-full border border-slate-300/30 bg-black/80 shadow-[inset_0_0_28px_rgba(148,163,184,0.07),0_0_24px_rgba(148,163,184,0.06)]">
+        <div className="absolute -inset-[9%] rounded-full border border-slate-300/15" />
+        <Image alt="CCGG" className="scale-[1.32] object-contain mix-blend-screen brightness-[1.9] contrast-150" fill sizes="190px" src="/assets/about/ccgg-logo.png" />
+      </div>
+
+      <div className="absolute bottom-[1%] right-[0%] grid size-[49%] place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.96)_72%)] shadow-[inset_0_0_48px_rgba(34,211,238,0.16),0_0_54px_rgba(14,165,233,0.22)]">
+        <div className="absolute -inset-[7%] rounded-full border border-cyan-200/20" />
+        <div className="absolute -inset-[14%] rounded-full border border-dashed border-blue-300/15" />
+        <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_26px_12px_rgba(103,232,249,0.35)]" />
+        <Image alt="PERSOS Persona Operating System" className="relative z-10 object-contain p-[13%] drop-shadow-[0_0_16px_rgba(186,230,253,0.3)]" fill sizes="330px" src="/assets/about/persos-logo.png" />
+      </div>
+
+      <span className="absolute left-[51.5%] top-[26%] size-2 rounded-full bg-amber-100 shadow-[0_0_12px_4px_rgba(253,230,138,0.5)]" />
+      <span className="absolute bottom-[28%] left-[27%] size-2 rounded-full bg-slate-100 shadow-[0_0_10px_3px_rgba(226,232,240,0.35)]" />
+      <span className="absolute bottom-[30%] right-[39%] size-2.5 rounded-full bg-cyan-100 shadow-[0_0_14px_5px_rgba(103,232,249,0.55)]" />
+    </div>
+  );
+}
+
 export default function AboutPage() {
   const publicEmployees = employees.filter(isPublicActiveCharacter);
   const activeDivisions = [...divisions].sort(
@@ -72,20 +109,12 @@ export default function AboutPage() {
         aria-labelledby="about-title"
         className="relative min-h-[610px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#020713]"
       >
-        <Image
-          alt="PERSOS AI Employee 그룹"
-          className="object-cover object-[58%_center]"
-          fill
-          priority
-          quality={92}
-          sizes="(min-width: 1280px) 1240px, 100vw"
-          src="/assets/home/persos-service-hero.png"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#020713_0%,rgba(2,7,19,0.97)_30%,rgba(2,7,19,0.62)_56%,rgba(2,7,19,0.08)_100%)]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020713]/90 via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_62%,rgba(14,165,233,0.12),transparent_31%),radial-gradient(circle_at_58%_18%,rgba(245,158,11,0.05),transparent_24%),linear-gradient(110deg,#020713_0%,#040b19_56%,#020713_100%)]" />
+        <div className="absolute inset-0 opacity-35 [background-image:radial-gradient(circle,rgba(125,211,252,0.55)_0.7px,transparent_0.8px)] [background-size:38px_38px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020713]/70 via-transparent to-black/25" />
 
-        <div className="relative flex min-h-[610px] items-center px-6 py-14 sm:px-10 lg:px-14">
-          <div className="max-w-[560px]">
+        <div className="relative grid min-h-[610px] items-center gap-8 px-6 py-12 sm:px-10 lg:grid-cols-[0.86fr_1.14fr] lg:gap-4 lg:px-14 lg:py-10">
+          <div className="relative z-10 max-w-[560px]">
             <p className="text-xs font-semibold uppercase tracking-[0.34em] text-cyan-200">
               PERSOS
             </p>
@@ -116,6 +145,7 @@ export default function AboutPage() {
               </Button>
             </div>
           </div>
+          <BrandNetworkVisual />
         </div>
       </section>
 
