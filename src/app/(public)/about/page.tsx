@@ -65,14 +65,14 @@ function BrandNetworkVisual() {
   return (
     <div
       aria-label="PERSOS와 연결된 XDOTX·CCGG 브랜드 네트워크"
-      className="relative mx-auto aspect-[2.32/1] w-full max-w-[540px]"
+      className="relative mx-auto aspect-[2/1] w-full max-w-[540px]"
       role="img"
     >
-      <div className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle_at_72%_70%,rgba(34,211,238,0.19),transparent_34%),radial-gradient(circle_at_50%_12%,rgba(245,158,11,0.07),transparent_28%)] blur-xl" />
+      <div className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle_at_77%_70%,rgba(34,211,238,0.18),transparent_31%),radial-gradient(circle_at_50%_14%,rgba(245,158,11,0.07),transparent_27%)] blur-xl" />
       <svg
         aria-hidden="true"
         className="absolute inset-0 size-full overflow-visible"
-        viewBox="0 0 600 259"
+        viewBox="0 0 600 300"
       >
         <defs>
           <linearGradient id="network-left" x1="0" x2="1">
@@ -91,30 +91,32 @@ function BrandNetworkVisual() {
             </feMerge>
           </filter>
         </defs>
-        <path d="M 270 70 L 166 164" fill="none" filter="url(#network-glow)" stroke="url(#network-left)" strokeWidth="1.15" />
-        <path d="M 330 70 L 412 139" fill="none" filter="url(#network-glow)" stroke="url(#network-right)" strokeWidth="1.15" />
-        <path d="M 188 190 L 392 184" fill="none" stroke="#93c5fd" strokeDasharray="3 7" strokeOpacity="0.32" strokeWidth="1.1" />
-        <circle cx="270" cy="70" fill="#fef3c7" filter="url(#network-glow)" r="3.5" />
-        <circle cx="330" cy="70" fill="#cffafe" filter="url(#network-glow)" r="3.5" />
-        <circle cx="166" cy="164" fill="#e2e8f0" filter="url(#network-glow)" r="3.5" />
-        <circle cx="412" cy="139" fill="#cffafe" filter="url(#network-glow)" r="4.5" />
+        <path d="M 256.9 96.7 L 179.5 171.7" fill="none" filter="url(#network-glow)" stroke="url(#network-left)" strokeWidth="1.15" />
+        <path d="M 343.1 96.7 L 388.2 140.4" fill="none" filter="url(#network-glow)" stroke="url(#network-right)" strokeWidth="1.15" />
+        <path d="M 195 210 L 360 210" fill="none" stroke="#93c5fd" strokeDasharray="3 8" strokeOpacity="0.3" strokeWidth="1.1" />
+        <circle cx="256.9" cy="96.7" fill="#fef3c7" filter="url(#network-glow)" r="3.5" />
+        <circle cx="343.1" cy="96.7" fill="#cffafe" filter="url(#network-glow)" r="3.5" />
+        <circle cx="179.5" cy="171.7" fill="#e2e8f0" filter="url(#network-glow)" r="3.5" />
+        <circle cx="388.2" cy="140.4" fill="#cffafe" filter="url(#network-glow)" r="4" />
+        <circle cx="195" cy="210" fill="#e2e8f0" filter="url(#network-glow)" r="3" />
+        <circle cx="360" cy="210" fill="#cffafe" filter="url(#network-glow)" r="3.5" />
       </svg>
 
-      <div className="absolute left-1/2 top-0 grid aspect-square w-[22%] -translate-x-1/2 place-items-center rounded-full border border-amber-200/35 bg-[#030711] shadow-[inset_0_0_24px_rgba(245,158,11,0.08),0_0_24px_rgba(245,158,11,0.07)]">
+      <div className="absolute left-1/2 top-[2%] grid aspect-square w-[16%] -translate-x-1/2 place-items-center rounded-full border border-amber-200/35 bg-[#030711] shadow-[inset_0_0_22px_rgba(245,158,11,0.08),0_0_20px_rgba(245,158,11,0.07)]">
         <div className="absolute -inset-[8%] rounded-full border border-amber-200/12" />
-        <Image alt="XDOTX" className="object-contain p-[18%] drop-shadow-[0_0_9px_rgba(245,158,11,0.3)]" fill sizes="120px" src="/assets/about/xdotx-logo-washed.png" />
+        <Image alt="XDOTX" className="object-contain p-[17%] drop-shadow-[0_0_8px_rgba(245,158,11,0.28)]" fill sizes="90px" src="/assets/about/xdotx-logo-washed.png" />
       </div>
 
-      <div className="absolute bottom-[1%] left-[12%] grid aspect-square w-[22%] place-items-center rounded-full border border-slate-300/30 bg-[#030711] shadow-[inset_0_0_24px_rgba(148,163,184,0.07),0_0_24px_rgba(148,163,184,0.06)]">
+      <div className="absolute bottom-[16%] left-[16.33%] grid aspect-square w-[14%] place-items-center rounded-full border border-slate-300/30 bg-[#030711] shadow-[inset_0_0_20px_rgba(148,163,184,0.07),0_0_18px_rgba(148,163,184,0.06)]">
         <div className="absolute -inset-[8%] rounded-full border border-slate-300/12" />
-        <Image alt="CCGG" className="object-contain p-[18%] invert opacity-80 drop-shadow-[0_0_8px_rgba(226,232,240,0.22)]" fill sizes="120px" src="/assets/about/ccgg-logo-washed.png" />
+        <Image alt="CCGG" className="object-contain p-[16%] invert opacity-80 drop-shadow-[0_0_7px_rgba(226,232,240,0.2)]" fill sizes="80px" src="/assets/about/ccgg-logo-washed.png" />
       </div>
 
-      <div className="absolute bottom-0 right-[4%] grid aspect-square w-[35%] place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.98)_72%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.16),0_0_44px_rgba(14,165,233,0.18)]">
+      <div className="absolute bottom-[4%] right-[10.33%] grid aspect-square w-[26%] place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.98)_72%)] shadow-[inset_0_0_38px_rgba(34,211,238,0.16),0_0_40px_rgba(14,165,233,0.18)]">
         <div className="absolute -inset-[5%] rounded-full border border-cyan-200/20" />
         <div className="absolute -inset-[10%] rounded-full border border-dashed border-blue-300/15" />
         <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_24px_11px_rgba(103,232,249,0.3)]" />
-        <Image alt="PERSOS Persona Operating System" className="relative z-10 object-contain p-[16%] drop-shadow-[0_0_16px_rgba(186,230,253,0.3)]" fill sizes="190px" src="/assets/about/persos-logo-washed.png" />
+        <Image alt="PERSOS Persona Operating System" className="relative z-10 object-contain p-[14%] drop-shadow-[0_0_15px_rgba(186,230,253,0.3)]" fill sizes="150px" src="/assets/about/persos-logo-washed.png" />
       </div>
     </div>
   );
