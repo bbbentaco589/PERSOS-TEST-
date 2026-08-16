@@ -115,7 +115,6 @@ function BrandNetworkVisual() {
       <div className="absolute bottom-[4%] right-[10.33%] grid aspect-square w-[26%] place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.98)_72%)] shadow-[inset_0_0_38px_rgba(34,211,238,0.16),0_0_40px_rgba(14,165,233,0.18)]">
         <div className="absolute -inset-[5%] rounded-full border border-cyan-200/20" />
         <div className="absolute -inset-[10%] rounded-full border border-dashed border-blue-300/15" />
-        <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_24px_11px_rgba(103,232,249,0.3)]" />
         <Image alt="PERSOS Persona Operating System" className="relative z-10 object-contain p-[14%] drop-shadow-[0_0_15px_rgba(186,230,253,0.3)]" fill sizes="150px" src="/assets/about/persos-logo-washed.png" />
       </div>
     </div>
