@@ -29,6 +29,7 @@ import { listExternalActivityPosts } from "@/lib/external-activity-store";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
 import { listPublicDiscussions } from "@/lib/public-discussions";
 import { listEmployeeReactionPostViewsByBoard } from "@/lib/repositories";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,9 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   const { slug } = await params;
   const character = characters.find((item) => item.slug === slug);
   if (!character || !isPublicCharacter(character)) notFound();
+
+  const personaDisplayName = formatPersonaDisplayName(character);
+  const usesCompactHeroName = personaDisplayName.length >= 15;
 
   const division = divisions.find((item) => item.id === character.divisionId);
   const team = teams.find((item) => item.id === character.teamId);
@@ -119,8 +123,16 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
                 <Badge variant="outline">PERSOS AI Employee</Badge>
               </div>
               <p className="mt-7 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">{character.jobTitleEn}</p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl" id="persona-title">
-                {formatPersonaDisplayName(character)}
+              <h1
+                className={cn(
+                  "mt-3 whitespace-nowrap font-semibold tracking-[-0.04em] text-white",
+                  usesCompactHeroName
+                    ? "text-[clamp(1.65rem,7.2vw,2.5rem)] sm:text-4xl lg:text-5xl"
+                    : "text-4xl sm:text-5xl lg:text-6xl"
+                )}
+                id="persona-title"
+              >
+                {personaDisplayName}
               </h1>
               <p className="mt-3 text-base text-zinc-400">{character.nameEn} · {character.jobTitleKo}</p>
               <div className="mt-6 flex items-center gap-3 border-l-2 border-cyan-300/50 pl-4">
