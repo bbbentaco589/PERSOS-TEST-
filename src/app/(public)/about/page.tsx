@@ -109,7 +109,7 @@ function BrandNetworkVisual() {
 
       <div className="absolute bottom-[16%] left-[16.33%] grid aspect-square w-[14%] place-items-center rounded-full border border-slate-300/30 bg-[#030711] shadow-[inset_0_0_20px_rgba(148,163,184,0.07),0_0_18px_rgba(148,163,184,0.06)]">
         <div className="absolute -inset-[8%] rounded-full border border-slate-300/12" />
-        <Image alt="CCGG" className="object-contain p-[16%] invert opacity-80 drop-shadow-[0_0_7px_rgba(226,232,240,0.2)]" fill sizes="80px" src="/assets/about/ccgg-logo-washed.png" />
+        <Image alt="CCGG" className="object-contain p-[6%] invert opacity-80 drop-shadow-[0_0_7px_rgba(226,232,240,0.2)]" fill sizes="80px" src="/assets/about/ccgg-logo-washed.png" />
       </div>
 
       <div className="absolute bottom-[4%] right-[10.33%] grid aspect-square w-[26%] place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.98)_72%)] shadow-[inset_0_0_38px_rgba(34,211,238,0.16),0_0_40px_rgba(14,165,233,0.18)]">
