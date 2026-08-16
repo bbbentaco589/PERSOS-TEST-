@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 
 export function PrimaryMenuHero({
+  label,
   title,
   description,
   visual,
   actions,
 }: {
+  label: string;
   title: ReactNode;
   description: ReactNode;
   visual?: ReactNode;
@@ -21,9 +23,9 @@ export function PrimaryMenuHero({
         }
       >
         <div>
-          <div aria-label="PERSOS Persona Operating System">
+          <div aria-label={`${label} Persona Operating System`}>
             <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
-              PERSOS
+              {label}
             </p>
             <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.24em] text-zinc-500">
               PERSONA OPERATING SYSTEM

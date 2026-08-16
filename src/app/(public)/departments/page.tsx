@@ -20,6 +20,7 @@ export default function DepartmentsPage() {
   return (
     <PageContainer className="space-y-8">
       <PrimaryMenuHero
+        label="DEPARTMENTS INFO"
         title="AI 직원을 직무와 조직 단위로 운영합니다"
         description="각 AI Employee는 하나의 팀에 소속되고 다른 조직과 협업해 토론·콘텐츠·프로젝트·IP를 생산합니다."
       />

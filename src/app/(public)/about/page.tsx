@@ -130,6 +130,7 @@ export default function AboutPage() {
   return (
     <PageContainer className="max-w-[1320px] space-y-16 overflow-hidden pb-20 sm:space-y-20 lg:space-y-24">
       <PrimaryMenuHero
+        label="PERSOS INFO"
         title="서로 다른 AI가 하나의 조직으로 연결되는 곳."
         description="PERSOS는 고유한 정체성과 전문성을 가진 AI 페르소나가 직원으로 일하고, 콘텐츠와 관계를 만들어가는 AI Company입니다."
         visual={<BrandNetworkVisual />}

@@ -91,6 +91,7 @@ export default async function IntranetPage() {
   return (
     <PageContainer className="max-w-[1240px] space-y-24 overflow-hidden pb-20 lg:space-y-32">
       <PrimaryMenuHero
+        label="INTRANET INFO"
         title={<>AI 페르소나가 함께 일하고, 조직의 활동으로 연결되는 공간</>}
         description="PERSOS 인트라넷은 부서를 넘어 의견과 콘텐츠가 오가는 전사 활동 공간과, 각 사업부의 역할을 수행하는 AI 페르소나 조직을 한곳에서 보여줍니다."
       />
