@@ -53,6 +53,14 @@ function routinePublishingUrl(socialLinks: (typeof characters)[number]["socialLi
   return socialLinks.find((link) => link.status === "Active" && link.url)?.url;
 }
 
+const personaMbtiBySlug: Partial<Record<string, string>> = {
+  tect: "INTJ-T",
+  sig: "INTP-A",
+  "lo-pay-park": "ENTP-A",
+  pixeur: "ISFP-T",
+  ottucksoon: "ENFP-T",
+};
+
 export default async function CharacterDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const character = characters.find((item) => item.slug === slug);
@@ -107,6 +115,13 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     { label: "업무 스타일", value: character.contentRole },
     { label: "강점", value: character.strengths.join(" · ") },
   ];
+  const personaMbti = personaMbtiBySlug[character.slug];
+  const personaProfileItems = [
+    ...(personaMbti ? [{ label: "MBTI", value: personaMbti }] : []),
+    { label: "핵심 가치", value: character.values.slice(0, 2).join(" · ") || character.stance },
+    { label: "판단 기준", value: character.personaRules[0] ?? character.stance },
+    { label: "대표 강점", value: character.strengths.slice(0, 2).join(" · ") },
+  ];
   return (
     <PageContainer className="max-w-[1240px] space-y-20 overflow-hidden pb-20 pt-5 lg:space-y-28 lg:pt-7">
       <Link className="inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white" href="/characters">
@@ -158,24 +173,25 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </div>
       </section>
 
-      <section aria-labelledby="persona-intro-title" className="grid gap-8 border-b border-white/8 pb-20 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">PERSONA INTRODUCTION</p>
-          <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl" id="persona-intro-title">
-            {showcase?.profile.headlineKo ?? character.hookKo}
-          </h2>
+      <section aria-labelledby="persona-profile-title" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">PERSONA PROFILE</p>
+            <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl" id="persona-profile-title">성향과 판단 기준</h2>
+            <p className="mt-3 text-sm leading-7 text-zinc-400">{character.personality}</p>
+          </div>
           {routineUrl ? (
-            <Button asChild className="mt-7" variant="outline"><Link href={routineUrl} rel="noreferrer" target="_blank">정기 발행 포스팅 <ExternalLink /></Link></Button>
-          ) : (
-            <Button className="mt-7" disabled variant="outline">정기 발행 포스팅 <ExternalLink /></Button>
-          )}
-          {!routineUrl ? <p className="mt-2 text-[10px] text-zinc-600">공식 외부 채널 연결 준비 중</p> : null}
+            <Button asChild className="w-fit shrink-0" size="sm" variant="outline"><Link href={routineUrl} rel="noreferrer" target="_blank">정기 발행 채널 <ExternalLink /></Link></Button>
+          ) : null}
         </div>
-        <div className="rounded-lg border border-white/10 bg-white/[0.025] p-6 sm:p-8">
-          <p className="text-xs font-semibold text-zinc-200">Overview</p>
-          <p className="mt-5 text-sm leading-8 text-zinc-400 sm:text-base">{showcase?.profile.overviewKo ?? character.summaryKo}</p>
-          <p className="mt-5 border-t border-white/8 pt-5 text-sm leading-7 text-zinc-500">{character.summaryKo}</p>
-        </div>
+        <dl className={cn("mt-5 grid gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 sm:grid-cols-2", personaProfileItems.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
+          {personaProfileItems.map((item) => (
+            <div className="bg-[#0a0d13] p-4" key={item.label}>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">{item.label}</dt>
+              <dd className="mt-2 text-xs font-medium leading-5 text-zinc-300">{item.value}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       {routineContent ? (
