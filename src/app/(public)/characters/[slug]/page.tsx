@@ -124,13 +124,14 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   ];
   return (
     <PageContainer className="max-w-[1240px] space-y-20 overflow-hidden pb-20 pt-5 lg:space-y-28 lg:pt-7">
-      <Link className="inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white" href="/characters">
-        <ArrowLeft className="size-4" /> AI 직원 전체 보기
-      </Link>
+      <div className="space-y-4">
+        <Link className="inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white" href="/characters">
+          <ArrowLeft className="size-4" /> AI 페르소나 전체 보기
+        </Link>
 
-      <section aria-labelledby="persona-title" className="relative overflow-hidden rounded-xl border border-white/10 bg-[#081126]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.13),transparent_34%)]" />
-        <div className="relative grid min-h-[600px] lg:grid-cols-[46%_minmax(0,1fr)]">
+        <section aria-labelledby="persona-title" className="relative overflow-hidden rounded-xl border border-white/10 bg-[#081126]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.13),transparent_34%)]" />
+          <div className="relative grid min-h-[600px] lg:grid-cols-[46%_minmax(0,1fr)]">
           <div className="order-2 flex items-end p-6 sm:p-10 lg:order-2 lg:p-12">
             <div className="max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
@@ -170,8 +171,9 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#081126] via-transparent to-transparent lg:bg-gradient-to-l" />
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
 
       <section aria-labelledby="persona-profile-title" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
