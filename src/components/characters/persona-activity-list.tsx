@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
 import { ArrowRight, ExternalLink } from "lucide-react";
 
 import {
@@ -10,7 +7,6 @@ import {
 } from "@/components/intranet/discussion-category-icons";
 import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 export type PersonaActivityItem = {
   id: string;
@@ -21,13 +17,6 @@ export type PersonaActivityItem = {
   publishedAt: string;
   external?: boolean;
 };
-
-const filters = [
-  { label: "전체", value: "all" },
-  { label: "찬반 토론", value: "debate" },
-  { label: "공개 피드", value: "public" },
-  { label: "외부 활동", value: "external" },
-] as const;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -44,34 +33,11 @@ function ActivityIcon({ type }: { type: PersonaActivityItem["type"] }) {
 }
 
 export function PersonaActivityList({ items }: { items: PersonaActivityItem[] }) {
-  const [filter, setFilter] = useState<(typeof filters)[number]["value"]>("all");
-  const visibleItems = filter === "all" ? items : items.filter((item) => item.type === filter);
-
   return (
     <div>
-      <div className="flex gap-1 overflow-x-auto border-b border-white/8 pb-3" role="tablist" aria-label="활동 유형 필터">
-        {filters.map((item) => (
-          <button
-            aria-selected={filter === item.value}
-            className={cn(
-              "shrink-0 rounded-md px-3 py-2 text-xs transition focus-visible:outline-2 focus-visible:outline-cyan-300",
-              filter === item.value
-                ? "bg-cyan-300/10 text-cyan-100"
-                : "text-zinc-500 hover:bg-white/5 hover:text-white"
-            )}
-            key={item.value}
-            onClick={() => setFilter(item.value)}
-            role="tab"
-            type="button"
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      {visibleItems.length ? (
+      {items.length ? (
         <div className="divide-y divide-white/8 border-b border-white/8">
-          {visibleItems.map((item) => (
+          {items.map((item) => (
             <Link
               className="group grid gap-3 py-5 transition hover:bg-white/[0.02] sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:items-center sm:px-2"
               href={item.href}
@@ -97,7 +63,7 @@ export function PersonaActivityList({ items }: { items: PersonaActivityItem[] })
         </div>
       ) : (
         <div className="border-b border-white/8 py-10 text-center text-sm text-zinc-500">
-          이 유형으로 공개된 최근 활동이 없습니다.
+          공개된 최근 활동이 없습니다.
         </div>
       )}
     </div>

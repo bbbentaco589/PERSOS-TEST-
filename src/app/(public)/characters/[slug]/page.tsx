@@ -21,7 +21,6 @@ import {
 } from "@/components/characters/persona-activity-list";
 import { DivisionIcon } from "@/components/brand/division-icon";
 import { PageContainer } from "@/components/layout/page-container";
-import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { characters, divisions, employeeShowcases, getRoutineContentByEmployeeId, teams } from "@/data";
@@ -91,7 +90,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     .map((post) => ({ id: post.id, type: "external", label: post.platform, title: post.title, href: post.externalUrl, publishedAt: post.publishedAt, external: true }));
   const recentActivities = [...externalActivities, ...reactionActivities, ...discussionActivities]
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, 12);
+    .slice(0, 5);
   const publicStatus = character.status === "Active" ? "업무 중" : "합류 준비 중";
   const routineUrl = routinePublishingUrl(character.socialLinks);
   const profileAssetAvailable = hasLocalPublicAsset(character.profileImage);
@@ -104,23 +103,6 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     { label: "업무 스타일", value: character.contentRole },
     { label: "강점", value: character.strengths.join(" · ") },
   ];
-  const officialMedia = [
-    {
-      id: `${character.id}-official-profile`,
-      titleKo: `${character.nameKo} 공식 프로필`,
-      url: character.profileImage,
-    },
-    ...(showcase?.media ?? [])
-      .filter((item) =>
-        item.status === "Published" &&
-        item.type === "Image" &&
-        item.url &&
-        item.url !== character.profileImage &&
-        !item.id.includes("overview")
-      )
-      .map((item) => ({ id: item.id, titleKo: item.titleKo, url: item.url! })),
-  ].filter((item) => hasLocalPublicAsset(item.url));
-
   return (
     <PageContainer className="max-w-[1240px] space-y-20 overflow-hidden pb-20 pt-5 lg:space-y-28 lg:pt-7">
       <Link className="inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white" href="/characters">
@@ -129,8 +111,8 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
 
       <section aria-labelledby="persona-title" className="relative overflow-hidden rounded-xl border border-white/10 bg-[#081126]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.13),transparent_34%)]" />
-        <div className="relative grid min-h-[600px] lg:grid-cols-[minmax(0,1fr)_46%]">
-          <div className="order-2 flex items-end p-6 sm:p-10 lg:order-1 lg:p-12">
+        <div className="relative grid min-h-[600px] lg:grid-cols-[46%_minmax(0,1fr)]">
+          <div className="order-2 flex items-end p-6 sm:p-10 lg:order-2 lg:p-12">
             <div className="max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="accent"><CheckCircle2 className="mr-1 size-3" />{publicStatus}</Badge>
@@ -153,13 +135,13 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
               </div>
             </div>
           </div>
-          <div className="relative order-1 min-h-[420px] overflow-hidden border-b border-white/8 bg-[#050b15] lg:order-2 lg:min-h-0 lg:border-b-0 lg:border-l">
+          <div className="relative order-1 min-h-[420px] overflow-hidden border-b border-white/8 bg-[#050b15] lg:order-1 lg:min-h-0 lg:border-b-0 lg:border-r">
             {profileAssetAvailable ? (
               <Image alt={`${character.nameKo} 공식 프로필`} className="object-cover object-center" fill priority quality={92} sizes="(min-width: 1024px) 560px, 100vw" src={character.profileImage} />
             ) : (
               <div className="grid h-full place-items-center"><ImageOff className="size-10 text-cyan-200/50" /></div>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#081126] via-transparent to-transparent lg:bg-gradient-to-r" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#081126] via-transparent to-transparent lg:bg-gradient-to-l" />
           </div>
         </div>
       </section>
@@ -225,20 +207,6 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </div>
       </section>
 
-      <section aria-labelledby="media-title">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">OFFICIAL CHARACTER GALLERY</p>
-        <h2 className="mt-3 text-3xl font-semibold text-white" id="media-title">Media</h2>
-        {officialMedia.length ? (
-          <div className="mt-7 grid gap-4 sm:grid-cols-2">
-            {officialMedia.map((item) => (
-              <figure className="overflow-hidden rounded-lg border border-white/10 bg-[#0b0d11]" key={item.id}>
-                <div className="relative aspect-[4/3] bg-black"><Image alt={item.titleKo} className="object-contain" fill sizes="(min-width: 640px) 50vw, 100vw" src={item.url} /></div>
-                <figcaption className="flex items-center justify-between gap-3 border-t border-white/8 p-4"><span className="text-sm font-medium text-zinc-200">{item.titleKo}</span><Badge variant="outline">Official</Badge></figcaption>
-              </figure>
-            ))}
-          </div>
-        ) : <div className="mt-7"><EmptyState title="공개된 공식 미디어가 없습니다" description="공식 Character Visual이 승인되면 이 갤러리에 표시됩니다." /></div>}
-      </section>
     </PageContainer>
   );
 }
