@@ -20,6 +20,7 @@ import {
 } from "@/components/intranet/discussion-category-icons";
 import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { PageContainer } from "@/components/layout/page-container";
+import { PrimaryMenuHero } from "@/components/sections/primary-menu-hero";
 import { Button } from "@/components/ui/button";
 import { divisions, employees } from "@/data";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
@@ -64,14 +65,14 @@ function BrandNetworkVisual() {
   return (
     <div
       aria-label="PERSOS와 연결된 XDOTX·CCGG 브랜드 네트워크"
-      className="relative mx-auto aspect-[1.46/1] w-full max-w-[620px]"
+      className="relative mx-auto aspect-[2.32/1] w-full max-w-[540px]"
       role="img"
     >
-      <div className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle_at_50%_70%,rgba(34,211,238,0.2),transparent_38%),radial-gradient(circle_at_50%_36%,rgba(59,130,246,0.08),transparent_56%)] blur-2xl" />
+      <div className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle_at_72%_70%,rgba(34,211,238,0.19),transparent_34%),radial-gradient(circle_at_50%_12%,rgba(245,158,11,0.07),transparent_28%)] blur-xl" />
       <svg
         aria-hidden="true"
         className="absolute inset-0 size-full overflow-visible"
-        viewBox="0 0 720 493"
+        viewBox="0 0 600 259"
       >
         <defs>
           <linearGradient id="network-left" x1="0" x2="1">
@@ -90,29 +91,30 @@ function BrandNetworkVisual() {
             </feMerge>
           </filter>
         </defs>
-        <path d="M 152 151 Q 230 205 360 250" fill="none" filter="url(#network-glow)" stroke="url(#network-left)" strokeWidth="1.2" />
-        <path d="M 568 151 Q 490 205 360 250" fill="none" filter="url(#network-glow)" stroke="url(#network-right)" strokeWidth="1.2" />
-        <path d="M 152 151 Q 360 72 568 151" fill="none" stroke="#93c5fd" strokeDasharray="3 8" strokeOpacity="0.18" />
-        <circle cx="152" cy="151" fill="#fef3c7" filter="url(#network-glow)" r="4" />
-        <circle cx="568" cy="151" fill="#e2e8f0" filter="url(#network-glow)" r="4" />
-        <circle cx="360" cy="250" fill="#cffafe" filter="url(#network-glow)" r="5" />
+        <path d="M 270 70 L 166 164" fill="none" filter="url(#network-glow)" stroke="url(#network-left)" strokeWidth="1.15" />
+        <path d="M 330 70 L 412 139" fill="none" filter="url(#network-glow)" stroke="url(#network-right)" strokeWidth="1.15" />
+        <path d="M 188 190 L 392 184" fill="none" stroke="#93c5fd" strokeDasharray="3 7" strokeOpacity="0.32" strokeWidth="1.1" />
+        <circle cx="270" cy="70" fill="#fef3c7" filter="url(#network-glow)" r="3.5" />
+        <circle cx="330" cy="70" fill="#cffafe" filter="url(#network-glow)" r="3.5" />
+        <circle cx="166" cy="164" fill="#e2e8f0" filter="url(#network-glow)" r="3.5" />
+        <circle cx="412" cy="139" fill="#cffafe" filter="url(#network-glow)" r="4.5" />
       </svg>
 
-      <div className="absolute left-[8%] top-[5%] grid aspect-square w-[27%] place-items-center rounded-full border border-amber-200/35 bg-[#030711]/80 shadow-[inset_0_0_24px_rgba(245,158,11,0.08),0_0_24px_rgba(245,158,11,0.07)]">
+      <div className="absolute left-1/2 top-0 grid aspect-square w-[22%] -translate-x-1/2 place-items-center rounded-full border border-amber-200/35 bg-[#030711] shadow-[inset_0_0_24px_rgba(245,158,11,0.08),0_0_24px_rgba(245,158,11,0.07)]">
         <div className="absolute -inset-[8%] rounded-full border border-amber-200/12" />
-        <Image alt="XDOTX" className="object-contain p-[19%] drop-shadow-[0_0_9px_rgba(245,158,11,0.3)]" fill sizes="170px" src="/assets/about/xdotx-logo-washed.png" />
+        <Image alt="XDOTX" className="object-contain p-[18%] drop-shadow-[0_0_9px_rgba(245,158,11,0.3)]" fill sizes="120px" src="/assets/about/xdotx-logo-washed.png" />
       </div>
 
-      <div className="absolute right-[8%] top-[5%] grid aspect-square w-[27%] place-items-center rounded-full border border-slate-300/30 bg-[#030711]/80 shadow-[inset_0_0_24px_rgba(148,163,184,0.07),0_0_24px_rgba(148,163,184,0.06)]">
+      <div className="absolute bottom-[1%] left-[12%] grid aspect-square w-[22%] place-items-center rounded-full border border-slate-300/30 bg-[#030711] shadow-[inset_0_0_24px_rgba(148,163,184,0.07),0_0_24px_rgba(148,163,184,0.06)]">
         <div className="absolute -inset-[8%] rounded-full border border-slate-300/12" />
-        <Image alt="CCGG" className="object-contain p-[19%] invert opacity-80 drop-shadow-[0_0_8px_rgba(226,232,240,0.22)]" fill sizes="170px" src="/assets/about/ccgg-logo-washed.png" />
+        <Image alt="CCGG" className="object-contain p-[18%] invert opacity-80 drop-shadow-[0_0_8px_rgba(226,232,240,0.22)]" fill sizes="120px" src="/assets/about/ccgg-logo-washed.png" />
       </div>
 
-      <div className="absolute bottom-0 left-1/2 grid aspect-square w-[48%] -translate-x-1/2 place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.96)_72%)] shadow-[inset_0_0_48px_rgba(34,211,238,0.16),0_0_54px_rgba(14,165,233,0.2)]">
+      <div className="absolute bottom-0 right-[4%] grid aspect-square w-[35%] place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(186,230,253,0.2)_0%,rgba(14,116,144,0.13)_35%,rgba(2,7,19,0.98)_72%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.16),0_0_44px_rgba(14,165,233,0.18)]">
         <div className="absolute -inset-[5%] rounded-full border border-cyan-200/20" />
         <div className="absolute -inset-[10%] rounded-full border border-dashed border-blue-300/15" />
         <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_24px_11px_rgba(103,232,249,0.3)]" />
-        <Image alt="PERSOS Persona Operating System" className="relative z-10 object-contain p-[16%] drop-shadow-[0_0_16px_rgba(186,230,253,0.3)]" fill sizes="320px" src="/assets/about/persos-logo-washed.png" />
+        <Image alt="PERSOS Persona Operating System" className="relative z-10 object-contain p-[16%] drop-shadow-[0_0_16px_rgba(186,230,253,0.3)]" fill sizes="190px" src="/assets/about/persos-logo-washed.png" />
       </div>
     </div>
   );
@@ -125,50 +127,26 @@ export default function AboutPage() {
   );
 
   return (
-    <PageContainer className="max-w-[1320px] space-y-16 overflow-hidden pb-20 pt-4 sm:space-y-20 sm:pt-6 lg:space-y-24 lg:pt-8">
-      <section
-        aria-labelledby="about-title"
-        className="relative min-h-[500px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#020713]"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_62%,rgba(14,165,233,0.12),transparent_31%),radial-gradient(circle_at_58%_18%,rgba(245,158,11,0.05),transparent_24%),linear-gradient(110deg,#020713_0%,#040b19_56%,#020713_100%)]" />
-        <div className="absolute inset-0 opacity-35 [background-image:radial-gradient(circle,rgba(125,211,252,0.55)_0.7px,transparent_0.8px)] [background-size:38px_38px]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020713]/70 via-transparent to-black/25" />
-
-        <div className="relative grid min-h-[500px] items-center gap-6 px-6 py-9 sm:px-10 lg:grid-cols-[0.86fr_1.14fr] lg:gap-4 lg:px-14 lg:py-8">
-          <div className="relative z-10 max-w-[560px]">
-            <p className="text-xs font-semibold uppercase tracking-[0.34em] text-cyan-200">
-              PERSOS
-            </p>
-            <p className="mt-3 text-sm tracking-[0.22em] text-zinc-400">
-              PERSONA OPERATING SYSTEM
-            </p>
-            <h1
-              className="mt-8 text-balance text-4xl font-semibold leading-[1.12] tracking-[-0.05em] text-white sm:text-5xl lg:text-[3.55rem]"
-              id="about-title"
-            >
-              서로 다른 AI가<br />
-              하나의 조직으로 연결되는 곳.
-            </h1>
-            <p className="mt-6 max-w-lg text-sm leading-7 text-zinc-300 sm:text-base sm:leading-8">
-              PERSOS는 고유한 정체성과 전문성을 가진 AI 페르소나가 직원으로
-              일하고, 콘텐츠와 관계를 만들어가는 AI Company입니다.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg">
-                <Link href="/characters">
-                  페르소나 보기 <ArrowRight />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/intranet">
-                  인트라넷 둘러보기 <ArrowRight />
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <BrandNetworkVisual />
-        </div>
-      </section>
+    <PageContainer className="max-w-[1320px] space-y-16 overflow-hidden pb-20 sm:space-y-20 lg:space-y-24">
+      <PrimaryMenuHero
+        title="서로 다른 AI가 하나의 조직으로 연결되는 곳."
+        description="PERSOS는 고유한 정체성과 전문성을 가진 AI 페르소나가 직원으로 일하고, 콘텐츠와 관계를 만들어가는 AI Company입니다."
+        visual={<BrandNetworkVisual />}
+        actions={
+          <>
+            <Button asChild>
+              <Link href="/characters">
+                페르소나 보기 <ArrowRight />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/intranet">
+                인트라넷 둘러보기 <ArrowRight />
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       <section
         aria-labelledby="what-is-persos-title"

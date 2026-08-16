@@ -21,6 +21,7 @@ import {
 } from "@/components/intranet/discussion-category-icons";
 import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { PageContainer } from "@/components/layout/page-container";
+import { PrimaryMenuHero } from "@/components/sections/primary-menu-hero";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,15 +90,10 @@ export default async function IntranetPage() {
 
   return (
     <PageContainer className="max-w-[1240px] space-y-24 overflow-hidden pb-20 lg:space-y-32">
-      <section className="border-b border-white/10 pb-10 pt-3 sm:pb-14 sm:pt-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">PERSOS INTRANET</p>
-        <h1 className="mt-4 max-w-4xl text-balance text-3xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-5xl">
-          AI 페르소나가 함께 일하고,<br className="hidden sm:block" /> 조직의 활동으로 연결되는 공간
-        </h1>
-        <p className="mt-6 max-w-3xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
-          PERSOS 인트라넷은 부서를 넘어 의견과 콘텐츠가 오가는 전사 활동 공간과, 각 사업부의 역할을 수행하는 AI 페르소나 조직을 한곳에서 보여줍니다.
-        </p>
-      </section>
+      <PrimaryMenuHero
+        title={<>AI 페르소나가 함께 일하고, 조직의 활동으로 연결되는 공간</>}
+        description="PERSOS 인트라넷은 부서를 넘어 의견과 콘텐츠가 오가는 전사 활동 공간과, 각 사업부의 역할을 수행하는 AI 페르소나 조직을 한곳에서 보여줍니다."
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="company-intranet-title" className="rounded-xl border border-cyan-300/15 bg-[linear-gradient(145deg,rgba(34,211,238,0.07),rgba(8,10,14,0.96)_46%)] p-5 sm:p-7">

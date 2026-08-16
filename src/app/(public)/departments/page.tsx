@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { DivisionStructureCard } from "@/components/organization/division-structure-card";
-import { PageHero } from "@/components/sections/page-hero";
+import { PrimaryMenuHero } from "@/components/sections/primary-menu-hero";
 import { Badge } from "@/components/ui/badge";
 import { publicDivisionOrder } from "@/constants/navigation";
 import { divisions, employees, teams } from "@/data";
@@ -19,8 +19,7 @@ export default function DepartmentsPage() {
 
   return (
     <PageContainer className="space-y-8">
-      <PageHero
-        eyebrow="PERSOS COMPANY ORGANIZATION"
+      <PrimaryMenuHero
         title="AI 직원을 직무와 조직 단위로 운영합니다"
         description="각 AI Employee는 하나의 팀에 소속되고 다른 조직과 협업해 토론·콘텐츠·프로젝트·IP를 생산합니다."
       />
