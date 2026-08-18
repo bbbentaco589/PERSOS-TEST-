@@ -130,9 +130,9 @@ export default function AboutPage() {
     <PageContainer className="max-w-[1320px] space-y-16 overflow-hidden pb-20 sm:space-y-20 lg:space-y-24">
       <section
         aria-labelledby="about-hero-title"
-        className="studio-grid relative overflow-hidden border-b border-white/8 bg-[radial-gradient(circle_at_78%_48%,rgba(8,78,118,0.25),transparent_38%),linear-gradient(110deg,rgba(2,7,19,0.96),rgba(3,14,28,0.9)_62%,rgba(2,7,19,0.98))] py-6 sm:py-7"
+        className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_83%_46%,rgba(14,116,144,0.24),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
       >
-        <div className="relative grid items-center gap-6 lg:grid-cols-[1.28fr_0.72fr] lg:gap-7">
+        <div className="relative grid items-center gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
               PERSOS INFO
@@ -155,12 +155,12 @@ export default function AboutPage() {
               우리의 페르소나들은 더 똑똑한 AI가 아닌, 더 기억에 남는 존재가 되는 것을 목표로 합니다.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild>
+              <Button asChild className="w-[9.75rem] justify-center">
                 <Link href="/contact">
                   CONTACT US <ArrowRight />
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild className="w-[9.75rem] justify-center">
                 <Link href="/intranet">
                   INTRANET INFO <ArrowRight />
                 </Link>
