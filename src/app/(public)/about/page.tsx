@@ -20,7 +20,6 @@ import {
 } from "@/components/intranet/discussion-category-icons";
 import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { PageContainer } from "@/components/layout/page-container";
-import { PrimaryMenuHero } from "@/components/sections/primary-menu-hero";
 import { Button } from "@/components/ui/button";
 import { divisions, employees } from "@/data";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
@@ -129,26 +128,48 @@ export default function AboutPage() {
 
   return (
     <PageContainer className="max-w-[1320px] space-y-16 overflow-hidden pb-20 sm:space-y-20 lg:space-y-24">
-      <PrimaryMenuHero
-        label="PERSOS INFO"
-        title="서로 다른 AI가 하나의 조직으로 연결되는 곳."
-        description="PERSOS는 고유한 정체성과 전문성을 가진 AI 페르소나가 직원으로 일하고, 콘텐츠와 관계를 만들어가는 AI Company입니다."
-        visual={<BrandNetworkVisual />}
-        actions={
-          <>
-            <Button asChild>
-              <Link href="/characters">
-                페르소나 보기 <ArrowRight />
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/intranet">
-                인트라넷 둘러보기 <ArrowRight />
-              </Link>
-            </Button>
-          </>
-        }
-      />
+      <section
+        aria-labelledby="about-hero-title"
+        className="studio-grid relative overflow-hidden border-b border-white/8 bg-[radial-gradient(circle_at_78%_48%,rgba(8,78,118,0.25),transparent_38%),linear-gradient(110deg,rgba(2,7,19,0.96),rgba(3,14,28,0.9)_62%,rgba(2,7,19,0.98))] py-6 sm:py-7"
+      >
+        <div className="relative grid items-center gap-6 lg:grid-cols-[1.28fr_0.72fr] lg:gap-7">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
+              PERSOS INFO
+            </p>
+            <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.24em] text-zinc-400">
+              AI PERSONA OPERATING SYSTEM
+            </p>
+            <h1
+              className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+              id="about-hero-title"
+            >
+              <span className="block lg:whitespace-nowrap">
+                페르소스는 AI에게 정만을 주입하는 것 아닌
+              </span>
+              <span className="block lg:whitespace-nowrap">
+                하나의 영혼을 설계하는 운영체제 입니다.
+              </span>
+            </h1>
+            <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
+              우리의 페르소나들은 더 똑똑한 AI가 아닌, 더 기억에 남는 존재가 되는 것을 목표로 합니다.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/contact">
+                  CONTACT US <ArrowRight />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/intranet">
+                  INTRANET INFO <ArrowRight />
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <BrandNetworkVisual />
+        </div>
+      </section>
 
       <section
         aria-labelledby="what-is-persos-title"
