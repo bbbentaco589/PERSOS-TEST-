@@ -3,10 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Building2,
-  Globe2,
-  MonitorDot,
-  PlaySquare,
   UsersRound,
 } from "lucide-react";
 
@@ -29,54 +25,6 @@ export const metadata: Metadata = {
   description:
     "서로 다른 정체성과 전문성을 가진 AI 페르소나가 하나의 조직으로 연결되는 PERSOS를 소개합니다.",
 };
-
-const processNodes = [
-  {
-    label: "AI PERSONA",
-    title: "페르소나",
-    description: [
-      "정체성과 전문성을 가진 AI 직원들이",
-      "각자의 역할로 활동합니다.",
-    ],
-    icon: UsersRound,
-  },
-  {
-    label: "DEPARTMENTS",
-    title: "사업부",
-    description: [
-      "역할과 전문 분야를 기반으로",
-      "조직이 구성됩니다.",
-    ],
-    icon: Building2,
-  },
-  {
-    label: "EXTERNAL CHANNELS",
-    title: "외부 채널",
-    description: [
-      "소셜 미디어와 다양한 플랫폼을 통해",
-      "외부로 확장됩니다.",
-    ],
-    icon: Globe2,
-  },
-  {
-    label: "CONTENT",
-    title: "콘텐츠",
-    description: [
-      "페르소나의 인사이트와 스토리가",
-      "콘텐츠로 생산됩니다.",
-    ],
-    icon: PlaySquare,
-  },
-  {
-    label: "INTRANET",
-    title: "인트라넷",
-    description: [
-      "활동, 소통, 지식이 축적되는",
-      "내부 협업 공간입니다.",
-    ],
-    icon: MonitorDot,
-  },
-] as const;
 
 const intranetActivities = [
   { label: "전사원 찬반 토론", icon: DebateBoardIcon },
@@ -146,101 +94,30 @@ function BrandNetworkVisual() {
 }
 
 function AboutPersosDiagram() {
-  const positions = [
-    "left-1/2 top-0 w-[156px] -translate-x-1/2",
-    "right-0 top-[35%] w-[162px]",
-    "bottom-0 right-[7%] w-[178px]",
-    "bottom-0 left-[7%] w-[168px]",
-    "left-0 top-[35%] w-[162px]",
-  ] as const;
-
   return (
-    <div className="w-full">
-      <div
-        aria-label="PERSOS를 중심으로 연결된 페르소나, 사업부, 외부 채널, 콘텐츠, 인트라넷"
-        className="relative mx-auto hidden h-[270px] w-full max-w-[520px] sm:block"
-        role="img"
-      >
-        <div className="absolute inset-[13%] rounded-full bg-[radial-gradient(circle,rgba(14,165,233,0.14),transparent_58%)] blur-xl" />
-        <div className="absolute inset-x-[10%] inset-y-[8%] rounded-[50%] border border-dashed border-blue-300/22" />
-        <ArrowRight className="absolute left-[18%] top-[13%] size-3 -rotate-45 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
-        <ArrowRight className="absolute right-[16%] top-[19%] size-3 rotate-45 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
-        <ArrowRight className="absolute bottom-[15%] right-[19%] size-3 rotate-[135deg] text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
-        <ArrowRight className="absolute bottom-[13%] left-[23%] size-3 rotate-180 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
-        <ArrowRight className="absolute left-[10%] top-[47%] size-3 -rotate-90 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
+    <div
+      aria-label="PERSOS를 중심으로 연결된 페르소나, 사업부, 외부 채널, 콘텐츠, 인트라넷"
+      className="relative mx-auto aspect-[888/662] w-full max-w-[620px] overflow-hidden"
+      role="img"
+    >
+      <Image
+        alt="PERSOS 에코시스템"
+        className="object-contain"
+        fill
+        priority
+        sizes="(max-width: 1024px) 94vw, 620px"
+        src="/assets/about/persos-ecosystem-v2.png"
+      />
 
-        <div className="absolute left-1/2 top-[24%] h-[26%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/30 via-cyan-100/95 to-cyan-100/70 shadow-[0_0_9px_rgba(103,232,249,0.6)]" />
-        <div className="absolute left-[30%] top-1/2 h-px w-[20%] bg-gradient-to-r from-cyan-100/30 to-cyan-100/95 shadow-[0_0_9px_rgba(103,232,249,0.6)]" />
-        <div className="absolute left-1/2 top-1/2 h-px w-[20%] bg-gradient-to-r from-cyan-100/95 to-cyan-100/30 shadow-[0_0_9px_rgba(103,232,249,0.6)]" />
-        <div className="absolute left-[43.5%] top-[65.5%] h-px w-7 origin-left rotate-[131deg] bg-gradient-to-r from-cyan-100/90 to-cyan-100/25 shadow-[0_0_9px_rgba(103,232,249,0.55)]" />
-        <div className="absolute left-[56.5%] top-[65.5%] h-px w-7 origin-left rotate-[49deg] bg-gradient-to-r from-cyan-100/90 to-cyan-100/25 shadow-[0_0_9px_rgba(103,232,249,0.55)]" />
-
-        <span className="absolute left-1/2 top-[24%] z-20 size-1.5 -translate-x-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-        <span className="absolute left-[30%] top-1/2 z-20 size-1.5 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-        <span className="absolute right-[30%] top-1/2 z-20 size-1.5 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-        <span className="absolute left-[43.5%] top-[65.5%] z-20 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-        <span className="absolute left-[56.5%] top-[65.5%] z-20 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-
-        {processNodes.map(({ description, icon: Icon, label, title }, index) => (
-          <article
-            className={`absolute z-30 min-h-[68px] rounded-xl border border-blue-200/30 bg-[linear-gradient(145deg,rgba(13,27,58,0.98),rgba(3,9,23,0.99))] px-3 py-2.5 text-left shadow-[inset_0_0_26px_rgba(59,130,246,0.075),0_10px_30px_rgba(0,0,0,0.34)] ${positions[index]}`}
-            key={title}
-          >
-            <div className="flex items-start gap-2.5">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-indigo-300/25 bg-[radial-gradient(circle_at_45%_30%,rgba(129,140,248,0.7),rgba(67,56,202,0.4)_45%,rgba(15,23,42,0.9)_100%)] shadow-[inset_0_0_16px_rgba(165,180,252,0.2),0_0_15px_rgba(79,70,229,0.2)]">
-                <Icon className="size-[18px] text-cyan-50 drop-shadow-[0_0_5px_rgba(165,243,252,0.55)]" />
-              </span>
-              <div className="min-w-0 pt-0.5">
-                <p className="whitespace-nowrap text-[7px] font-semibold tracking-[0.16em] text-blue-200/75">{label}</p>
-                <h3 className="mt-0.5 text-[11px] font-semibold text-white">{title}</h3>
-              </div>
-            </div>
-            <p className="mt-2 text-[7.5px] leading-[1.45] text-zinc-400">
-              {description.map((line) => (
-                <span className="block whitespace-nowrap" key={line}>
-                  {line}
-                </span>
-              ))}
-            </p>
-          </article>
-        ))}
-
-        <div className="absolute left-1/2 top-1/2 z-20 grid size-[112px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-50/95 bg-[radial-gradient(circle,rgba(30,64,175,0.24),rgba(3,12,29,0.98)_68%)] shadow-[inset_0_0_38px_rgba(34,211,238,0.16),0_0_20px_rgba(224,242,254,0.5),0_0_48px_rgba(14,165,233,0.28)]">
-          <span className="absolute -inset-2 rounded-full border border-dashed border-blue-300/40" />
-          <span className="absolute -inset-4 rounded-full border border-blue-300/12" />
-          <span className="absolute top-[18px] text-[7px] font-medium tracking-[0.2em] text-blue-100/70">PERSOS OS</span>
-          <div className="relative mt-3 h-11 w-[96px] overflow-hidden">
-            <Image
-              alt="PERSOS Persona Operating System"
-              className="object-contain scale-[1.7] drop-shadow-[0_0_12px_rgba(186,230,253,0.38)]"
-              fill
-              sizes="96px"
-              src="/assets/about/persos-logo.png"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="sm:hidden">
-        <div className="relative mx-auto grid size-20 place-items-center overflow-hidden rounded-full border border-cyan-200/50 bg-cyan-300/[0.08] shadow-[0_0_24px_rgba(14,165,233,0.16)]">
+      <div className="absolute left-1/2 top-[53.2%] z-10 aspect-square w-[28.2%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(11,22,52,0.99)_0%,rgba(4,9,27,0.99)_68%,rgba(3,7,20,0.98)_100%)] shadow-[inset_0_0_34px_rgba(67,56,202,0.13)]">
+        <div className="absolute inset-[10%] overflow-hidden">
           <Image
             alt="PERSOS Persona Operating System"
-            className="object-contain scale-[1.7]"
+            className="object-contain scale-[1.62] drop-shadow-[0_0_13px_rgba(165,180,252,0.42)]"
             fill
-            sizes="80px"
-            src="/assets/about/persos-logo.png"
+            sizes="175px"
+            src="/brand/persos-horizontal-transparent.png"
           />
-        </div>
-        <div className="mt-5 grid grid-cols-2 gap-2">
-          {processNodes.map(({ icon: Icon, title }) => (
-            <div
-              className="flex items-center gap-2 rounded-lg border border-cyan-200/20 bg-cyan-300/[0.04] px-3 py-2.5"
-              key={title}
-            >
-              <Icon className="size-4 shrink-0 text-cyan-200" />
-              <span className="text-[11px] font-medium text-zinc-200">{title}</span>
-            </div>
-          ))}
         </div>
       </div>
     </div>
