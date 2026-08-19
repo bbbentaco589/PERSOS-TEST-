@@ -161,28 +161,29 @@ function AboutPersosDiagram() {
         className="relative mx-auto hidden h-[270px] w-full max-w-[520px] sm:block"
         role="img"
       >
-        <div className="absolute inset-x-[9%] inset-y-[7%] rounded-[50%] border border-dashed border-blue-300/25" />
-        <ArrowRight className="absolute left-[18%] top-[13%] size-3 -rotate-45 text-blue-200/65" />
-        <ArrowRight className="absolute right-[16%] top-[19%] size-3 rotate-45 text-blue-200/65" />
-        <ArrowRight className="absolute bottom-[16%] right-[18%] size-3 rotate-[135deg] text-blue-200/65" />
-        <ArrowRight className="absolute bottom-[13%] left-[23%] size-3 rotate-180 text-blue-200/65" />
-        <ArrowRight className="absolute left-[11%] top-[47%] size-3 -rotate-90 text-blue-200/65" />
+        <div className="absolute inset-[13%] rounded-full bg-[radial-gradient(circle,rgba(14,165,233,0.14),transparent_58%)] blur-xl" />
+        <div className="absolute inset-x-[10%] inset-y-[8%] rounded-[50%] border border-dashed border-blue-300/22" />
+        <ArrowRight className="absolute left-[18%] top-[13%] size-3 -rotate-45 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
+        <ArrowRight className="absolute right-[16%] top-[19%] size-3 rotate-45 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
+        <ArrowRight className="absolute bottom-[15%] right-[19%] size-3 rotate-[135deg] text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
+        <ArrowRight className="absolute bottom-[13%] left-[23%] size-3 rotate-180 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
+        <ArrowRight className="absolute left-[10%] top-[47%] size-3 -rotate-90 text-cyan-100/70 drop-shadow-[0_0_5px_rgba(103,232,249,0.7)]" />
 
         <div className="absolute left-1/2 top-[24%] h-[26%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/30 via-cyan-100/95 to-cyan-100/70 shadow-[0_0_9px_rgba(103,232,249,0.6)]" />
         <div className="absolute left-[30%] top-1/2 h-px w-[20%] bg-gradient-to-r from-cyan-100/30 to-cyan-100/95 shadow-[0_0_9px_rgba(103,232,249,0.6)]" />
         <div className="absolute left-1/2 top-1/2 h-px w-[20%] bg-gradient-to-r from-cyan-100/95 to-cyan-100/30 shadow-[0_0_9px_rgba(103,232,249,0.6)]" />
-        <div className="absolute bottom-[23%] left-[42%] h-px w-[13%] origin-right rotate-[-47deg] bg-gradient-to-r from-cyan-100/25 to-cyan-100/90 shadow-[0_0_9px_rgba(103,232,249,0.55)]" />
-        <div className="absolute bottom-[23%] right-[42%] h-px w-[13%] origin-left rotate-[47deg] bg-gradient-to-l from-cyan-100/25 to-cyan-100/90 shadow-[0_0_9px_rgba(103,232,249,0.55)]" />
+        <div className="absolute left-[43.5%] top-[65.5%] h-px w-7 origin-left rotate-[131deg] bg-gradient-to-r from-cyan-100/90 to-cyan-100/25 shadow-[0_0_9px_rgba(103,232,249,0.55)]" />
+        <div className="absolute left-[56.5%] top-[65.5%] h-px w-7 origin-left rotate-[49deg] bg-gradient-to-r from-cyan-100/90 to-cyan-100/25 shadow-[0_0_9px_rgba(103,232,249,0.55)]" />
 
         <span className="absolute left-1/2 top-[24%] z-20 size-1.5 -translate-x-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
         <span className="absolute left-[30%] top-1/2 z-20 size-1.5 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
         <span className="absolute right-[30%] top-1/2 z-20 size-1.5 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-        <span className="absolute bottom-[20%] left-[39%] z-20 size-1.5 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
-        <span className="absolute bottom-[20%] right-[39%] z-20 size-1.5 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
+        <span className="absolute left-[43.5%] top-[65.5%] z-20 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
+        <span className="absolute left-[56.5%] top-[65.5%] z-20 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.75)]" />
 
         {processNodes.map(({ description, icon: Icon, label, title }, index) => (
           <article
-            className={`absolute z-30 min-h-[68px] rounded-xl border border-blue-200/25 bg-[linear-gradient(145deg,rgba(12,25,53,0.98),rgba(3,9,23,0.99))] px-3 py-2.5 text-left shadow-[inset_0_0_24px_rgba(59,130,246,0.06),0_10px_30px_rgba(0,0,0,0.32)] ${positions[index]}`}
+            className={`absolute z-30 min-h-[68px] rounded-xl border border-blue-200/30 bg-[linear-gradient(145deg,rgba(13,27,58,0.98),rgba(3,9,23,0.99))] px-3 py-2.5 text-left shadow-[inset_0_0_26px_rgba(59,130,246,0.075),0_10px_30px_rgba(0,0,0,0.34)] ${positions[index]}`}
             key={title}
           >
             <div className="flex items-start gap-2.5">
@@ -204,7 +205,7 @@ function AboutPersosDiagram() {
           </article>
         ))}
 
-        <div className="absolute left-1/2 top-1/2 z-20 grid size-[112px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(30,64,175,0.2),rgba(3,12,29,0.98)_68%)] shadow-[inset_0_0_36px_rgba(34,211,238,0.15),0_0_18px_rgba(224,242,254,0.45),0_0_42px_rgba(14,165,233,0.24)]">
+        <div className="absolute left-1/2 top-1/2 z-20 grid size-[112px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-50/95 bg-[radial-gradient(circle,rgba(30,64,175,0.24),rgba(3,12,29,0.98)_68%)] shadow-[inset_0_0_38px_rgba(34,211,238,0.16),0_0_20px_rgba(224,242,254,0.5),0_0_48px_rgba(14,165,233,0.28)]">
           <span className="absolute -inset-2 rounded-full border border-dashed border-blue-300/40" />
           <span className="absolute -inset-4 rounded-full border border-blue-300/12" />
           <span className="absolute top-[18px] text-[7px] font-medium tracking-[0.2em] text-blue-100/70">PERSOS OS</span>
@@ -299,28 +300,28 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="what-is-persos-title"
-        className="relative grid min-h-[300px] items-center gap-5 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_50%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(520px,1.12fr)_minmax(0,0.88fr)] lg:gap-6"
+        className="relative grid min-h-[340px] items-center gap-x-6 gap-y-4 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_44%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(520px,1.05fr)_minmax(0,0.95fr)]"
       >
         <p className="absolute left-4 top-5 z-40 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-6 sm:top-6">
-          PERSOS PROCESS
+          PERSOS ECOSYSTEM
         </p>
         <AboutPersosDiagram />
         <div className="flex flex-col justify-center">
           <h2
-            className="text-3xl font-semibold leading-tight text-white sm:whitespace-nowrap sm:text-4xl"
+            className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-white sm:whitespace-nowrap lg:text-3xl xl:text-4xl"
             id="what-is-persos-title"
           >
-            페르소스 운영 흐름
+            하나의 조직에서 연결되는 생태계
           </h2>
-          <p className="mt-5 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
-            <span className="block">AI를 단일 도구로 사용하는 데서 나아가,</span>
-            <span className="block">정체성을 부여받은 개체들의 조직으로 거듭납니다.</span>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
+            <span className="block">PERSOS는 개별 AI 페르소나를 만드는 데서 그치지 않고,</span>
+            <span className="block">사업부, 인트라넷, 콘텐츠, 외부 채널까지 하나의 구조 안에서 연결되는 생태계를 구축합니다.</span>
           </p>
-          <blockquote className="mt-7 border-l-2 border-cyan-200/55 bg-cyan-300/[0.035] px-4 py-3 text-sm font-semibold leading-7 text-zinc-100 sm:text-base">
-            <span aria-hidden="true" className="mr-2">🔊</span>
-            그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
-          </blockquote>
         </div>
+        <blockquote className="overflow-x-auto whitespace-nowrap border-l-2 border-cyan-200/55 bg-cyan-300/[0.035] px-4 py-3 text-xs font-semibold leading-6 text-zinc-100 sm:text-sm lg:col-span-2">
+          <span aria-hidden="true" className="mr-2">🔊</span>
+          페르소나들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
+        </blockquote>
       </section>
 
       <section
