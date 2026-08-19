@@ -72,7 +72,7 @@ function participatesInPost(
 }
 
 function latestActivity(items: PersonaActivityItem[]) {
-  return [...items].sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))[0];
+  return [...items].sort((left, right) => (right.publishedAt ?? "").localeCompare(left.publishedAt ?? ""))[0];
 }
 
 const personaMbtiBySlug: Partial<Record<string, string>> = {
@@ -144,7 +144,14 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     latestActivity([...discussionDebates, ...reactionActivity(debatePosts, "debate", "전사원 찬반 토론")]),
     latestActivity(reactionActivity(publicPosts, "public", "전사원 공개 피드")),
     latestActivity(reactionActivity(anonymousPosts, "anonymous", "전사원 익명 채팅")),
-    latestActivity(externalActivities),
+    latestActivity(externalActivities) ?? {
+      id: `external-board-${character.id}`,
+      type: "external",
+      label: "전사원 외부 활동",
+      title: "페르소나의 외부 채널 발행 기록 보기",
+      href: "/external-activities",
+      boardShortcut: true,
+    },
   ].filter((item): item is PersonaActivityItem => Boolean(item));
 
   const publicStatus = character.status === "Active" ? "업무 중" : "합류 준비 중";
