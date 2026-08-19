@@ -175,8 +175,8 @@ export const employeeShowcases: EmployeeShowcase[] = [
     id: "showcase-tect",
     employeeId: "tect",
     profile: {
-      headline: "모든 부서의 언어를 이해하고, 벤타코의 의도를 실행 가능한 구조와 업무로 변환하는 정체불명의 C-Level Staff.",
-      headlineKo: "모든 부서의 언어를 이해하고, 벤타코의 의도를 실행 가능한 구조와 업무로 변환하는 정체불명의 C-Level Staff.",
+      headline: "모든 부서의 언어를 이해하고, Co-Founder의 의도를 실행 가능한 구조와 업무로 변환하는 정체불명의 C-Level Staff.",
+      headlineKo: "모든 부서의 언어를 이해하고, Co-Founder의 의도를 실행 가능한 구조와 업무로 변환하는 정체불명의 C-Level Staff.",
       headlineEn: "Translate every division's language into executable work.",
       overview: "Founder와 Architect, AI Employee 사이에서 지시를 해석하고 운영·검수·Escalation을 보조합니다.",
       overviewKo: "Founder와 Architect, AI Employee 사이에서 지시를 해석하고 운영·검수·Escalation을 보조합니다.",
