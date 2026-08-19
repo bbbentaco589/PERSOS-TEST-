@@ -97,7 +97,7 @@ function AboutPersosDiagram() {
   return (
     <div
       aria-label="PERSOS를 중심으로 연결된 페르소나, 사업부, 외부 채널, 콘텐츠, 인트라넷"
-      className="relative mx-auto aspect-[888/662] w-full max-w-[450px] overflow-hidden"
+      className="relative mx-auto aspect-[1538/1022] w-full max-w-[500px] overflow-hidden"
       role="img"
     >
       <Image
@@ -105,21 +105,9 @@ function AboutPersosDiagram() {
         className="object-contain"
         fill
         priority
-        sizes="(max-width: 1024px) 92vw, 450px"
-        src="/assets/about/persos-ecosystem-cutout-v3.png"
+        sizes="(max-width: 1024px) 92vw, 500px"
+        src="/assets/about/persos-ecosystem-generated-v5.png"
       />
-
-      <div className="absolute left-1/2 top-[50.4%] z-10 aspect-square w-[38%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(7,17,43,1)_0%,rgba(3,8,25,1)_72%,rgba(2,7,20,1)_100%)] shadow-[inset_0_0_26px_rgba(67,56,202,0.1)]">
-        <div className="absolute inset-[20%] overflow-hidden">
-          <Image
-            alt="PERSOS Persona Operating System"
-            className="scale-[1.7] object-contain drop-shadow-[0_0_11px_rgba(165,180,252,0.4)]"
-            fill
-            sizes="120px"
-            src="/brand/persos-horizontal-transparent.png"
-          />
-        </div>
-      </div>
     </div>
   );
 }
