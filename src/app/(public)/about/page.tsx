@@ -97,25 +97,25 @@ function AboutPersosDiagram() {
   return (
     <div
       aria-label="PERSOS를 중심으로 연결된 페르소나, 사업부, 외부 채널, 콘텐츠, 인트라넷"
-      className="relative mx-auto aspect-[888/662] w-full max-w-[620px] overflow-hidden"
+      className="relative mx-auto aspect-[888/662] w-full max-w-[450px] overflow-hidden"
       role="img"
     >
       <Image
         alt="PERSOS 에코시스템"
-        className="object-contain"
+        className="object-contain opacity-95 mix-blend-screen [mask-image:radial-gradient(ellipse_78%_76%_at_center,black_62%,transparent_100%)]"
         fill
         priority
-        sizes="(max-width: 1024px) 94vw, 620px"
+        sizes="(max-width: 1024px) 92vw, 450px"
         src="/assets/about/persos-ecosystem-v2.png"
       />
 
-      <div className="absolute left-1/2 top-[53.2%] z-10 aspect-square w-[28.2%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(11,22,52,0.99)_0%,rgba(4,9,27,0.99)_68%,rgba(3,7,20,0.98)_100%)] shadow-[inset_0_0_34px_rgba(67,56,202,0.13)]">
-        <div className="absolute inset-[10%] overflow-hidden">
+      <div className="absolute left-1/2 top-[53.2%] z-10 aspect-square w-[23.5%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(11,22,52,0.99)_0%,rgba(4,9,27,0.99)_72%,rgba(3,7,20,0.98)_100%)] shadow-[inset_0_0_24px_rgba(67,56,202,0.12)]">
+        <div className="absolute inset-[17%] overflow-hidden">
           <Image
             alt="PERSOS Persona Operating System"
-            className="object-contain scale-[1.62] drop-shadow-[0_0_13px_rgba(165,180,252,0.42)]"
+            className="object-contain drop-shadow-[0_0_10px_rgba(165,180,252,0.35)]"
             fill
-            sizes="175px"
+            sizes="110px"
             src="/brand/persos-horizontal-transparent.png"
           />
         </div>
@@ -177,28 +177,30 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="what-is-persos-title"
-        className="relative grid min-h-[340px] items-center gap-x-6 gap-y-4 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_44%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(520px,1.05fr)_minmax(0,0.95fr)]"
+        className="relative grid min-h-[250px] items-center gap-x-8 gap-y-4 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_44%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-4 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-5 lg:grid-cols-[minmax(430px,0.9fr)_minmax(0,1.1fr)]"
       >
         <p className="absolute left-4 top-5 z-40 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-6 sm:top-6">
           PERSOS ECOSYSTEM
         </p>
         <AboutPersosDiagram />
-        <div className="flex flex-col justify-center">
+        <div className="flex min-w-0 flex-col justify-center lg:pr-4">
           <h2
             className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-white sm:whitespace-nowrap lg:text-3xl xl:text-4xl"
             id="what-is-persos-title"
           >
             하나의 조직에서 연결되는 생태계
           </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
-            <span className="block">PERSOS는 개별 AI 페르소나를 만드는 데서 그치지 않고,</span>
-            <span className="block">사업부, 인트라넷, 콘텐츠, 외부 채널까지 하나의 구조 안에서 연결되는 생태계를 구축합니다.</span>
+          <p className="mt-4 max-w-[38rem] text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
+            PERSOS는 개별 AI 페르소나를 만드는 데서 그치지 않고, 사업부,
+            인트라넷, 콘텐츠, 외부 채널까지 하나의 구조 안에서 연결되는
+            생태계를 구축합니다.
           </p>
+          <blockquote className="mt-4 max-w-[40rem] border-l-2 border-cyan-200/55 bg-cyan-300/[0.035] px-4 py-3 text-xs font-semibold leading-6 text-zinc-100 sm:text-sm">
+            <span aria-hidden="true" className="mr-2">🔊</span>
+            페르소나들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만
+            머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
+          </blockquote>
         </div>
-        <blockquote className="overflow-x-auto whitespace-nowrap border-l-2 border-cyan-200/55 bg-cyan-300/[0.035] px-4 py-3 text-xs font-semibold leading-6 text-zinc-100 sm:text-sm lg:col-span-2">
-          <span aria-hidden="true" className="mr-2">🔊</span>
-          페르소나들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
-        </blockquote>
       </section>
 
       <section
