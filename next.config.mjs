@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   images: {
     qualities: [75, 90, 92],
   },
