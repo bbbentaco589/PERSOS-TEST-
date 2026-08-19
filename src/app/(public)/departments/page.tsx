@@ -1,14 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import {
-  BriefcaseBusiness,
-  Cpu,
-  PenTool,
-  PlaySquare,
-  Target,
-  UsersRound,
-} from "lucide-react";
 
+import { DivisionIcon } from "@/components/brand/division-icon";
 import { PageContainer } from "@/components/layout/page-container";
 import { DivisionStructureCard } from "@/components/organization/division-structure-card";
 import { publicDivisionOrder } from "@/constants/navigation";
@@ -18,40 +11,55 @@ import {
   buildPublicFeedItems,
 } from "@/lib/public-feed-presentation";
 
-const departmentHeroNodes = [
-  { label: "전략기획", labelEn: "STRATEGY", icon: Target, position: "left-1/2 top-0 -translate-x-1/2" },
-  { label: "기술개발", labelEn: "TECHNOLOGY", icon: Cpu, position: "left-[5%] top-[25%]" },
-  { label: "미디어·콘텐츠", labelEn: "MEDIA & CONTENT", icon: PlaySquare, position: "right-[5%] top-[25%]" },
-  { label: "운영관리", labelEn: "OPERATIONS", icon: UsersRound, position: "bottom-[8%] left-[5%]" },
-  { label: "크리에이티브", labelEn: "CREATIVE", icon: PenTool, position: "bottom-[8%] right-[5%]" },
-  { label: "비즈니스·지원", labelEn: "BUSINESS & SUPPORT", icon: BriefcaseBusiness, position: "bottom-0 left-1/2 -translate-x-1/2" },
+const departmentHeroPositions = [
+  "left-1/2 top-0 -translate-x-1/2",
+  "left-0 top-[24%]",
+  "right-0 top-[24%]",
+  "bottom-[5%] left-0",
+  "bottom-[5%] right-0",
+  "bottom-0 left-1/2 -translate-x-1/2",
 ] as const;
 
 function DepartmentsHeroVisual() {
+  const heroDivisions = publicDivisionOrder
+    .map((divisionId) => divisions.find((division) => division.id === divisionId))
+    .filter((division): division is (typeof divisions)[number] => division !== undefined);
+
   return (
-    <div className="relative mx-auto h-[260px] w-full max-w-[540px]" role="img" aria-label="PERSOS를 중심으로 연결된 6개 사업부 영역">
-      <div className="absolute inset-[16%] rounded-full bg-[radial-gradient(circle,rgba(14,165,233,0.2),transparent_62%)] blur-xl" />
+    <div className="relative mx-auto h-[300px] w-full max-w-[600px] sm:h-[380px]" role="img" aria-label="PERSOS를 중심으로 연결된 실제 6개 사업부">
+      <div className="absolute inset-[12%] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.22),rgba(14,116,144,0.1)_40%,transparent_68%)] blur-xl" />
 
-      <div className="absolute left-1/2 top-[22%] h-[28%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/30 to-cyan-100/90 shadow-[0_0_8px_rgba(103,232,249,0.65)]" />
-      <div className="absolute left-[28%] top-[41%] h-px w-[16%] rotate-[18deg] bg-gradient-to-r from-cyan-100/25 to-cyan-100/90 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
-      <div className="absolute right-[28%] top-[41%] h-px w-[16%] -rotate-[18deg] bg-gradient-to-l from-cyan-100/25 to-cyan-100/90 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
-      <div className="absolute bottom-[24%] left-[29%] h-px w-[16%] -rotate-[31deg] bg-gradient-to-r from-cyan-100/25 to-cyan-100/90 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
-      <div className="absolute bottom-[24%] right-[29%] h-px w-[16%] rotate-[31deg] bg-gradient-to-l from-cyan-100/25 to-cyan-100/90 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
-      <div className="absolute bottom-[20%] left-1/2 h-[30%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/90 to-cyan-100/25 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
+      <div className="absolute left-1/2 top-[21%] h-[26%] w-px -translate-x-1/2 bg-gradient-to-b from-blue-200/35 via-cyan-50 to-cyan-100/75 shadow-[0_0_10px_rgba(125,211,252,0.9)]" />
+      <div className="absolute left-[25%] top-[38%] h-px w-[19%] rotate-[18deg] bg-gradient-to-r from-blue-200/35 via-cyan-50 to-cyan-100/75 shadow-[0_0_10px_rgba(125,211,252,0.8)]" />
+      <div className="absolute right-[25%] top-[38%] h-px w-[19%] -rotate-[18deg] bg-gradient-to-l from-blue-200/35 via-cyan-50 to-cyan-100/75 shadow-[0_0_10px_rgba(125,211,252,0.8)]" />
+      <div className="absolute bottom-[25%] left-[25%] h-px w-[19%] -rotate-[20deg] bg-gradient-to-r from-blue-200/35 via-cyan-50 to-cyan-100/75 shadow-[0_0_10px_rgba(125,211,252,0.8)]" />
+      <div className="absolute bottom-[25%] right-[25%] h-px w-[19%] rotate-[20deg] bg-gradient-to-l from-blue-200/35 via-cyan-50 to-cyan-100/75 shadow-[0_0_10px_rgba(125,211,252,0.8)]" />
+      <div className="absolute bottom-[20%] left-1/2 h-[27%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/75 via-cyan-50 to-blue-200/35 shadow-[0_0_10px_rgba(125,211,252,0.9)]" />
 
-      {departmentHeroNodes.map(({ icon: Icon, label, labelEn, position }) => (
-        <div className={`absolute z-30 flex h-[64px] w-[108px] flex-col items-center justify-center rounded-xl border border-cyan-100/55 bg-[linear-gradient(145deg,rgba(8,34,66,0.98),rgba(3,12,29,0.98))] text-center shadow-[inset_0_0_22px_rgba(34,211,238,0.08),0_0_18px_rgba(14,165,233,0.16)] ${position}`} key={label}>
-          <Icon className="size-5 text-cyan-200 drop-shadow-[0_0_7px_rgba(103,232,249,0.55)]" />
-          <strong className="mt-1 text-[10px] font-semibold text-white">{label}</strong>
-          <span className="mt-0.5 whitespace-nowrap text-[6px] font-medium tracking-[0.1em] text-blue-100/70">{labelEn}</span>
+      {heroDivisions.map((division, index) => (
+        <div className={`absolute z-30 flex h-[70px] w-[112px] flex-col items-center justify-center gap-1 rounded-xl border border-blue-200/55 bg-[linear-gradient(145deg,rgba(10,31,65,0.99),rgba(3,11,29,0.99))] px-2 text-center shadow-[inset_0_0_26px_rgba(96,165,250,0.09),0_0_20px_rgba(37,99,235,0.16)] sm:h-[86px] sm:w-[154px] sm:flex-row sm:justify-start sm:gap-2.5 sm:px-3 sm:text-left ${departmentHeroPositions[index]}`} key={division.id}>
+          <DivisionIcon className="size-7 sm:size-11" divisionId={division.id} />
+          <div className="min-w-0">
+            <strong className="block whitespace-nowrap text-[8px] font-semibold text-white sm:text-[11px]">{division.nameKo}</strong>
+            <span className="mt-1 hidden max-w-[82px] text-[6.5px] font-semibold uppercase leading-[1.35] tracking-[0.1em] text-blue-100/65 sm:block">
+              {division.slug.replaceAll("-", " ")}
+            </span>
+          </div>
         </div>
       ))}
 
-      <div className="absolute left-1/2 top-1/2 z-20 grid size-[126px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(30,64,175,0.22),rgba(3,12,29,0.98)_68%)] shadow-[inset_0_0_38px_rgba(34,211,238,0.16),0_0_20px_rgba(224,242,254,0.48),0_0_48px_rgba(14,165,233,0.3)]">
-        <span className="absolute -inset-2 rounded-full border border-cyan-300/35" />
-        <span className="absolute -inset-4 rounded-full border border-blue-300/12" />
-        <div className="relative h-14 w-[108px] overflow-hidden">
-          <Image alt="PERSOS Persona Operating System" className="object-contain scale-[1.7] drop-shadow-[0_0_12px_rgba(186,230,253,0.36)]" fill sizes="108px" src="/assets/about/persos-logo.png" />
+      <span className="absolute left-1/2 top-[21%] z-20 size-2 -translate-x-1/2 rounded-full bg-cyan-50 shadow-[0_0_10px_3px_rgba(125,211,252,0.9)]" />
+      <span className="absolute left-[25%] top-[38%] z-20 size-2 rounded-full bg-cyan-50 shadow-[0_0_10px_3px_rgba(125,211,252,0.9)]" />
+      <span className="absolute right-[25%] top-[38%] z-20 size-2 rounded-full bg-cyan-50 shadow-[0_0_10px_3px_rgba(125,211,252,0.9)]" />
+      <span className="absolute bottom-[25%] left-[25%] z-20 size-2 rounded-full bg-cyan-50 shadow-[0_0_10px_3px_rgba(125,211,252,0.9)]" />
+      <span className="absolute bottom-[25%] right-[25%] z-20 size-2 rounded-full bg-cyan-50 shadow-[0_0_10px_3px_rgba(125,211,252,0.9)]" />
+      <span className="absolute bottom-[20%] left-1/2 z-20 size-2 -translate-x-1/2 rounded-full bg-cyan-50 shadow-[0_0_10px_3px_rgba(125,211,252,0.9)]" />
+
+      <div className="absolute left-1/2 top-1/2 z-20 grid size-[116px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-50/95 bg-[radial-gradient(circle,rgba(23,51,112,0.3),rgba(3,10,27,0.99)_69%)] shadow-[inset_0_0_44px_rgba(34,211,238,0.15),0_0_22px_rgba(224,242,254,0.5),0_0_55px_rgba(37,99,235,0.34)] sm:size-[170px]">
+        <span className="absolute -inset-2 rounded-full border border-cyan-300/45" />
+        <span className="absolute -inset-5 rounded-full border border-blue-300/15" />
+        <div className="relative h-[58px] w-[102px] overflow-hidden sm:h-[84px] sm:w-[150px]">
+          <Image alt="PERSOS Persona Operating System" className="object-contain scale-[1.62] drop-shadow-[0_0_14px_rgba(186,230,253,0.42)]" fill sizes="150px" src="/brand/persos-horizontal-transparent.png" />
         </div>
       </div>
     </div>
