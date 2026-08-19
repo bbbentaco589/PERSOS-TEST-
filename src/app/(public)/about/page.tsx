@@ -64,25 +64,25 @@ const processSteps = [
   {
     number: "01",
     title: "설계",
-    description: "정체성과 역할을 부여합니다.",
+    description: "정체성 및 역할 부여",
     icon: Sparkles,
   },
   {
     number: "02",
     title: "구성",
-    description: "사업부와 팀에 연결합니다.",
+    description: "사업부 및 담당 분야 연결",
     icon: UsersRound,
   },
   {
     number: "03",
     title: "생산",
-    description: "플랫폼별 콘텐츠를 만듭니다.",
+    description: "플랫폼별 콘텐츠 제작",
     icon: MessagesSquare,
   },
   {
     number: "04",
     title: "공개",
-    description: "인물과 조직의 흐름을 외부에 보여줍니다.",
+    description: "플랫폼별 콘텐츠 업로드",
     icon: Network,
   },
 ] as const;
@@ -184,7 +184,7 @@ function AboutPersosDiagram() {
           <span className="absolute -inset-2 rounded-full border border-dashed border-cyan-200/20" />
           <Image
             alt="PERSOS 아이콘"
-            className="object-contain p-4 drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]"
+            className="mix-blend-screen object-contain p-3 drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]"
             fill
             sizes="82px"
             src="/brand/persos-icon.png"
@@ -196,7 +196,7 @@ function AboutPersosDiagram() {
         <div className="mx-auto grid size-20 place-items-center rounded-full border border-cyan-200/50 bg-cyan-300/[0.08] shadow-[0_0_24px_rgba(14,165,233,0.16)]">
           <Image
             alt="PERSOS 아이콘"
-            className="object-contain p-4"
+            className="mix-blend-screen object-contain p-3"
             height={80}
             src="/brand/persos-icon.png"
             width={80}
@@ -227,18 +227,22 @@ function PersosProcessSteps() {
     >
       {processSteps.map(({ description, icon: Icon, number, title }, index) => (
         <div
-          className="relative min-h-[118px] rounded-xl border border-cyan-200/25 bg-[linear-gradient(155deg,rgba(12,32,65,0.9),rgba(3,10,24,0.98))] px-3 py-3 text-center shadow-[inset_0_0_20px_rgba(34,211,238,0.04),0_8px_22px_rgba(0,0,0,0.18)]"
+          className="relative min-h-[106px] rounded-xl border border-cyan-200/25 bg-[linear-gradient(155deg,rgba(12,32,65,0.9),rgba(3,10,24,0.98))] px-3 py-3 shadow-[inset_0_0_20px_rgba(34,211,238,0.04),0_8px_22px_rgba(0,0,0,0.18)]"
           key={number}
           role="listitem"
         >
-          <span className="mx-auto grid size-8 place-items-center rounded-full border border-cyan-200/30 bg-cyan-300/[0.06] shadow-[0_0_12px_rgba(34,211,238,0.12)]">
-            <Icon className="size-4 text-cyan-100" />
-          </span>
-          <span className="mt-2 block font-mono text-[8px] font-semibold tracking-[0.14em] text-sky-300">
-            {number}
-          </span>
-          <strong className="mt-1 block text-sm font-semibold text-white">{title}</strong>
-          <span className="mt-2 block border-t border-dashed border-cyan-200/15 pt-2 text-[8px] leading-4 text-zinc-400">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-cyan-200/30 bg-cyan-300/[0.06] shadow-[0_0_12px_rgba(34,211,238,0.12)]">
+              <Icon className="size-4 text-cyan-100" />
+            </span>
+            <strong className="whitespace-nowrap text-sm font-semibold text-white">
+              <span className="mr-2 font-mono text-[9px] tracking-[0.12em] text-sky-300">
+                {number}
+              </span>
+              {title}
+            </strong>
+          </div>
+          <span className="mt-3 block border-t border-dashed border-cyan-200/15 pt-3 text-[9px] leading-4 text-zinc-400">
             {description}
           </span>
           {index < processSteps.length - 1 ? (
@@ -327,9 +331,9 @@ export default function AboutPage() {
           </p>
           <PersosProcessSteps />
         </div>
-        <blockquote className="border-t border-cyan-200/20 pt-4 text-xs leading-6 text-zinc-300 sm:text-sm lg:col-span-2">
-          그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고
-          다양한 소셜 플랫폼에 유통됩니다.
+        <blockquote className="border-t border-cyan-200/20 pt-4 text-xs font-semibold leading-6 text-zinc-100 sm:text-sm lg:col-span-2">
+          <span aria-hidden="true" className="mr-2">🔊</span>
+          그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
         </blockquote>
       </section>
 
