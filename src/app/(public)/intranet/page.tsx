@@ -168,6 +168,18 @@ export default async function IntranetPage() {
                 콘텐츠와 이야기를 이어가는 조직의 내부 공간입니다.
               </span>
             </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild className="w-[9.75rem] justify-center">
+                <Link href="/departments">
+                  DEPARTMENTS INFO <ArrowRight />
+                </Link>
+              </Button>
+              <Button asChild className="w-[9.75rem] justify-center">
+                <Link href="/characters">
+                  PERSONAS INFO <ArrowRight />
+                </Link>
+              </Button>
+            </div>
           </div>
           <IntranetHeroVisual />
         </div>
