@@ -32,6 +32,7 @@ export const metadata: Metadata = {
 
 const features = [
   {
+    label: "AI PERSONA",
     title: "AI 페르소나 설계",
     description: [
       "고유한 정체성과 전문 분야를 지닌",
@@ -40,6 +41,7 @@ const features = [
     icon: Sparkles,
   },
   {
+    label: "DEPARTMENTS",
     title: "조직 구성",
     description: [
       "역할과 목표에 따라 페르소나를",
@@ -48,6 +50,7 @@ const features = [
     icon: Building2,
   },
   {
+    label: "CONTENT",
     title: "콘텐츠와 소통",
     description: [
       "페르소나 IP를 활용한 소셜 미디어",
@@ -56,6 +59,7 @@ const features = [
     icon: MessagesSquare,
   },
   {
+    label: "INTRANET",
     title: "공개 인트라넷",
     description: [
       "AI 직원의 활동과 조직의 흐름을",
@@ -132,26 +136,12 @@ function BrandNetworkVisual() {
   );
 }
 
-function PersosIconCutout() {
-  return (
-    <div className="relative h-16 w-12 overflow-hidden">
-      <Image
-        alt="PERSOS 아이콘"
-        className="absolute left-[-42px] top-[-42px] h-[162px] w-[244px] max-w-none"
-        height={1024}
-        src="/assets/about/persos-logo.png"
-        width={1536}
-      />
-    </div>
-  );
-}
-
 function AboutPersosDiagram() {
   const positions = [
-    "left-1/2 top-0 w-[44%] -translate-x-1/2",
-    "right-0 top-1/2 w-[38%] -translate-y-1/2",
-    "left-0 top-1/2 w-[38%] -translate-y-1/2",
-    "bottom-0 left-1/2 w-[44%] -translate-x-1/2",
+    "left-1/2 top-0 w-[168px] -translate-x-1/2",
+    "right-0 top-1/2 w-[178px] -translate-y-1/2",
+    "left-0 top-1/2 w-[178px] -translate-y-1/2",
+    "bottom-0 left-1/2 w-[184px] -translate-x-1/2",
   ] as const;
 
   return (
@@ -161,19 +151,37 @@ function AboutPersosDiagram() {
         className="relative mx-auto hidden h-[270px] w-full max-w-[520px] sm:block"
         role="img"
       >
-        <div className="absolute left-1/2 top-[27%] h-[46%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-200/20 via-cyan-200/80 to-cyan-200/20 shadow-[0_0_8px_rgba(103,232,249,0.45)]" />
-        <div className="absolute left-[18%] top-1/2 h-px w-[64%] -translate-y-1/2 bg-gradient-to-r from-cyan-200/20 via-cyan-200/80 to-cyan-200/20 shadow-[0_0_8px_rgba(103,232,249,0.45)]" />
+        <div className="absolute inset-x-[9%] inset-y-[5%] rounded-[50%] border border-dashed border-cyan-200/20" />
+        <ArrowRight className="absolute left-[20%] top-[12%] size-3 -rotate-45 text-cyan-200/55" />
+        <ArrowRight className="absolute right-[18%] top-[18%] size-3 rotate-45 text-cyan-200/55" />
+        <ArrowRight className="absolute bottom-[13%] right-[21%] size-3 rotate-[135deg] text-cyan-200/55" />
+        <ArrowRight className="absolute bottom-[17%] left-[18%] size-3 -rotate-[135deg] text-cyan-200/55" />
 
-        {features.map(({ description, icon: Icon, title }, index) => (
+        <div className="absolute left-1/2 top-[30%] h-[20%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/25 to-cyan-100/90 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
+        <div className="absolute left-1/2 top-1/2 h-px w-[15%] bg-gradient-to-r from-cyan-100/90 to-cyan-100/25 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
+        <div className="absolute bottom-[30%] left-1/2 h-[20%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-100/90 to-cyan-100/25 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
+        <div className="absolute right-1/2 top-1/2 h-px w-[15%] bg-gradient-to-l from-cyan-100/90 to-cyan-100/25 shadow-[0_0_8px_rgba(103,232,249,0.55)]" />
+
+        <span className="absolute left-1/2 top-[30%] z-20 size-1.5 -translate-x-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.7)]" />
+        <span className="absolute right-[35%] top-1/2 z-20 size-1.5 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.7)]" />
+        <span className="absolute bottom-[30%] left-1/2 z-20 size-1.5 -translate-x-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.7)]" />
+        <span className="absolute left-[35%] top-1/2 z-20 size-1.5 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(103,232,249,0.7)]" />
+
+        {features.map(({ description, icon: Icon, label, title }, index) => (
           <article
-            className={`absolute z-30 min-h-[76px] overflow-visible rounded-xl border border-cyan-200/25 bg-[linear-gradient(145deg,rgba(9,34,57,0.94),rgba(3,11,23,0.96))] px-3 py-2.5 text-center shadow-[inset_0_0_24px_rgba(34,211,238,0.04),0_8px_30px_rgba(0,0,0,0.22)] ${positions[index]}`}
+            className={`absolute z-30 min-h-[82px] overflow-visible rounded-xl border border-cyan-200/25 bg-[linear-gradient(145deg,rgba(11,35,61,0.97),rgba(3,10,24,0.98))] px-3 py-2.5 text-left shadow-[inset_0_0_26px_rgba(34,211,238,0.05),0_8px_30px_rgba(0,0,0,0.28)] ${positions[index]}`}
             key={title}
           >
-            <span className="relative z-40 mx-auto -mt-6 grid size-9 place-items-center rounded-full border border-cyan-200/45 bg-[#071827] shadow-[0_0_14px_rgba(34,211,238,0.2)]">
-              <Icon className="size-4 text-cyan-200" />
-            </span>
-            <h3 className="mt-2 text-xs font-semibold text-zinc-100">{title}</h3>
-            <p className="mt-1 text-center text-[9px] leading-4 text-zinc-400">
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-indigo-300/25 bg-[linear-gradient(145deg,rgba(79,70,229,0.38),rgba(14,165,233,0.14))] shadow-[inset_0_0_16px_rgba(129,140,248,0.14),0_0_12px_rgba(59,130,246,0.1)]">
+                <Icon className="size-4 text-cyan-100" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[7px] font-semibold tracking-[0.18em] text-blue-200/75">{label}</p>
+                <h3 className="mt-0.5 text-[11px] font-semibold text-zinc-100">{title}</h3>
+              </div>
+            </div>
+            <p className="mt-2 text-[8px] leading-[1.45] text-zinc-400">
               {description.map((line) => (
                 <span className="block whitespace-nowrap" key={line}>
                   {line}
@@ -183,15 +191,31 @@ function AboutPersosDiagram() {
           </article>
         ))}
 
-        <div className="absolute left-1/2 top-1/2 z-20 grid size-[82px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(34,211,238,0.18),rgba(3,12,25,0.98)_68%)] shadow-[inset_0_0_28px_rgba(34,211,238,0.14),0_0_26px_rgba(14,165,233,0.18)]">
-          <span className="absolute -inset-2 rounded-full border border-dashed border-cyan-200/20" />
-          <PersosIconCutout />
+        <div className="absolute left-1/2 top-1/2 z-20 grid size-[104px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(34,211,238,0.2),rgba(3,12,25,0.98)_68%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.14),0_0_18px_rgba(186,230,253,0.35),0_0_38px_rgba(14,165,233,0.2)]">
+          <span className="absolute -inset-2 rounded-full border border-dashed border-blue-300/30" />
+          <span className="absolute -inset-4 rounded-full border border-blue-300/10" />
+          <span className="absolute top-[19px] text-[7px] font-medium tracking-[0.18em] text-blue-100/70">PERSOS OS</span>
+          <div className="relative mt-3 h-10 w-[88px] overflow-hidden">
+            <Image
+              alt="PERSOS Persona Operating System"
+              className="object-contain scale-[1.7] drop-shadow-[0_0_10px_rgba(186,230,253,0.3)]"
+              fill
+              sizes="88px"
+              src="/assets/about/persos-logo.png"
+            />
+          </div>
         </div>
       </div>
 
       <div className="sm:hidden">
-        <div className="mx-auto grid size-20 place-items-center rounded-full border border-cyan-200/50 bg-cyan-300/[0.08] shadow-[0_0_24px_rgba(14,165,233,0.16)]">
-          <PersosIconCutout />
+        <div className="relative mx-auto grid size-20 place-items-center overflow-hidden rounded-full border border-cyan-200/50 bg-cyan-300/[0.08] shadow-[0_0_24px_rgba(14,165,233,0.16)]">
+          <Image
+            alt="PERSOS Persona Operating System"
+            className="object-contain scale-[1.7]"
+            fill
+            sizes="80px"
+            src="/assets/about/persos-logo.png"
+          />
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2">
           {features.map(({ icon: Icon, title }) => (
