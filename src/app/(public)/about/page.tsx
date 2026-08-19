@@ -108,8 +108,8 @@ function AboutPersosDiagram() {
         sizes="(max-width: 1024px) 92vw, 500px"
         src="/assets/about/persos-ecosystem-generated-v5.png"
       />
-      <div className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[31%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[radial-gradient(circle,rgba(2,8,25,1)_0%,rgba(1,7,22,1)_76%,rgba(1,8,24,0.98)_100%)]">
-        <div className="relative h-[42%] w-[76%]">
+      <div className="absolute left-[48.5%] top-[49.9%] z-10 grid aspect-square w-[28.8%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[radial-gradient(circle,rgba(2,8,25,1)_0%,rgba(1,7,22,1)_76%,rgba(1,8,24,0.98)_100%)]">
+        <div className="relative h-[58%] w-[90%]">
           <Image
             alt="PERSOS Persona Operating System"
             className="object-contain drop-shadow-[0_0_12px_rgba(165,180,252,0.38)]"
