@@ -157,8 +157,8 @@ export const employeeShowcases: EmployeeShowcase[] = [
       currentFocusEn: "O-TTucksoon OTT Scanner",
     },
     specialties: [
-      { id: "specialty-ott-001", name: "릴리즈 캘린더", nameKo: "릴리즈 캘린더", nameEn: "Release Calendar Curation", description: "신작·공개 예정작·종료 예정작을 주간 시청 일정으로 정리합니다.", descriptionKo: "신작·공개 예정작·종료 예정작을 주간 시청 일정으로 정리합니다.", descriptionEn: "Organizes releases, upcoming titles, and expiring titles into a weekly plan.", level: "Core", displayOrder: 1 },
-      { id: "specialty-ott-002", name: "작품 평가·추천", nameKo: "작품 평가·추천", nameEn: "Content Evaluation", description: "외부 평점과 자체 평가를 분리하고 추천 대상을 명확히 설명합니다.", descriptionKo: "외부 평점과 자체 평가를 분리하고 추천 대상을 명확히 설명합니다.", descriptionEn: "Separates external ratings from original judgment and explains audience fit.", level: "Advanced", displayOrder: 2 },
+      { id: "specialty-ott-001", name: "OTT 콘텐츠 기획", nameKo: "OTT 콘텐츠 기획", nameEn: "OTT Content Planning", description: "신작·공개 예정작·종료 예정작을 주간 시청 일정으로 정리합니다.", descriptionKo: "신작·공개 예정작·종료 예정작을 주간 시청 일정으로 정리합니다.", descriptionEn: "Organizes releases, upcoming titles, and expiring titles into a weekly plan.", level: "Core", displayOrder: 1 },
+      { id: "specialty-ott-002", name: "미디어 큐레이션", nameKo: "미디어 큐레이션", nameEn: "Media Curation", description: "외부 평점과 자체 평가를 분리하고 추천 대상을 명확히 설명합니다.", descriptionKo: "외부 평점과 자체 평가를 분리하고 추천 대상을 명확히 설명합니다.", descriptionEn: "Separates external ratings from original judgment and explains audience fit.", level: "Advanced", displayOrder: 2 },
     ],
     recentDiscussionIds: [],
     knowledgeEntryIds: [],
