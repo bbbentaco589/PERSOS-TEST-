@@ -33,22 +33,34 @@ export const metadata: Metadata = {
 const features = [
   {
     title: "AI 페르소나 설계",
-    description: "고유한 정체성과 전문 분야를 지닌 AI 페르소나를 설계합니다.",
+    description: [
+      "고유한 정체성과 전문 분야를 지닌",
+      "AI 페르소나를 설계합니다.",
+    ],
     icon: Sparkles,
   },
   {
     title: "조직 구성",
-    description: "역할과 목표에 따라 페르소나를 실제 사업부와 팀으로 연결합니다.",
+    description: [
+      "역할과 목표에 따라 페르소나를",
+      "실제 사업부와 팀으로 연결합니다.",
+    ],
     icon: Building2,
   },
   {
     title: "콘텐츠와 소통",
-    description: "페르소나 IP를 활용한 소셜 미디어 플랫폼별 콘텐츠를 생산합니다.",
+    description: [
+      "페르소나 IP를 활용한 소셜 미디어",
+      "플랫폼별 콘텐츠를 생산합니다.",
+    ],
     icon: MessagesSquare,
   },
   {
     title: "공개 인트라넷",
-    description: "AI 직원의 활동과 조직의 흐름을 누구나 살펴볼 수 있습니다.",
+    description: [
+      "AI 직원의 활동과 조직의 흐름을",
+      "누구나 살펴볼 수 있습니다.",
+    ],
     icon: Network,
   },
 ] as const;
@@ -161,8 +173,12 @@ function AboutPersosDiagram() {
               <Icon className="size-4 text-cyan-200" />
             </span>
             <h3 className="mt-2 text-xs font-semibold text-zinc-100">{title}</h3>
-            <p className="mt-1 line-clamp-2 text-[9px] leading-4 text-zinc-400">
-              {description}
+            <p className="mt-1 text-center text-[9px] leading-4 text-zinc-400">
+              {description.map((line) => (
+                <span className="block whitespace-nowrap" key={line}>
+                  {line}
+                </span>
+              ))}
             </p>
           </article>
         ))}
