@@ -120,6 +120,77 @@ function BrandNetworkVisual() {
   );
 }
 
+function AboutPersosDiagram() {
+  const positions = [
+    "left-1/2 top-0 w-[44%] -translate-x-1/2",
+    "left-0 top-1/2 w-[38%] -translate-y-1/2",
+    "right-0 top-1/2 w-[38%] -translate-y-1/2",
+    "bottom-0 left-1/2 w-[44%] -translate-x-1/2",
+  ] as const;
+
+  return (
+    <div className="w-full">
+      <div
+        aria-label="PERSOS를 중심으로 연결된 AI 페르소나 설계, 조직 구성, 콘텐츠와 소통, 공개 인트라넷"
+        className="relative mx-auto hidden h-[270px] w-full max-w-[520px] sm:block"
+        role="img"
+      >
+        <div className="absolute left-1/2 top-[27%] h-[46%] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-200/20 via-cyan-200/80 to-cyan-200/20 shadow-[0_0_8px_rgba(103,232,249,0.45)]" />
+        <div className="absolute left-[18%] top-1/2 h-px w-[64%] -translate-y-1/2 bg-gradient-to-r from-cyan-200/20 via-cyan-200/80 to-cyan-200/20 shadow-[0_0_8px_rgba(103,232,249,0.45)]" />
+
+        {features.map(({ description, icon: Icon, title }, index) => (
+          <article
+            className={`absolute z-10 min-h-[76px] rounded-xl border border-cyan-200/25 bg-[linear-gradient(145deg,rgba(9,34,57,0.94),rgba(3,11,23,0.96))] px-3 py-2.5 text-center shadow-[inset_0_0_24px_rgba(34,211,238,0.04),0_8px_30px_rgba(0,0,0,0.22)] ${positions[index]}`}
+            key={title}
+          >
+            <span className="mx-auto -mt-6 grid size-9 place-items-center rounded-full border border-cyan-200/45 bg-[#071827] shadow-[0_0_14px_rgba(34,211,238,0.2)]">
+              <Icon className="size-4 text-cyan-200" />
+            </span>
+            <h3 className="mt-2 text-xs font-semibold text-zinc-100">{title}</h3>
+            <p className="mt-1 line-clamp-2 text-[9px] leading-4 text-zinc-400">
+              {description}
+            </p>
+          </article>
+        ))}
+
+        <div className="absolute left-1/2 top-1/2 z-20 grid size-[82px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(34,211,238,0.18),rgba(3,12,25,0.98)_68%)] shadow-[inset_0_0_28px_rgba(34,211,238,0.14),0_0_26px_rgba(14,165,233,0.18)]">
+          <span className="absolute -inset-2 rounded-full border border-dashed border-cyan-200/20" />
+          <Image
+            alt="PERSOS 아이콘"
+            className="object-contain p-4 drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]"
+            fill
+            sizes="82px"
+            src="/brand/persos-icon.png"
+          />
+        </div>
+      </div>
+
+      <div className="sm:hidden">
+        <div className="mx-auto grid size-20 place-items-center rounded-full border border-cyan-200/50 bg-cyan-300/[0.08] shadow-[0_0_24px_rgba(14,165,233,0.16)]">
+          <Image
+            alt="PERSOS 아이콘"
+            className="object-contain p-4"
+            height={80}
+            src="/brand/persos-icon.png"
+            width={80}
+          />
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          {features.map(({ icon: Icon, title }) => (
+            <div
+              className="flex items-center gap-2 rounded-lg border border-cyan-200/20 bg-cyan-300/[0.04] px-3 py-2.5"
+              key={title}
+            >
+              <Icon className="size-4 shrink-0 text-cyan-200" />
+              <span className="text-[11px] font-medium text-zinc-200">{title}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AboutPage() {
   const publicEmployees = employees.filter(isPublicActiveCharacter);
   const activeDivisions = [...divisions].sort(
@@ -173,7 +244,7 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="what-is-persos-title"
-        className="grid gap-10 rounded-2xl border border-white/10 bg-[#080c13] p-6 sm:p-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14"
+        className="relative grid min-h-[300px] items-center gap-5 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_78%_50%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(520px,1.12fr)] lg:gap-4"
       >
         <div className="flex flex-col justify-center">
           <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
@@ -185,27 +256,13 @@ export default function AboutPage() {
           >
             PERSOS는<br />어떤 곳인가?
           </h2>
-          <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
+          <p className="mt-5 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
             AI를 단일 도구로 사용하는 데서 나아가, 서로 다른 역할과 관점을 가진
             페르소나가 한 조직 안에서 일하도록 설계합니다. 그 과정과 결과는
             PERSOS의 공개 인트라넷에서 이어집니다.
           </p>
         </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          {features.map(({ description, icon: Icon, title }) => (
-            <article
-              className="rounded-xl border border-white/8 bg-black/20 p-5"
-              key={title}
-            >
-              <span className="grid size-10 place-items-center rounded-lg border border-cyan-300/15 bg-cyan-300/[0.06]">
-                <Icon className="size-4.5 text-cyan-200" />
-              </span>
-              <h3 className="mt-5 text-sm font-semibold text-white">{title}</h3>
-              <p className="mt-2 text-xs leading-6 text-zinc-500">{description}</p>
-            </article>
-          ))}
-        </div>
+        <AboutPersosDiagram />
       </section>
 
       <section
