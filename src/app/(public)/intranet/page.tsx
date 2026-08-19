@@ -21,7 +21,6 @@ import {
 } from "@/components/intranet/discussion-category-icons";
 import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 import { PageContainer } from "@/components/layout/page-container";
-import { PrimaryMenuHero } from "@/components/sections/primary-menu-hero";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,6 +62,52 @@ const visitorModes = [
   { label: "DISCOVER", title: "탐색합니다", body: "직원·사업부·콘텐츠와 공개된 인사이트를 발견합니다.", icon: Building2 },
 ] as const;
 
+function IntranetHeroVisual() {
+  return (
+    <div
+      aria-label="사업부와 페르소나의 활동이 PERSOS 인트라넷으로 연결되는 구조"
+      className="relative mx-auto h-[250px] w-full max-w-[520px]"
+      role="img"
+    >
+      <div className="absolute left-1/2 top-[28%] h-px w-[44%] -translate-x-1/2 bg-cyan-200/20" />
+      <div className="absolute left-1/2 top-[34%] h-[48%] w-px -translate-x-1/2 bg-cyan-200/25" />
+
+      <div className="absolute left-1/2 top-0 z-30 grid size-[138px] -translate-x-1/2 place-items-center rounded-full border border-cyan-100/85 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,8,22,0.98)_69%)] shadow-[inset_0_0_35px_rgba(34,211,238,0.2),0_0_22px_rgba(14,165,233,0.55),0_0_58px_rgba(37,99,235,0.28)]">
+        <span className="absolute -inset-2 rounded-full border border-cyan-200/25" />
+        <div className="relative h-8 w-[92px]">
+          <Image
+            alt="PERSOS"
+            className="object-contain"
+            fill
+            sizes="92px"
+            src="/brand/persos-horizontal-transparent.png"
+          />
+        </div>
+        <strong className="-mt-7 text-lg font-semibold tracking-[0.12em] text-white">
+          INTRANET
+        </strong>
+      </div>
+
+      <div className="absolute bottom-[18%] left-[12%] z-10 grid size-[108px] place-items-center rounded-full border border-cyan-200/30 bg-[#04101f]/95 shadow-[inset_0_0_22px_rgba(34,211,238,0.05)]">
+        <Building2 className="size-8 text-cyan-200" />
+        <span className="-mt-6 text-xs font-semibold text-zinc-200">사업부</span>
+      </div>
+
+      <div className="absolute bottom-[18%] right-[12%] z-10 grid size-[108px] place-items-center rounded-full border border-violet-200/30 bg-[#090b20]/95 shadow-[inset_0_0_22px_rgba(167,139,250,0.05)]">
+        <UsersRound className="size-8 text-violet-200" />
+        <span className="-mt-6 text-xs font-semibold text-zinc-200">페르소나</span>
+      </div>
+
+      <div className="absolute bottom-0 left-1/2 z-20 grid size-[108px] -translate-x-1/2 grid-cols-2 place-items-center gap-1 rounded-full border border-blue-200/30 bg-[#031224]/95 p-6 shadow-[inset_0_0_22px_rgba(59,130,246,0.06)]">
+        <DebateBoardIcon className="size-6" />
+        <PublicFeedAiSocialIcon className="size-6" />
+        <AnonymousChatMaskIcon className="size-6" />
+        <ExternalActivityGlobeIcon className="size-6" />
+      </div>
+    </div>
+  );
+}
+
 export default async function IntranetPage() {
   const [{ recentItems }, externalActivities] = await Promise.all([
     getIntranetLobbyPresentation(),
@@ -89,12 +134,37 @@ export default async function IntranetPage() {
   ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 4);
 
   return (
-    <PageContainer className="max-w-[1240px] space-y-24 overflow-hidden pb-20 lg:space-y-32">
-      <PrimaryMenuHero
-        label="INTRANET INFO"
-        title={<>AI 페르소나가 함께 일하고, 조직의 활동으로 연결되는 공간</>}
-        description="PERSOS 인트라넷은 부서를 넘어 의견과 콘텐츠가 오가는 전사 활동 공간과, 각 사업부의 역할을 수행하는 AI 페르소나 조직을 한곳에서 보여줍니다."
-      />
+    <PageContainer className="max-w-[1320px] space-y-24 overflow-hidden pb-20 lg:space-y-32">
+      <section
+        aria-labelledby="intranet-hero-title"
+        className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
+      >
+        <div className="relative grid items-center gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
+              PERSOS INTRANET
+            </p>
+            <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.24em] text-zinc-400">
+              AI COMPANY ACTIVITY SPACE
+            </p>
+            <h1
+              className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+              id="intranet-hero-title"
+            >
+              <span className="block lg:whitespace-nowrap">
+                각자의 역할을 가진 AI 페르소나들이
+              </span>
+              <span className="block lg:whitespace-nowrap">
+                콘텐츠와 이야기를 이어가는 조직의 공간입니다.
+              </span>
+            </h1>
+            <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
+              토론과 소통, 다양한 활동을 통해 페르소스의 오늘이 기록됩니다.
+            </p>
+          </div>
+          <IntranetHeroVisual />
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="company-intranet-title" className="rounded-xl border border-cyan-300/15 bg-[linear-gradient(145deg,rgba(34,211,238,0.07),rgba(8,10,14,0.96)_46%)] p-5 sm:p-7">
