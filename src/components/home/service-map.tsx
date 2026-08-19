@@ -114,13 +114,13 @@ export function ServiceMap() {
 
       <header className="relative text-center">
         <p className="text-[10px] font-medium uppercase tracking-[0.36em] text-blue-100/80">
-          PERSOS SERVICE MAP
+          PERSOS INTRANET SURVICE MAP
         </p>
         <h2
           className="mt-3 text-balance text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl"
           id="service-map-title"
         >
-          하나의 조직에서 연결되는 서비스
+          조직과 활동을 잇는 PERSOS 인트라넷
         </h2>
       </header>
 
@@ -132,18 +132,21 @@ export function ServiceMap() {
           <Connection side="left" />
           <Connection side="right" />
 
-          <div className="relative z-10 grid h-28 w-40 place-items-center rounded-full border border-blue-300/50 bg-[radial-gradient(circle,rgba(17,44,101,0.98),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_28px_rgba(59,130,246,0.25),0_0_32px_rgba(37,99,235,0.24)]">
+          <div className="relative z-10 flex size-36 flex-col items-center justify-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.2),0_0_34px_rgba(37,99,235,0.3)]">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
-            <span className="relative h-16 w-32">
+            <span className="relative h-11 w-[7rem]">
               <Image
                 alt="PERSOS Persona Operating System"
                 className="object-contain"
                 fill
-                sizes="128px"
-                src="/brand/persos-horizontal-transparent.png"
+                sizes="112px"
+                src="/assets/about/persos-logo-washed.png"
                 unoptimized
               />
             </span>
+            <strong className="relative mt-1 text-lg font-semibold tracking-[0.12em] text-white">
+              INTRANET
+            </strong>
           </div>
         </div>
 

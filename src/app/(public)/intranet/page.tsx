@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
+import { ServiceMap } from "@/components/home/service-map";
 import {
   ActivityPreviewCard,
   type PublicActivityPreviewItem,
@@ -136,10 +137,11 @@ export default async function IntranetPage() {
 
   return (
     <PageContainer className="max-w-[1320px] space-y-24 overflow-hidden pb-20 lg:space-y-32">
-      <section
-        aria-labelledby="intranet-hero-title"
-        className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
-      >
+      <div className="space-y-6">
+        <section
+          aria-labelledby="intranet-hero-title"
+          className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
+        >
         <div className="relative grid items-center gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
@@ -180,7 +182,10 @@ export default async function IntranetPage() {
           </div>
           <IntranetHeroVisual />
         </div>
-      </section>
+        </section>
+
+        <ServiceMap />
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="company-intranet-title" className="rounded-xl border border-cyan-300/15 bg-[linear-gradient(145deg,rgba(34,211,238,0.07),rgba(8,10,14,0.96)_46%)] p-5 sm:p-7">

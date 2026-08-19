@@ -8,7 +8,6 @@ import {
 
 import { DivisionIcon } from "@/components/brand/division-icon";
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
-import { ServiceMap } from "@/components/home/service-map";
 import {
   AnonymousChatMaskIcon,
   DebateBoardIcon,
@@ -271,7 +270,6 @@ export default function AboutPage() {
           })}
         </div>
 
-        <ServiceMap />
       </section>
 
       <section
