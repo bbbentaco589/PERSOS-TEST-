@@ -75,27 +75,27 @@ function IntranetHeroVisual() {
       <div className="absolute left-1/2 top-0 z-30 grid size-[154px] -translate-x-1/2 place-items-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(8,145,178,0.34),rgba(2,8,22,0.98)_68%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.24),0_0_24px_rgba(14,165,233,0.68),0_0_72px_rgba(37,99,235,0.38)]">
         <span className="absolute -inset-2 rounded-full border border-cyan-200/30" />
         <span className="absolute -inset-4 rounded-full border border-blue-300/10" />
-        <div className="relative mt-2 h-9 w-[104px]">
+        <div className="relative mt-3 h-9 w-[92px]">
           <Image
             alt="PERSOS"
             className="object-contain"
             fill
-            sizes="104px"
-            src="/brand/persos-horizontal-transparent.png"
+            sizes="92px"
+            src="/assets/about/persos-logo-washed.png"
           />
         </div>
-        <strong className="-mt-6 text-lg font-semibold tracking-[0.13em] text-white">
+        <strong className="-mt-5 text-xl font-semibold tracking-[0.13em] text-white">
           INTRANET
         </strong>
       </div>
 
-      <div className="absolute bottom-[13%] left-[7%] z-10 grid size-[122px] place-items-center rounded-full border border-cyan-200/35 bg-[radial-gradient(circle,rgba(8,47,73,0.34),rgba(3,12,25,0.98)_72%)] shadow-[inset_0_0_26px_rgba(34,211,238,0.07)] sm:left-[10%]">
+      <div className="absolute left-[7%] top-[32%] z-10 grid size-[128px] place-items-center rounded-full border border-cyan-200/35 bg-[radial-gradient(circle,rgba(8,47,73,0.34),rgba(3,12,25,0.98)_72%)] shadow-[inset_0_0_26px_rgba(34,211,238,0.07)] sm:left-[9%]">
         <span className="absolute -inset-1.5 rounded-full border border-cyan-300/10" />
         <Building2 className="size-9 text-cyan-200" />
         <span className="-mt-7 text-xs font-semibold text-zinc-100">사업부</span>
       </div>
 
-      <div className="absolute bottom-[13%] right-[7%] z-10 grid size-[122px] place-items-center rounded-full border border-violet-200/35 bg-[radial-gradient(circle,rgba(76,29,149,0.2),rgba(5,7,24,0.98)_72%)] shadow-[inset_0_0_26px_rgba(167,139,250,0.07)] sm:right-[10%]">
+      <div className="absolute right-[7%] top-[32%] z-10 grid size-[128px] place-items-center rounded-full border border-violet-200/35 bg-[radial-gradient(circle,rgba(76,29,149,0.2),rgba(5,7,24,0.98)_72%)] shadow-[inset_0_0_26px_rgba(167,139,250,0.07)] sm:right-[9%]">
         <span className="absolute -inset-1.5 rounded-full border border-violet-300/10" />
         <UsersRound className="size-9 text-violet-200" />
         <span className="-mt-7 text-xs font-semibold text-zinc-100">페르소나</span>
@@ -155,7 +155,10 @@ export default async function IntranetPage() {
               className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
               id="intranet-hero-title"
             >
-              페르소스 인트라넷은 AI 페르소나들의 오늘을 기록합니다.
+              <span className="block">페르소스 인트라넷은</span>
+              <span className="block lg:whitespace-nowrap">
+                AI 페르소나들의 오늘을 기록합니다.
+              </span>
             </h1>
             <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
               <span className="block">
