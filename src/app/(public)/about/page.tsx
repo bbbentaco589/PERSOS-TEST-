@@ -43,7 +43,7 @@ const features = [
   },
   {
     title: "콘텐츠와 소통",
-    description: "각자의 관점으로 콘텐츠를 만들고 서로 의견을 나누게 합니다.",
+    description: "페르소나 IP를 활용한 소셜 미디어 플랫폼별 콘텐츠를 생산합니다.",
     icon: MessagesSquare,
   },
   {
@@ -123,8 +123,8 @@ function BrandNetworkVisual() {
 function AboutPersosDiagram() {
   const positions = [
     "left-1/2 top-0 w-[44%] -translate-x-1/2",
-    "left-0 top-1/2 w-[38%] -translate-y-1/2",
     "right-0 top-1/2 w-[38%] -translate-y-1/2",
+    "left-0 top-1/2 w-[38%] -translate-y-1/2",
     "bottom-0 left-1/2 w-[44%] -translate-x-1/2",
   ] as const;
 
@@ -140,10 +140,10 @@ function AboutPersosDiagram() {
 
         {features.map(({ description, icon: Icon, title }, index) => (
           <article
-            className={`absolute z-10 min-h-[76px] rounded-xl border border-cyan-200/25 bg-[linear-gradient(145deg,rgba(9,34,57,0.94),rgba(3,11,23,0.96))] px-3 py-2.5 text-center shadow-[inset_0_0_24px_rgba(34,211,238,0.04),0_8px_30px_rgba(0,0,0,0.22)] ${positions[index]}`}
+            className={`absolute z-30 min-h-[76px] overflow-visible rounded-xl border border-cyan-200/25 bg-[linear-gradient(145deg,rgba(9,34,57,0.94),rgba(3,11,23,0.96))] px-3 py-2.5 text-center shadow-[inset_0_0_24px_rgba(34,211,238,0.04),0_8px_30px_rgba(0,0,0,0.22)] ${positions[index]}`}
             key={title}
           >
-            <span className="mx-auto -mt-6 grid size-9 place-items-center rounded-full border border-cyan-200/45 bg-[#071827] shadow-[0_0_14px_rgba(34,211,238,0.2)]">
+            <span className="relative z-40 mx-auto -mt-6 grid size-9 place-items-center rounded-full border border-cyan-200/45 bg-[#071827] shadow-[0_0_14px_rgba(34,211,238,0.2)]">
               <Icon className="size-4 text-cyan-200" />
             </span>
             <h3 className="mt-2 text-xs font-semibold text-zinc-100">{title}</h3>
@@ -198,7 +198,7 @@ export default function AboutPage() {
   );
 
   return (
-    <PageContainer className="max-w-[1320px] space-y-16 overflow-hidden pb-20 sm:space-y-20 lg:space-y-24">
+    <PageContainer className="max-w-[1320px] space-y-8 overflow-hidden pb-20 sm:space-y-10 lg:space-y-12">
       <section
         aria-labelledby="about-hero-title"
         className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_83%_46%,rgba(14,116,144,0.24),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
@@ -244,25 +244,28 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="what-is-persos-title"
-        className="relative grid min-h-[300px] items-center gap-5 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_78%_50%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(520px,1.12fr)] lg:gap-4"
+        className="relative grid min-h-[300px] items-center gap-5 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_50%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(520px,1.12fr)_minmax(0,0.88fr)] lg:gap-6"
       >
+        <AboutPersosDiagram />
         <div className="flex flex-col justify-center">
           <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
-            ABOUT PERSOS
+            PERSOS OS PROCESS
           </p>
           <h2
-            className="mt-4 text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl"
+            className="mt-4 text-3xl font-semibold leading-tight text-white sm:whitespace-nowrap sm:text-4xl"
             id="what-is-persos-title"
           >
-            PERSOS는<br />어떤 곳인가?
+            페르소스 운영 흐름
           </h2>
           <p className="mt-5 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
-            AI를 단일 도구로 사용하는 데서 나아가, 서로 다른 역할과 관점을 가진
-            페르소나가 한 조직 안에서 일하도록 설계합니다. 그 과정과 결과는
-            PERSOS의 공개 인트라넷에서 이어집니다.
+            <span className="block">AI를 단일 도구로 사용하는 데서 나아가,</span>
+            <span className="block">정체성을 부여받은 개체들의 조직으로 거듭납니다.</span>
           </p>
+          <blockquote className="mt-5 border-l border-cyan-200/45 pl-4 text-xs leading-6 text-zinc-300 sm:text-sm">
+            그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고
+            다양한 소셜 플랫폼에 유통됩니다.
+          </blockquote>
         </div>
-        <AboutPersosDiagram />
       </section>
 
       <section
