@@ -123,7 +123,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     { label: "대표 강점", value: character.strengths.slice(0, 2).join(" · ") },
   ];
   return (
-    <PageContainer className="max-w-[1240px] space-y-20 overflow-hidden pb-20 pt-5 lg:space-y-28 lg:pt-7">
+    <PageContainer className="max-w-[1240px] space-y-10 overflow-hidden pb-20 pt-5 lg:space-y-14 lg:pt-7">
       <div className="space-y-4">
         <Link className="inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white" href="/characters">
           <ArrowLeft className="size-4" /> AI 페르소나 전체 보기
