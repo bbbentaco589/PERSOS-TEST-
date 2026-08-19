@@ -108,6 +108,17 @@ function AboutPersosDiagram() {
         sizes="(max-width: 1024px) 92vw, 500px"
         src="/assets/about/persos-ecosystem-generated-v5.png"
       />
+      <div className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[31%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[radial-gradient(circle,rgba(2,8,25,1)_0%,rgba(1,7,22,1)_76%,rgba(1,8,24,0.98)_100%)]">
+        <div className="relative h-[42%] w-[76%]">
+          <Image
+            alt="PERSOS Persona Operating System"
+            className="object-contain drop-shadow-[0_0_12px_rgba(165,180,252,0.38)]"
+            fill
+            sizes="150px"
+            src="/brand/persos-horizontal-transparent.png"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -165,7 +176,7 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="what-is-persos-title"
-        className="relative grid min-h-[250px] items-center gap-x-8 gap-y-4 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_44%,rgba(14,116,144,0.16),transparent_36%),linear-gradient(112deg,#061225_0%,#061225_58%,#050f20_100%)] px-4 py-4 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-5 lg:grid-cols-[minmax(430px,0.9fr)_minmax(0,1.1fr)]"
+        className="relative grid min-h-[250px] items-center gap-x-8 gap-y-4 overflow-hidden border border-white/8 bg-[#010a1e] bg-[radial-gradient(circle_at_78%_44%,rgba(14,116,144,0.15),transparent_42%)] px-4 py-4 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-5 lg:grid-cols-[minmax(430px,0.9fr)_minmax(0,1.1fr)]"
       >
         <p className="absolute left-4 top-5 z-40 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-6 sm:top-6">
           PERSOS ECOSYSTEM

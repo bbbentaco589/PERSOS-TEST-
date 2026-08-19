@@ -69,39 +69,36 @@ function IntranetHeroVisual() {
       className="relative mx-auto h-[260px] w-full max-w-[520px]"
       role="img"
     >
-      <div className="absolute left-1/2 top-[33%] h-[49%] w-px -translate-x-1/2 bg-cyan-200/20" />
-      <div className="absolute left-[24%] top-[48%] h-px w-[52%] bg-cyan-200/15" />
-
-      <div className="absolute left-1/2 top-0 z-30 grid size-[154px] -translate-x-1/2 place-items-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(8,145,178,0.34),rgba(2,8,22,0.98)_68%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.24),0_0_24px_rgba(14,165,233,0.68),0_0_72px_rgba(37,99,235,0.38)]">
+      <div className="absolute left-1/2 top-0 z-30 flex size-[154px] -translate-x-1/2 flex-col items-center justify-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(8,145,178,0.34),rgba(2,8,22,0.98)_68%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.24),0_0_24px_rgba(14,165,233,0.68),0_0_72px_rgba(37,99,235,0.38)]">
         <span className="absolute -inset-2 rounded-full border border-cyan-200/30" />
         <span className="absolute -inset-4 rounded-full border border-blue-300/10" />
-        <div className="relative mt-3 h-9 w-[92px]">
+        <div className="relative h-10 w-[100px]">
           <Image
             alt="PERSOS"
             className="object-contain"
             fill
-            sizes="92px"
+            sizes="100px"
             src="/assets/about/persos-logo-washed.png"
           />
         </div>
-        <strong className="-mt-5 text-xl font-semibold tracking-[0.13em] text-white">
+        <strong className="mt-0.5 text-xl font-semibold tracking-[0.13em] text-white">
           INTRANET
         </strong>
       </div>
 
-      <div className="absolute left-[7%] top-[32%] z-10 grid size-[128px] place-items-center rounded-full border border-cyan-200/35 bg-[radial-gradient(circle,rgba(8,47,73,0.34),rgba(3,12,25,0.98)_72%)] shadow-[inset_0_0_26px_rgba(34,211,238,0.07)] sm:left-[9%]">
+      <div className="absolute left-[15%] top-[35%] z-20 grid size-[128px] place-items-center rounded-full border border-cyan-200/35 bg-[radial-gradient(circle,rgba(8,47,73,0.34),rgba(3,12,25,0.98)_72%)] shadow-[inset_0_0_26px_rgba(34,211,238,0.07)] sm:left-[18%]">
         <span className="absolute -inset-1.5 rounded-full border border-cyan-300/10" />
         <Building2 className="size-9 text-cyan-200" />
         <span className="-mt-7 text-xs font-semibold text-zinc-100">사업부</span>
       </div>
 
-      <div className="absolute right-[7%] top-[32%] z-10 grid size-[128px] place-items-center rounded-full border border-violet-200/35 bg-[radial-gradient(circle,rgba(76,29,149,0.2),rgba(5,7,24,0.98)_72%)] shadow-[inset_0_0_26px_rgba(167,139,250,0.07)] sm:right-[9%]">
+      <div className="absolute right-[15%] top-[35%] z-20 grid size-[128px] place-items-center rounded-full border border-violet-200/35 bg-[radial-gradient(circle,rgba(76,29,149,0.2),rgba(5,7,24,0.98)_72%)] shadow-[inset_0_0_26px_rgba(167,139,250,0.07)] sm:right-[18%]">
         <span className="absolute -inset-1.5 rounded-full border border-violet-300/10" />
         <UsersRound className="size-9 text-violet-200" />
         <span className="-mt-7 text-xs font-semibold text-zinc-100">페르소나</span>
       </div>
 
-      <div className="absolute bottom-0 left-1/2 z-20 grid size-[128px] -translate-x-1/2 grid-cols-2 place-items-center gap-1 rounded-full border border-blue-200/35 bg-[radial-gradient(circle,rgba(7,89,133,0.2),rgba(2,13,28,0.98)_72%)] p-7 shadow-[inset_0_0_28px_rgba(59,130,246,0.08)]">
+      <div className="absolute bottom-0 left-1/2 z-10 grid size-[128px] -translate-x-1/2 grid-cols-2 place-items-center gap-1 rounded-full border border-blue-200/35 bg-[radial-gradient(circle,rgba(7,89,133,0.2),rgba(2,13,28,0.98)_72%)] p-7 shadow-[inset_0_0_28px_rgba(59,130,246,0.08)]">
         <span className="absolute -inset-1.5 rounded-full border border-blue-300/10" />
         <DebateBoardIcon className="size-7" />
         <PublicFeedAiSocialIcon className="size-7" />
@@ -169,12 +166,12 @@ export default async function IntranetPage() {
               </span>
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild className="w-[9.75rem] justify-center">
+              <Button asChild className="w-[11rem] justify-center">
                 <Link href="/departments">
                   DEPARTMENTS INFO <ArrowRight />
                 </Link>
               </Button>
-              <Button asChild className="w-[9.75rem] justify-center">
+              <Button asChild className="w-[11rem] justify-center">
                 <Link href="/characters">
                   PERSONAS INFO <ArrowRight />
                 </Link>

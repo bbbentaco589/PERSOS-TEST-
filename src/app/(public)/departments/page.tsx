@@ -90,16 +90,23 @@ function OrganizationOverviewTable() {
   ];
 
   return (
-    <section aria-label="조직 현황" className="overflow-hidden rounded-lg border border-cyan-200/15 bg-[linear-gradient(100deg,rgba(6,18,35,0.97),rgba(9,28,50,0.78),rgba(6,18,35,0.97))] shadow-[inset_0_0_28px_rgba(34,211,238,0.025)]">
-      {rows.map((row) => (
-        <div className="border-b border-white/8 px-3 py-3 last:border-b-0 sm:px-4" key={row.label}>
-          <div className="mb-2 flex items-baseline gap-2">
-            <h2 className="text-xs font-semibold text-white sm:text-sm">{row.label}</h2>
-            <span className="text-sm font-semibold text-cyan-100">{row.items.length}</span>
+    <section aria-labelledby="departments-overview-title" className="overflow-hidden rounded-xl border border-cyan-200/15 bg-[linear-gradient(120deg,rgba(4,13,29,0.98),rgba(8,24,45,0.88),rgba(4,13,29,0.98))] shadow-[inset_0_0_38px_rgba(34,211,238,0.035)]">
+      <header className="flex flex-col gap-2 border-b border-cyan-200/12 px-4 py-4 sm:px-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-cyan-200" id="departments-overview-title">
+          DEPARTMENTS OVERVIEW
+        </p>
+        <p className="text-xs leading-5 text-zinc-500">PERSOS의 사업부·팀·페르소나 조직 구성을 한눈에 확인합니다.</p>
+      </header>
+      {rows.map((row, rowIndex) => (
+        <div className="border-b border-white/8 px-4 py-4 last:border-b-0 sm:px-5" key={row.label}>
+          <div className="mb-3 flex items-center gap-2.5">
+            <span className="h-4 w-0.5 rounded-full bg-cyan-300/70" />
+            <h2 className="text-xs font-semibold text-zinc-100 sm:text-sm">{row.label}</h2>
+            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/[0.06] px-2 py-0.5 text-[10px] font-semibold text-cyan-100">{row.items.length}</span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-6">
             {row.items.map((item) => (
-              <div className="flex min-h-8 items-center justify-center rounded border border-white/8 bg-slate-950/35 px-2 text-center text-[10px] leading-4 text-zinc-300 sm:text-[11px]" key={item.id}>
+              <div className={`flex min-h-8 items-center justify-center rounded-md border px-2 text-center text-[10px] leading-4 sm:text-[11px] ${rowIndex === 0 ? "border-cyan-200/15 bg-cyan-300/[0.035] text-cyan-50" : "border-white/8 bg-slate-950/35 text-zinc-300"}`} key={item.id}>
                 {item.name}
               </div>
             ))}
@@ -141,7 +148,6 @@ export default function DepartmentsPage() {
   return (
     <PageContainer className="space-y-8">
       <DepartmentsHero />
-      <OrganizationOverviewTable />
       <section aria-label="PERSOS 사업부와 팀" className="grid items-start gap-4 2xl:grid-cols-2">
         {publicDivisionOrder.map((divisionId) => divisions.find((division) => division.id === divisionId)).filter((division) => Boolean(division)).map((division, index) => division && (
           <DivisionStructureCard
@@ -154,9 +160,7 @@ export default function DepartmentsPage() {
           />
         ))}
       </section>
-      <div className="border-l-2 border-cyan-300/40 pl-4 text-sm leading-7 text-zinc-400">
-        승인 프로필 4명은 업무 중이며, 나머지 14명은 조직·직무 검증을 위한 Rough 상태입니다. Rough 이름과 Character Lore는 최종 확정 정보가 아닙니다.
-      </div>
+      <OrganizationOverviewTable />
     </PageContainer>
   );
 }
