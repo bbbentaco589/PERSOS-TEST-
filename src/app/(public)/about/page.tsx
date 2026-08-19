@@ -60,33 +60,6 @@ const intranetActivities = [
   { label: "전사원 외부 활동", icon: ExternalActivityGlobeIcon },
 ] as const;
 
-const processSteps = [
-  {
-    number: "01",
-    title: "설계",
-    description: "정체성 및 역할 부여",
-    icon: Sparkles,
-  },
-  {
-    number: "02",
-    title: "구성",
-    description: "사업부 및 담당 분야 연결",
-    icon: UsersRound,
-  },
-  {
-    number: "03",
-    title: "생산",
-    description: "플랫폼별 콘텐츠 제작",
-    icon: MessagesSquare,
-  },
-  {
-    number: "04",
-    title: "공개",
-    description: "플랫폼별 콘텐츠 업로드",
-    icon: Network,
-  },
-] as const;
-
 function BrandNetworkVisual() {
   return (
     <div
@@ -147,6 +120,20 @@ function BrandNetworkVisual() {
   );
 }
 
+function PersosIconCutout() {
+  return (
+    <div className="relative h-16 w-12 overflow-hidden">
+      <Image
+        alt="PERSOS 아이콘"
+        className="absolute left-[-42px] top-[-42px] h-[162px] w-[244px] max-w-none"
+        height={1024}
+        src="/assets/about/persos-logo.png"
+        width={1536}
+      />
+    </div>
+  );
+}
+
 function AboutPersosDiagram() {
   const positions = [
     "left-1/2 top-0 w-[44%] -translate-x-1/2",
@@ -182,25 +169,13 @@ function AboutPersosDiagram() {
 
         <div className="absolute left-1/2 top-1/2 z-20 grid size-[82px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-200/55 bg-[radial-gradient(circle,rgba(34,211,238,0.18),rgba(3,12,25,0.98)_68%)] shadow-[inset_0_0_28px_rgba(34,211,238,0.14),0_0_26px_rgba(14,165,233,0.18)]">
           <span className="absolute -inset-2 rounded-full border border-dashed border-cyan-200/20" />
-          <Image
-            alt="PERSOS 아이콘"
-            className="mix-blend-screen object-contain p-3 drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]"
-            fill
-            sizes="82px"
-            src="/brand/persos-icon.png"
-          />
+          <PersosIconCutout />
         </div>
       </div>
 
       <div className="sm:hidden">
         <div className="mx-auto grid size-20 place-items-center rounded-full border border-cyan-200/50 bg-cyan-300/[0.08] shadow-[0_0_24px_rgba(14,165,233,0.16)]">
-          <Image
-            alt="PERSOS 아이콘"
-            className="mix-blend-screen object-contain p-3"
-            height={80}
-            src="/brand/persos-icon.png"
-            width={80}
-          />
+          <PersosIconCutout />
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2">
           {features.map(({ icon: Icon, title }) => (
@@ -214,47 +189,6 @@ function AboutPersosDiagram() {
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function PersosProcessSteps() {
-  return (
-    <div
-      aria-label="PERSOS 운영 단계: 설계, 구성, 생산, 공개"
-      className="mt-5 grid grid-cols-2 gap-2 xl:grid-cols-4"
-      role="list"
-    >
-      {processSteps.map(({ description, icon: Icon, number, title }, index) => (
-        <div
-          className="relative min-h-[106px] rounded-xl border border-cyan-200/25 bg-[linear-gradient(155deg,rgba(12,32,65,0.9),rgba(3,10,24,0.98))] px-3 py-3 shadow-[inset_0_0_20px_rgba(34,211,238,0.04),0_8px_22px_rgba(0,0,0,0.18)]"
-          key={number}
-          role="listitem"
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-cyan-200/30 bg-cyan-300/[0.06] shadow-[0_0_12px_rgba(34,211,238,0.12)]">
-              <Icon className="size-4 text-cyan-100" />
-            </span>
-            <strong className="whitespace-nowrap text-sm font-semibold text-white">
-              <span className="mr-2 font-mono text-[9px] tracking-[0.12em] text-sky-300">
-                {number}
-              </span>
-              {title}
-            </strong>
-          </div>
-          <span className="mt-3 block border-t border-dashed border-cyan-200/15 pt-3 text-[9px] leading-4 text-zinc-400">
-            {description}
-          </span>
-          {index < processSteps.length - 1 ? (
-            <span
-              aria-hidden="true"
-              className="absolute -right-2.5 top-1/2 z-20 hidden -translate-y-1/2 text-base font-semibold tracking-[-0.2em] text-cyan-200 xl:block"
-            >
-              》
-            </span>
-          ) : null}
-        </div>
-      ))}
     </div>
   );
 }
@@ -329,12 +263,11 @@ export default function AboutPage() {
             <span className="block">AI를 단일 도구로 사용하는 데서 나아가,</span>
             <span className="block">정체성을 부여받은 개체들의 조직으로 거듭납니다.</span>
           </p>
-          <PersosProcessSteps />
+          <blockquote className="mt-7 border-l-2 border-cyan-200/55 bg-cyan-300/[0.035] px-4 py-3 text-sm font-semibold leading-7 text-zinc-100 sm:text-base">
+            <span aria-hidden="true" className="mr-2">🔊</span>
+            그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
+          </blockquote>
         </div>
-        <blockquote className="border-t border-cyan-200/20 pt-4 text-xs font-semibold leading-6 text-zinc-100 sm:text-sm lg:col-span-2">
-          <span aria-hidden="true" className="mr-2">🔊</span>
-          그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고 다양한 소셜 플랫폼에 유통됩니다.
-        </blockquote>
       </section>
 
       <section
