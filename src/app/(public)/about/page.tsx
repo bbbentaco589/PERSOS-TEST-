@@ -246,13 +246,13 @@ export default function AboutPage() {
         aria-labelledby="what-is-persos-title"
         className="relative grid min-h-[300px] items-center gap-5 overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_24%_50%,rgba(14,116,144,0.2),transparent_34%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:grid-cols-[minmax(520px,1.12fr)_minmax(0,0.88fr)] lg:gap-6"
       >
+        <p className="absolute left-4 top-5 z-40 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-6 sm:top-6">
+          PERSOS PROCESS
+        </p>
         <AboutPersosDiagram />
         <div className="flex flex-col justify-center">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
-            PERSOS OS PROCESS
-          </p>
           <h2
-            className="mt-4 text-3xl font-semibold leading-tight text-white sm:whitespace-nowrap sm:text-4xl"
+            className="text-3xl font-semibold leading-tight text-white sm:whitespace-nowrap sm:text-4xl"
             id="what-is-persos-title"
           >
             페르소스 운영 흐름
