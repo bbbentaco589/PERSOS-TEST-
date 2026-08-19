@@ -253,27 +253,18 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </section>
       </div>
 
-      {timeline.length ? (
-        <section aria-label="성장과 관련 기록" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
-          <SectionHeader
-            description={`${personaDisplayName}이 PERSOS에서 실제로 쌓아온 합류·역할 변화·성장 기록입니다.`}
-            eyebrow="GROWTH & RECORDS"
-            title="성장과 관련 기록"
-          />
-          <ol className="grid gap-3 lg:grid-cols-3">
-            {timeline.map((item, index) => (
-              <li className="relative rounded-lg border border-white/8 bg-[#090d15] p-5" key={item.id}>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-[10px] font-semibold text-cyan-200">{String(index + 1).padStart(2, "0")}</span>
-                  <time className="text-[10px] text-zinc-600" dateTime={item.date}>{item.date.replaceAll("-", ".")}</time>
-                </div>
-                <h3 className="mt-5 text-sm font-semibold text-zinc-100">{item.titleKo}</h3>
-                <p className="mt-2 text-xs leading-6 text-zinc-500">{item.descriptionKo}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-      ) : null}
+      <section aria-labelledby="personality-title" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">PERSONALITY & TRAITS</p>
+        <h2 className="mt-3 text-2xl font-semibold text-white" id="personality-title">성격과 특징</h2>
+        <dl className={cn("mt-6 grid gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 sm:grid-cols-2", personalityItems.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4")}>
+          {personalityItems.map((item) => (
+            <div className="bg-[#090d15] p-4" key={item.label}>
+              <dt className="text-[10px] font-semibold tracking-[0.12em] text-cyan-200/80">{item.label}</dt>
+              <dd className="mt-2 line-clamp-4 text-xs font-medium leading-5 text-zinc-400">{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
       {routineContent ? (
         <section aria-label="대표 콘텐츠" className="rounded-xl border border-violet-300/15 bg-[linear-gradient(145deg,rgba(129,140,248,0.09),rgba(8,10,14,0.97)_52%)] p-5 sm:p-7">
@@ -359,18 +350,27 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </div>
       </section>
 
-      <section aria-labelledby="personality-title" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">PERSONALITY & TRAITS</p>
-        <h2 className="mt-3 text-2xl font-semibold text-white" id="personality-title">성격과 특징</h2>
-        <dl className={cn("mt-6 grid gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 sm:grid-cols-2", personalityItems.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4")}>
-          {personalityItems.map((item) => (
-            <div className="bg-[#090d15] p-4" key={item.label}>
-              <dt className="text-[10px] font-semibold tracking-[0.12em] text-cyan-200/80">{item.label}</dt>
-              <dd className="mt-2 line-clamp-4 text-xs font-medium leading-5 text-zinc-400">{item.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      {timeline.length ? (
+        <section aria-label="성장과 관련 기록" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
+          <SectionHeader
+            description={`${personaDisplayName}이 PERSOS에서 실제로 쌓아온 합류·역할 변화·성장 기록입니다.`}
+            eyebrow="GROWTH & RECORDS"
+            title="성장과 관련 기록"
+          />
+          <ol className="grid gap-3 lg:grid-cols-3">
+            {timeline.map((item, index) => (
+              <li className="relative rounded-lg border border-white/8 bg-[#090d15] p-5" key={item.id}>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-mono text-[10px] font-semibold text-cyan-200">{String(index + 1).padStart(2, "0")}</span>
+                  <time className="text-[10px] text-zinc-600" dateTime={item.date}>{item.date.replaceAll("-", ".")}</time>
+                </div>
+                <h3 className="mt-5 text-sm font-semibold text-zinc-100">{item.titleKo}</h3>
+                <p className="mt-2 text-xs leading-6 text-zinc-500">{item.descriptionKo}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
     </PageContainer>
   );
 }
