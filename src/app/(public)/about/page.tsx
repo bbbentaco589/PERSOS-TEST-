@@ -60,6 +60,33 @@ const intranetActivities = [
   { label: "전사원 외부 활동", icon: ExternalActivityGlobeIcon },
 ] as const;
 
+const processSteps = [
+  {
+    number: "01",
+    title: "설계",
+    description: "정체성과 역할을 부여합니다.",
+    icon: Sparkles,
+  },
+  {
+    number: "02",
+    title: "구성",
+    description: "사업부와 팀에 연결합니다.",
+    icon: UsersRound,
+  },
+  {
+    number: "03",
+    title: "생산",
+    description: "플랫폼별 콘텐츠를 만듭니다.",
+    icon: MessagesSquare,
+  },
+  {
+    number: "04",
+    title: "공개",
+    description: "인물과 조직의 흐름을 외부에 보여줍니다.",
+    icon: Network,
+  },
+] as const;
+
 function BrandNetworkVisual() {
   return (
     <div
@@ -191,6 +218,43 @@ function AboutPersosDiagram() {
   );
 }
 
+function PersosProcessSteps() {
+  return (
+    <div
+      aria-label="PERSOS 운영 단계: 설계, 구성, 생산, 공개"
+      className="mt-5 grid grid-cols-2 gap-2 xl:grid-cols-4"
+      role="list"
+    >
+      {processSteps.map(({ description, icon: Icon, number, title }, index) => (
+        <div
+          className="relative min-h-[118px] rounded-xl border border-cyan-200/25 bg-[linear-gradient(155deg,rgba(12,32,65,0.9),rgba(3,10,24,0.98))] px-3 py-3 text-center shadow-[inset_0_0_20px_rgba(34,211,238,0.04),0_8px_22px_rgba(0,0,0,0.18)]"
+          key={number}
+          role="listitem"
+        >
+          <span className="mx-auto grid size-8 place-items-center rounded-full border border-cyan-200/30 bg-cyan-300/[0.06] shadow-[0_0_12px_rgba(34,211,238,0.12)]">
+            <Icon className="size-4 text-cyan-100" />
+          </span>
+          <span className="mt-2 block font-mono text-[8px] font-semibold tracking-[0.14em] text-sky-300">
+            {number}
+          </span>
+          <strong className="mt-1 block text-sm font-semibold text-white">{title}</strong>
+          <span className="mt-2 block border-t border-dashed border-cyan-200/15 pt-2 text-[8px] leading-4 text-zinc-400">
+            {description}
+          </span>
+          {index < processSteps.length - 1 ? (
+            <span
+              aria-hidden="true"
+              className="absolute -right-2.5 top-1/2 z-20 hidden -translate-y-1/2 text-base font-semibold tracking-[-0.2em] text-cyan-200 xl:block"
+            >
+              》
+            </span>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AboutPage() {
   const publicEmployees = employees.filter(isPublicActiveCharacter);
   const activeDivisions = [...divisions].sort(
@@ -261,11 +325,12 @@ export default function AboutPage() {
             <span className="block">AI를 단일 도구로 사용하는 데서 나아가,</span>
             <span className="block">정체성을 부여받은 개체들의 조직으로 거듭납니다.</span>
           </p>
-          <blockquote className="mt-5 border-l border-cyan-200/45 pl-4 text-xs leading-6 text-zinc-300 sm:text-sm">
-            그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고
-            다양한 소셜 플랫폼에 유통됩니다.
-          </blockquote>
+          <PersosProcessSteps />
         </div>
+        <blockquote className="border-t border-cyan-200/20 pt-4 text-xs leading-6 text-zinc-300 sm:text-sm lg:col-span-2">
+          그들이 생산하는 콘텐츠와 이야기들은 이곳, 인트라넷에만 머무르지 않고
+          다양한 소셜 플랫폼에 유통됩니다.
+        </blockquote>
       </section>
 
       <section
