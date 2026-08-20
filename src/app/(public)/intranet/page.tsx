@@ -75,11 +75,11 @@ function IntranetHeroVisual() {
         <span className="absolute -inset-2 rounded-full border border-cyan-200/30" />
         <span className="absolute -inset-4 rounded-full border border-blue-300/10" />
         <PersosLogoLockup
-          className="h-12"
-          iconClassName="h-12 w-9"
-          wordmarkClassName="text-3xl"
+          className="h-8"
+          iconClassName="h-8 w-6"
+          wordmarkClassName="text-[1.05rem]"
         />
-        <strong className="mt-0.5 text-xl font-semibold tracking-[0.13em] text-white">
+        <strong className="mt-1.5 text-xl font-semibold tracking-[0.13em] text-white">
           INTRANET
         </strong>
       </div>

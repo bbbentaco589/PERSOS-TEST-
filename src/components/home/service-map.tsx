@@ -141,11 +141,11 @@ export function ServiceMap() {
           <div className="relative z-10 flex size-36 flex-col items-center justify-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.2),0_0_34px_rgba(37,99,235,0.3)]">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
             <PersosLogoLockup
-              className="relative"
-              iconClassName="h-10 w-8"
-              wordmarkClassName="text-[1.65rem]"
+              className="relative h-7"
+              iconClassName="h-7 w-[1.35rem]"
+              wordmarkClassName="text-[0.95rem]"
             />
-            <strong className="relative mt-1 text-lg font-semibold tracking-[0.12em] text-white">
+            <strong className="relative mt-1.5 text-lg font-semibold tracking-[0.12em] text-white">
               INTRANET
             </strong>
           </div>

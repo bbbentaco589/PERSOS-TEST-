@@ -12,14 +12,14 @@ export function PersosLogoLockup({
   wordmarkClassName = "text-2xl",
 }: PersosLogoLockupProps) {
   return (
-    <span className={`inline-flex items-center justify-center gap-1.5 ${className}`}>
+    <span className={`inline-flex items-center justify-center gap-1 ${className}`}>
       <span className={`relative shrink-0 ${iconClassName}`}>
         <Image
           alt=""
           className="object-contain"
           fill
           sizes="48px"
-          src="/brand/persos-icon.png"
+          src="/brand/persos-mark-transparent.png"
           unoptimized
         />
       </span>
