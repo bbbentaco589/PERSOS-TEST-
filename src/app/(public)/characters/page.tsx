@@ -37,14 +37,9 @@ function PersonaCardCloud() {
       className="relative mx-auto h-[260px] w-full max-w-[590px]"
       role="img"
     >
-      <div className="absolute inset-[4%] rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.24),rgba(14,116,144,0.08)_38%,transparent_70%)] blur-xl" />
-      <div className="absolute left-1/2 top-1/2 size-[230px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-300/10 shadow-[inset_0_0_44px_rgba(37,99,235,0.08)]" />
-      <div className="absolute left-1/2 top-1/2 size-[180px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-cyan-200/10" />
-
       {heroPersonas.map((persona) => (
-        <Link
-          className={`group absolute z-10 w-[25%] max-w-[128px] overflow-hidden rounded-lg border bg-[#050a14]/95 shadow-[0_14px_32px_rgba(0,0,0,0.48)] transition duration-300 hover:z-30 hover:-translate-y-1 hover:scale-[1.04] motion-reduce:transform-none ${heroCardPositions[persona.slug]}`}
-          href={`/characters/${persona.slug}`}
+        <article
+          className={`absolute z-10 w-[25%] max-w-[128px] overflow-hidden rounded-lg border bg-[#050a14]/95 shadow-[0_14px_32px_rgba(0,0,0,0.48)] ${heroCardPositions[persona.slug]}`}
           key={persona.id}
           style={{
             borderColor: `${persona.brandColor}80`,
@@ -58,7 +53,7 @@ function PersonaCardCloud() {
           <div className="relative aspect-[1.18/1] overflow-hidden bg-black">
             <Image
               alt={`${persona.nameKo} 프로필`}
-              className="object-cover object-top transition duration-300 group-hover:scale-[1.03]"
+              className="object-cover object-top"
               fill
               sizes="128px"
               src={persona.profileImage}
@@ -73,11 +68,8 @@ function PersonaCardCloud() {
               {persona.jobTitleKo}
             </span>
           </div>
-        </Link>
+        </article>
       ))}
-
-      <span className="absolute bottom-1 left-1/2 h-px w-[70%] -translate-x-1/2 bg-gradient-to-r from-transparent via-cyan-200/45 to-transparent" />
-      <span className="absolute bottom-0 left-1/2 size-2 -translate-x-1/2 rounded-full bg-cyan-100 shadow-[0_0_18px_rgba(103,232,249,0.9)]" />
     </div>
   );
 }
@@ -114,10 +106,7 @@ function PersonasHero() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="w-[9.75rem] justify-center">
-              <Link href="/contact">CONTACT US <ArrowRight /></Link>
-            </Button>
-            <Button asChild className="w-[9.75rem] justify-center">
-              <Link href="/intranet">INTRANET INFO <ArrowRight /></Link>
+              <Link href="/home">PERSOS LOBBY <ArrowRight /></Link>
             </Button>
           </div>
         </div>
