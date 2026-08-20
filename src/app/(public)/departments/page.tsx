@@ -27,9 +27,12 @@ function DepartmentsHeroVisual() {
 
   return (
     <div className="relative mx-auto h-[260px] w-full max-w-[680px]" role="img" aria-label="중앙 로비를 중심으로 실제 6개 사업부 공간이 연결된 PERSOS 청사진">
-      <div className="absolute inset-[2%] bg-[radial-gradient(circle_at_52%_48%,rgba(37,99,235,0.26),rgba(14,116,144,0.08)_38%,transparent_72%)] blur-xl" />
+      <div className="absolute inset-[2%] bg-[radial-gradient(circle_at_52%_48%,rgba(37,99,235,0.28),rgba(14,116,144,0.09)_38%,transparent_72%)] blur-xl" />
       <svg aria-hidden="true" className="absolute inset-0 size-full" viewBox="0 0 760 320">
         <defs>
+          <pattern id="departments-blueprint-grid" height="16" patternUnits="userSpaceOnUse" width="16">
+            <path d="M16 0H0V16" fill="none" stroke="#93c5fd" strokeOpacity="0.075" strokeWidth="0.65" />
+          </pattern>
           <filter id="departments-blueprint-glow" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="2.4" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
@@ -45,6 +48,11 @@ function DepartmentsHeroVisual() {
             <stop offset="1" stopColor="#020817" stopOpacity="0.98" />
           </radialGradient>
         </defs>
+        <rect fill="url(#departments-blueprint-grid)" height="304" rx="8" width="724" x="18" y="8" />
+        <g fill="none" stroke="#93c5fd" strokeOpacity="0.18" strokeWidth="0.9">
+          <path d="M22 48V24h236l18-14h208l18 14h236v24M22 272v24h236l18 14h208l18-14h236v-24" />
+          <path d="M12 160h25m686 0h25M380 0v18m0 284v18" strokeDasharray="2 5" />
+        </g>
         <g fill="rgba(4,16,38,0.2)" stroke="#93c5fd" strokeOpacity="0.34" strokeWidth="1">
           <path d="M30 58h218l20 18v49l-23 22H30z M38 66h204l17 15v39l-18 18H38z" />
           <path d="M279 12h202l17 17v101l-18 18H280l-18-18V29z M288 21h184l17 14v89l-14 15H285l-14-15V35z" />
@@ -58,7 +66,19 @@ function DepartmentsHeroVisual() {
           <path d="M52 198h82v39H52z M142 198h96v39h-96z M294 207h72v66h-72z M374 207h91v66h-91z M527 198h82v39h-82z M617 198h87v39h-87z" />
           <path d="M75 91h36m-18-11v42 M171 91h38m-19-11v42 M316 62h29m-14-19v71 M399 62h36m-18-19v71 M551 91h35m-17-11v42 M642 91h37m-18-11v42" strokeDasharray="3 4" />
           <path d="M75 209h36m-18-11v39 M171 209h38m-19-11v39 M316 225h29m-14-18v66 M399 225h36m-18-18v66 M551 209h35m-17-11v39 M642 209h37m-18-11v39" strokeDasharray="3 4" />
-          <path d="M13 160h734 M380 0v320" strokeDasharray="2 8" strokeOpacity="0.35" />
+          <path d="M268 125v21h-22M492 125v21h22M268 195v-21h-22M492 195v-21h22" />
+        </g>
+        <g fill="none" stroke="#bfdbfe" strokeOpacity="0.16" strokeWidth="0.8">
+          <path d="M64 84h54v28H64zM153 84h57v28h-57zM307 48h48v24h-48zM405 48h48v24h-48zM550 84h54v28h-54zM641 84h52v28h-52z" />
+          <path d="M64 202h54v26H64zM153 202h57v26h-57zM307 226h48v24h-48zM405 226h48v24h-48zM550 202h54v26h-54zM641 202h52v26h-52z" />
+          <path d="M82 78v-8h18v8M171 78v-8h20v8M323 42v-8h16v8M421 42v-8h16v8M568 78v-8h18v8M657 78v-8h20v8" />
+          <path d="M82 234v8h18v-8M171 234v8h20v-8M323 256v8h16v-8M421 256v8h16v-8M568 234v8h18v-8M657 234v8h20v-8" />
+          <circle cx="52" cy="74" r="7" /><circle cx="228" cy="74" r="7" /><circle cx="532" cy="74" r="7" /><circle cx="708" cy="74" r="7" />
+          <circle cx="52" cy="246" r="7" /><circle cx="228" cy="246" r="7" /><circle cx="532" cy="246" r="7" /><circle cx="708" cy="246" r="7" />
+        </g>
+        <g fill="none" stroke="#bae6fd" strokeOpacity="0.23" strokeWidth="0.9">
+          <path d="M248 94a17 17 0 0 0-17 17M512 94a17 17 0 0 1 17 17M248 226a17 17 0 0 1-17-17M512 226a17 17 0 0 0 17-17" />
+          <path d="M344 130h72v60h-72zM351 137h58v46h-58z" strokeDasharray="3 3" />
         </g>
         <g fill="url(#departments-blueprint-hub)" stroke="url(#departments-blueprint-line)">
           <circle cx="380" cy="160" r="65" strokeOpacity="0.3" />
@@ -152,9 +172,9 @@ function OrganizationOverviewTable() {
 
 function DepartmentsHero() {
   return (
-    <section aria-labelledby="departments-hero-title" className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_78%_48%,rgba(14,116,144,0.24),transparent_32%),radial-gradient(circle_at_68%_16%,rgba(30,64,175,0.14),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6">
-      <div className="grid items-center gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(500px,1.1fr)] lg:gap-4">
-        <div>
+    <section aria-labelledby="departments-hero-title" className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_78%_48%,rgba(14,116,144,0.24),transparent_32%),radial-gradient(circle_at_68%_16%,rgba(30,64,175,0.14),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]">
+      <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+        <div className="min-w-0 lg:self-start">
           <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">DEPARTMENTS INFO</p>
           <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.24em] text-zinc-400">BUSINESS UNIT STRUCTURE</p>
           <h1 className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]" id="departments-hero-title">

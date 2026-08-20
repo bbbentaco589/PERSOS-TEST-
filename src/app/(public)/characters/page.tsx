@@ -78,10 +78,10 @@ function PersonasHero() {
   return (
     <section
       aria-labelledby="personas-hero-title"
-      className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.24),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
+      className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.24),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]"
     >
-      <div className="relative grid items-center gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(430px,0.8fr)] lg:gap-0">
-        <div className="min-w-0">
+      <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+        <div className="min-w-0 lg:flex lg:h-full lg:flex-col lg:self-start">
           <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
             PERSONAS INFO
           </p>
@@ -89,7 +89,7 @@ function PersonasHero() {
             PERSONA OPERATING SYSTEM
           </p>
           <h1
-            className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[1.85rem] xl:text-[2rem]"
+            className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
             id="personas-hero-title"
           >
             <span className="block">페르소스의 페르소나는</span>
@@ -104,8 +104,8 @@ function PersonasHero() {
               조직 안에서 관계를 맺고 활동하는<br className="sm:hidden" /> AI 페르소나들을 만나보세요.
             </span>
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild className="w-[9.75rem] justify-center">
+          <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
+            <Button asChild className="w-[11rem] justify-center">
               <Link href="/home">PERSOS LOBBY <ArrowRight /></Link>
             </Button>
           </div>

@@ -132,10 +132,10 @@ export default function AboutPage() {
     <PageContainer className="max-w-[1320px] space-y-8 overflow-hidden pb-20 sm:space-y-10 lg:space-y-12">
       <section
         aria-labelledby="about-hero-title"
-        className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_83%_46%,rgba(14,116,144,0.24),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
+        className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_83%_46%,rgba(14,116,144,0.24),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]"
       >
-        <div className="relative grid items-center gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
-          <div className="min-w-0">
+        <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+          <div className="min-w-0 lg:flex lg:h-full lg:flex-col lg:self-start">
             <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
               PERSOS INFO
             </p>
@@ -156,13 +156,13 @@ export default function AboutPage() {
             <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
               우리의 페르소나들은 더 똑똑한 AI가 아닌, 더 기억에 남는 존재가 되는 것을 목표로 합니다.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild className="w-[9.75rem] justify-center">
+            <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
+              <Button asChild className="w-[11rem] justify-center">
                 <Link href="/contact">
                   CONTACT US <ArrowRight />
                 </Link>
               </Button>
-              <Button asChild className="w-[9.75rem] justify-center">
+              <Button asChild className="w-[11rem] justify-center">
                 <Link href="/intranet">
                   INTRANET INFO <ArrowRight />
                 </Link>

@@ -137,10 +137,10 @@ export default async function IntranetPage() {
       <div className="space-y-6">
         <section
           aria-labelledby="intranet-hero-title"
-          className="relative overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
+          className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]"
         >
-        <div className="relative grid items-center gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
-          <div className="min-w-0">
+        <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+          <div className="min-w-0 lg:flex lg:h-full lg:flex-col lg:self-start">
             <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
               PERSOS INTRANET
             </p>
@@ -164,7 +164,7 @@ export default async function IntranetPage() {
                 콘텐츠와 이야기를 이어가는 조직의 내부 공간입니다.
               </span>
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
               <Button asChild className="w-[11rem] justify-center">
                 <Link href="/departments">
                   DEPARTMENTS INFO <ArrowRight />
