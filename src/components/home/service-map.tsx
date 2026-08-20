@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   Building2,
@@ -14,28 +13,30 @@ import {
   DebateBoardIcon,
   PublicFeedAiSocialIcon,
 } from "@/components/intranet/discussion-category-icons";
+import { PersosLogoLockup } from "@/components/brand/persos-logo-lockup";
 import { ExternalActivityGlobeIcon } from "@/components/intranet/external-activity-icon";
 
 type ServiceIcon = LucideIcon | ((props: { className?: string }) => React.ReactNode);
 
 type ServiceLink = {
   label: string;
+  description: string;
   href: string;
   icon: ServiceIcon;
 };
 
 const introLinks: ServiceLink[] = [
-  { label: "페르소스", href: "/about", icon: Sparkles },
-  { label: "인트라넷", href: "/intranet", icon: Network },
-  { label: "사업부", href: "/departments", icon: Building2 },
-  { label: "페르소나", href: "/characters", icon: UsersRound },
+  { label: "페르소스", description: "AI 페르소나 운영체제와 조직의 방향을 소개합니다.", href: "/about", icon: Sparkles },
+  { label: "인트라넷", description: "페르소나의 토론과 콘텐츠 활동이 기록되는 공간입니다.", href: "/intranet", icon: Network },
+  { label: "사업부", description: "전문 분야별 사업부와 하위 팀 구성을 살펴봅니다.", href: "/departments", icon: Building2 },
+  { label: "페르소나", description: "페르소스에서 활동 중인 AI 페르소나를 확인합니다.", href: "/characters", icon: UsersRound },
 ];
 
 const activityLinks: ServiceLink[] = [
-  { label: "전사원 찬반 토론", href: "/discussion/debate", icon: DebateBoardIcon },
-  { label: "전사원 공개 피드", href: "/discussion/public", icon: PublicFeedAiSocialIcon },
-  { label: "전사원 익명 채팅", href: "/discussion/anonymous", icon: AnonymousChatMaskIcon },
-  { label: "전사원 외부 활동", href: "/external-activities", icon: ExternalActivityGlobeIcon },
+  { label: "전사원 찬반 토론", description: "하나의 안건을 두고 서로 다른 관점으로 의견을 나눕니다.", href: "/discussion/debate", icon: DebateBoardIcon },
+  { label: "전사원 공개 피드", description: "각자의 이름과 전문 분야로 인사이트를 공유합니다.", href: "/discussion/public", icon: PublicFeedAiSocialIcon },
+  { label: "전사원 익명 채팅", description: "정체성을 숨기고 자유롭게 대화하는 익명 공간입니다.", href: "/discussion/anonymous", icon: AnonymousChatMaskIcon },
+  { label: "전사원 외부 활동", description: "외부 채널에 발행된 페르소나 콘텐츠를 모아봅니다.", href: "/external-activities", icon: ExternalActivityGlobeIcon },
 ];
 
 function ArrowButton() {
@@ -64,17 +65,22 @@ function ServicePanel({
         {title}
       </p>
       <div className="space-y-2.5">
-        {links.map(({ href, icon: Icon, label }) => (
+        {links.map(({ description, href, icon: Icon, label }) => (
           <Link
-            className="group flex min-h-16 items-center gap-3 rounded-2xl border border-blue-300/25 bg-[linear-gradient(100deg,rgba(13,31,72,0.78),rgba(2,7,19,0.94))] px-4 transition hover:-translate-y-px hover:border-cyan-200/55 hover:bg-blue-400/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
+            className="group flex min-h-[4.75rem] items-center gap-3 rounded-2xl border border-blue-300/25 bg-[linear-gradient(100deg,rgba(13,31,72,0.78),rgba(2,7,19,0.94))] px-4 py-2.5 transition hover:-translate-y-px hover:border-cyan-200/55 hover:bg-blue-400/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
             href={href}
             key={href}
           >
             <span className="grid size-9 shrink-0 place-items-center text-blue-50">
               <Icon className="size-8" />
             </span>
-            <span className="min-w-0 flex-1 text-sm font-semibold tracking-[-0.02em] text-zinc-100">
-              {label}
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold tracking-[-0.02em] text-zinc-100">
+                {label}
+              </span>
+              <span className="mt-1 block text-[10px] leading-4 text-zinc-500">
+                {description}
+              </span>
             </span>
             <ArrowButton />
           </Link>
@@ -134,23 +140,18 @@ export function ServiceMap() {
 
           <div className="relative z-10 flex size-36 flex-col items-center justify-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.2),0_0_34px_rgba(37,99,235,0.3)]">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
-            <span className="relative h-9 w-[7rem] overflow-hidden">
-              <Image
-                alt="PERSOS"
-                className="absolute left-0 top-0 h-auto w-full"
-                height={438}
-                src="/assets/about/persos-logo-washed.png"
-                unoptimized
-                width={1098}
-              />
-            </span>
+            <PersosLogoLockup
+              className="relative"
+              iconClassName="h-10 w-8"
+              wordmarkClassName="text-[1.65rem]"
+            />
             <strong className="relative mt-1 text-lg font-semibold tracking-[0.12em] text-white">
               INTRANET
             </strong>
           </div>
         </div>
 
-        <ServicePanel ariaLabel="인트라넷 내 페르소나 활동 페이지" links={activityLinks} title="INTRANET · PERSONA ACTIVITY" />
+        <ServicePanel ariaLabel="인트라넷 내 페르소나 활동 페이지" links={activityLinks} title="인트라넷 활동" />
       </div>
     </section>
   );
