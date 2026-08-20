@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
+import { PersosLogoLockup } from "@/components/brand/persos-logo-lockup";
 import { PageContainer } from "@/components/layout/page-container";
 import { DivisionStructureCard } from "@/components/organization/division-structure-card";
 import { publicDivisionOrder } from "@/constants/navigation";
@@ -12,12 +12,12 @@ import {
 } from "@/lib/public-feed-presentation";
 
 const departmentHeroPositions: Record<string, string> = {
-  "division-governance": "left-[4%] top-[18%]",
-  "division-strategy": "left-1/2 top-[7%] -translate-x-1/2",
-  "division-entertainment": "right-[4%] top-[18%]",
-  "division-editorial": "bottom-[18%] left-[4%]",
-  "division-studio": "bottom-[7%] left-1/2 -translate-x-1/2",
-  "division-intelligence": "bottom-[18%] right-[4%]",
+  "division-governance": "left-1/2 top-[5%] -translate-x-1/2",
+  "division-strategy": "left-[8%] top-[20%]",
+  "division-entertainment": "right-[7%] top-[20%]",
+  "division-editorial": "bottom-[17%] left-[7%]",
+  "division-studio": "bottom-[4%] left-1/2 -translate-x-1/2",
+  "division-intelligence": "bottom-[17%] right-[7%]",
 };
 
 function DepartmentsHeroVisual() {
@@ -26,62 +26,77 @@ function DepartmentsHeroVisual() {
     .filter((division): division is (typeof divisions)[number] => division !== undefined);
 
   return (
-    <div className="relative mx-auto h-[260px] w-full max-w-[680px]" role="img" aria-label="PERSOS를 중심으로 연결된 실제 6개 사업부 청사진">
-      <div className="absolute inset-[8%] bg-[radial-gradient(circle,rgba(37,99,235,0.2),rgba(14,116,144,0.07)_38%,transparent_72%)] blur-xl" />
-      <svg aria-hidden="true" className="absolute inset-0 size-full" viewBox="0 0 720 300">
+    <div className="relative mx-auto h-[260px] w-full max-w-[680px]" role="img" aria-label="중앙 로비를 중심으로 실제 6개 사업부 공간이 연결된 PERSOS 청사진">
+      <div className="absolute inset-[2%] bg-[radial-gradient(circle_at_52%_48%,rgba(37,99,235,0.26),rgba(14,116,144,0.08)_38%,transparent_72%)] blur-xl" />
+      <svg aria-hidden="true" className="absolute inset-0 size-full" viewBox="0 0 760 320">
         <defs>
-          <filter id="departments-blueprint-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="2" result="blur" />
+          <filter id="departments-blueprint-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="2.4" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
-          <linearGradient id="departments-blueprint-line" x1="0" x2="1">
-            <stop offset="0" stopColor="#60a5fa" stopOpacity="0.2" />
-            <stop offset="0.5" stopColor="#bae6fd" stopOpacity="0.8" />
-            <stop offset="1" stopColor="#60a5fa" stopOpacity="0.2" />
+          <linearGradient id="departments-blueprint-line" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stopColor="#60a5fa" stopOpacity="0.28" />
+            <stop offset="0.5" stopColor="#e0f2fe" stopOpacity="0.86" />
+            <stop offset="1" stopColor="#38bdf8" stopOpacity="0.3" />
           </linearGradient>
+          <radialGradient id="departments-blueprint-hub">
+            <stop offset="0" stopColor="#0b2448" stopOpacity="0.56" />
+            <stop offset="0.68" stopColor="#061127" stopOpacity="0.88" />
+            <stop offset="1" stopColor="#020817" stopOpacity="0.98" />
+          </radialGradient>
         </defs>
-        <g fill="none" stroke="#93c5fd" strokeOpacity="0.28" strokeWidth="1">
-          <path d="M10 36h198l17 15v62l-17 15H10z M18 44h184l14 12v52l-14 12H18z" />
-          <path d="M258 10h204l15 15v88l-15 15H258l-15-15V25z M267 18h186l15 13v76l-15 13H267l-15-13V31z" />
-          <path d="M512 36h198v92H512l-17-15V51z M518 44h184v76H518l-14-12V56z" />
-          <path d="M10 172h198l17 15v62l-17 15H10z M18 180h184l14 12v52l-14 12H18z" />
-          <path d="M258 172h204l15 15v88l-15 15H258l-15-15v-88z M267 180h186l15 13v76l-15 13H267l-15-13v-76z" />
-          <path d="M512 172h198v92H512l-17-15v-62z M518 180h184v76H518l-14-12v-52z" />
-          <path d="M225 68h28 M467 68h28 M225 232h28 M467 232h28 M360 128v-16 M360 188v-16" />
-          <path d="M68 128v16h137 M652 128v16H515 M68 172v-16h137 M652 172v-16H515" strokeDasharray="4 5" strokeOpacity="0.16" />
+        <g fill="rgba(4,16,38,0.2)" stroke="#93c5fd" strokeOpacity="0.34" strokeWidth="1">
+          <path d="M30 58h218l20 18v49l-23 22H30z M38 66h204l17 15v39l-18 18H38z" />
+          <path d="M279 12h202l17 17v101l-18 18H280l-18-18V29z M288 21h184l17 14v89l-14 15H285l-14-15V35z" />
+          <path d="M512 58h218v89H515l-23-22V76z M521 66h201v72H519l-18-18V81z" />
+          <path d="M30 173h215l23 22v49l-20 18H30z M38 182h203l18 18v39l-17 14H38z" />
+          <path d="M280 173h200l18 18v100l-17 17H279l-17-17V191z M285 182h190l14 15v88l-17 14H288l-17-14v-88z" />
+          <path d="M515 173h215v89H512l-20-18v-49z M519 182h203v71H521l-20-14v-39z" />
+        </g>
+        <g fill="none" stroke="#93c5fd" strokeOpacity="0.14" strokeWidth="0.8">
+          <path d="M52 80h82v42H52z M142 80h96v42h-96z M294 43h72v71h-72z M374 43h91v71h-91z M527 80h82v42h-82z M617 80h87v42h-87z" />
+          <path d="M52 198h82v39H52z M142 198h96v39h-96z M294 207h72v66h-72z M374 207h91v66h-91z M527 198h82v39h-82z M617 198h87v39h-87z" />
+          <path d="M75 91h36m-18-11v42 M171 91h38m-19-11v42 M316 62h29m-14-19v71 M399 62h36m-18-19v71 M551 91h35m-17-11v42 M642 91h37m-18-11v42" strokeDasharray="3 4" />
+          <path d="M75 209h36m-18-11v39 M171 209h38m-19-11v39 M316 225h29m-14-18v66 M399 225h36m-18-18v66 M551 209h35m-17-11v39 M642 209h37m-18-11v39" strokeDasharray="3 4" />
+          <path d="M13 160h734 M380 0v320" strokeDasharray="2 8" strokeOpacity="0.35" />
+        </g>
+        <g fill="url(#departments-blueprint-hub)" stroke="url(#departments-blueprint-line)">
+          <circle cx="380" cy="160" r="65" strokeOpacity="0.3" />
+          <circle cx="380" cy="160" r="57" strokeOpacity="0.78" strokeWidth="1.4" />
+          <circle cx="380" cy="160" r="48" strokeOpacity="0.22" />
         </g>
         <g fill="none" filter="url(#departments-blueprint-glow)" stroke="url(#departments-blueprint-line)" strokeWidth="1.5">
-          <path d="M225 82L304 128" /><path d="M360 128V112" /><path d="M495 82L416 128" />
-          <path d="M225 218L304 172" /><path d="M360 172V188" /><path d="M495 218L416 172" />
+          <path d="M268 103h26l33 28" /><path d="M380 130V112" /><path d="M492 103h-26l-33 28" />
+          <path d="M268 217h26l33-28" /><path d="M380 190v18" /><path d="M492 217h-26l-33-28" />
         </g>
         <g fill="#e0f2fe" filter="url(#departments-blueprint-glow)">
-          <circle cx="225" cy="82" r="3" /><circle cx="304" cy="128" r="3" />
-          <circle cx="360" cy="112" r="3" /><circle cx="360" cy="128" r="3" />
-          <circle cx="495" cy="82" r="3" /><circle cx="416" cy="128" r="3" />
-          <circle cx="225" cy="218" r="3" /><circle cx="304" cy="172" r="3" />
-          <circle cx="360" cy="188" r="3" /><circle cx="360" cy="172" r="3" />
-          <circle cx="495" cy="218" r="3" /><circle cx="416" cy="172" r="3" />
+          <circle cx="268" cy="103" r="3.2" /><circle cx="327" cy="131" r="3.2" />
+          <circle cx="380" cy="112" r="3.2" /><circle cx="380" cy="130" r="3.2" />
+          <circle cx="492" cy="103" r="3.2" /><circle cx="433" cy="131" r="3.2" />
+          <circle cx="268" cy="217" r="3.2" /><circle cx="327" cy="189" r="3.2" />
+          <circle cx="380" cy="208" r="3.2" /><circle cx="380" cy="190" r="3.2" />
+          <circle cx="492" cy="217" r="3.2" /><circle cx="433" cy="189" r="3.2" />
         </g>
       </svg>
 
       {heroDivisions.map((division) => (
-        <div className={`absolute z-30 flex h-[58px] w-[132px] items-center justify-center gap-2 px-2 text-left sm:w-[176px] ${departmentHeroPositions[division.id]}`} key={division.id}>
-          <DivisionIcon className="size-8 shrink-0 sm:size-10" divisionId={division.id} />
+        <div className={`absolute z-30 flex h-[54px] w-[130px] items-center justify-center gap-2 px-2 text-left sm:w-[170px] ${departmentHeroPositions[division.id]}`} key={division.id}>
+          <DivisionIcon className="size-8 shrink-0 sm:size-9" divisionId={division.id} />
           <div className="min-w-0">
-            <strong className="block whitespace-nowrap text-[8px] font-semibold text-white sm:text-[10px]">{division.nameKo}</strong>
-            <span className="mt-1 block max-w-[102px] text-[6px] font-semibold uppercase leading-[1.35] tracking-[0.1em] text-blue-100/60 sm:text-[6.5px]">
+            <strong className="block whitespace-nowrap text-[8px] font-semibold text-white sm:text-[9.5px]">{division.nameKo}</strong>
+            <span className="mt-1 block max-w-[102px] text-[6px] font-semibold uppercase leading-[1.35] tracking-[0.1em] text-blue-100/65 sm:text-[6.5px]">
               {division.slug.replaceAll("-", " ")}
             </span>
           </div>
         </div>
       ))}
 
-      <div className="absolute left-1/2 top-1/2 z-20 grid size-[94px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-50/80 bg-[radial-gradient(circle,rgba(23,51,112,0.26),rgba(3,10,27,0.99)_72%)] shadow-[inset_0_0_30px_rgba(34,211,238,0.12),0_0_20px_rgba(224,242,254,0.36),0_0_42px_rgba(37,99,235,0.28)] sm:size-[112px]">
-        <span className="absolute -inset-2 rounded-full border border-cyan-300/35" />
-        <span className="absolute -inset-4 rounded-full border border-blue-300/12" />
-        <div className="relative h-10 w-[78px] overflow-hidden sm:h-12 sm:w-[94px]">
-          <Image alt="PERSOS Persona Operating System" className="object-contain drop-shadow-[0_0_12px_rgba(186,230,253,0.38)]" fill sizes="94px" src="/assets/about/persos-logo-washed.png" />
-        </div>
+      <div className="absolute left-1/2 top-1/2 z-20 grid size-[82px] -translate-x-1/2 -translate-y-1/2 place-items-center sm:size-[102px]">
+        <PersosLogoLockup
+          className="drop-shadow-[0_0_12px_rgba(186,230,253,0.42)]"
+          iconClassName="h-10 w-8 sm:h-11 sm:w-9"
+          wordmarkClassName="text-[1.35rem] sm:text-[1.55rem]"
+        />
       </div>
     </div>
   );
