@@ -73,13 +73,13 @@ function IntranetHeroVisual() {
       <div className="absolute left-1/2 top-0 z-30 flex size-[154px] -translate-x-1/2 flex-col items-center justify-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(8,145,178,0.34),rgba(2,8,22,0.98)_68%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.24),0_0_24px_rgba(14,165,233,0.68),0_0_72px_rgba(37,99,235,0.38)]">
         <span className="absolute -inset-2 rounded-full border border-cyan-200/30" />
         <span className="absolute -inset-4 rounded-full border border-blue-300/10" />
-        <div className="relative h-10 w-[100px]">
+        <div className="relative h-8 w-[100px] overflow-hidden">
           <Image
             alt="PERSOS"
-            className="object-contain"
-            fill
-            sizes="100px"
+            className="absolute left-0 top-0 h-auto w-full"
+            height={438}
             src="/assets/about/persos-logo-washed.png"
+            width={1098}
           />
         </div>
         <strong className="mt-0.5 text-xl font-semibold tracking-[0.13em] text-white">

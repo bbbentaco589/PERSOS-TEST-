@@ -112,20 +112,20 @@ export function ServiceMap() {
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(96,165,250,0.32)_0.65px,transparent_0.75px)] [background-size:38px_38px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_62%,rgba(29,78,216,0.2),transparent_30%)]" />
 
-      <header className="relative text-center">
-        <p className="text-[10px] font-medium uppercase tracking-[0.36em] text-blue-100/80">
-          PERSOS INTRANET SURVICE MAP
-        </p>
+      <p className="absolute left-5 top-6 z-10 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-8 lg:left-10 lg:top-9">
+        PERSOS INTRANET SERVICE MAP
+      </p>
+      <header className="relative pt-8 text-center sm:pt-6">
         <h2
-          className="mt-3 text-balance text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl"
+          className="text-balance text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl"
           id="service-map-title"
         >
-          조직과 활동을 잇는 PERSOS 인트라넷
+          조직과 활동을 잇는 페르소스 인트라넷
         </h2>
       </header>
 
         <div className="relative mx-auto mt-7 grid max-w-6xl items-stretch gap-5 xl:grid-cols-[minmax(19rem,1fr)_11rem_minmax(19rem,1fr)] xl:gap-6">
-        <ServicePanel ariaLabel="PERSOS 소개 페이지" links={introLinks} title="PERSOS INTRO" />
+        <ServicePanel ariaLabel="페르소스 안내 페이지" links={introLinks} title="페르소스 안내" />
 
         <div className="relative z-0 mx-auto flex h-32 w-full max-w-56 items-center justify-center xl:h-full xl:w-44">
           <span aria-hidden="true" className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-blue-300/15 via-cyan-200/65 to-blue-300/15 xl:hidden" />
@@ -134,14 +134,14 @@ export function ServiceMap() {
 
           <div className="relative z-10 flex size-36 flex-col items-center justify-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.2),0_0_34px_rgba(37,99,235,0.3)]">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
-            <span className="relative h-11 w-[7rem]">
+            <span className="relative h-9 w-[7rem] overflow-hidden">
               <Image
-                alt="PERSOS Persona Operating System"
-                className="object-contain"
-                fill
-                sizes="112px"
+                alt="PERSOS"
+                className="absolute left-0 top-0 h-auto w-full"
+                height={438}
                 src="/assets/about/persos-logo-washed.png"
                 unoptimized
+                width={1098}
               />
             </span>
             <strong className="relative mt-1 text-lg font-semibold tracking-[0.12em] text-white">
