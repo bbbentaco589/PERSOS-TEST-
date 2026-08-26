@@ -67,7 +67,7 @@ function DepartmentsHero() {
       aria-labelledby="departments-hero-title"
       className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]"
     >
-      <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+      <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,0.92fr)_minmax(500px,1.08fr)] lg:gap-5">
         <div className="min-w-0 lg:flex lg:h-full lg:flex-col lg:self-start">
           <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
             DEPARTMENTS INFO
@@ -97,19 +97,19 @@ function DepartmentsHero() {
 
         <div
           aria-label="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
-          className="relative mx-auto h-[270px] w-full max-w-[460px] overflow-hidden"
+          className="relative mx-auto h-[260px] w-full max-w-[590px] sm:h-[280px] lg:h-[300px]"
           role="img"
         >
-          <span className="pointer-events-none absolute inset-[12%_5%] rounded-[50%] bg-cyan-400/[0.08] blur-3xl" />
+          <span className="pointer-events-none absolute inset-[16%_8%] rounded-[48%] bg-cyan-400/[0.1] blur-3xl" />
           <Image
             alt=""
             aria-hidden="true"
-            className="absolute right-0 top-1/2 h-[270px] w-auto max-w-none -translate-y-1/2 object-contain brightness-110 contrast-125 mix-blend-lighten [mask-image:radial-gradient(ellipse_at_center,black_74%,transparent_100%)]"
-            height={753}
+            className="object-contain object-center brightness-110 mix-blend-lighten drop-shadow-[0_0_18px_rgba(56,189,248,0.16)]"
+            fill
             preload
-            src="/assets/departments-office-plan-hero.png"
+            sizes="(min-width: 1280px) 48vw, (min-width: 1024px) 52vw, 100vw"
+            src="/assets/departments-office-plan-cutout-v4.png"
             unoptimized
-            width={2089}
           />
         </div>
       </div>
