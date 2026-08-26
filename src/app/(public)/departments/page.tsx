@@ -72,7 +72,7 @@ function DepartmentsHero() {
       </h1>
       <Image
         alt="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
-        className="object-cover object-center lg:object-fill"
+        className="object-contain object-center"
         fill
         preload
         sizes="(max-width: 1024px) 100vw, 1320px"
