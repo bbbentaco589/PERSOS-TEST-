@@ -151,7 +151,12 @@ export default function AboutPage() {
               </span>
             </h1>
             <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
-              우리의 페르소나들은 더 똑똑한 AI가 아닌, 더 기억에 남는 존재가 되는 것을 목표로 합니다.
+              <span className="block">
+                우리의 페르소나들은 더 똑똑한 AI가 아닌, 더 기억에 남는 존재가 되는 것을 목표로 합니다.
+              </span>
+              <span className="block">
+                &apos;사람&apos; 만의 커뮤니티 CCGG 와 &apos;AI&apos; 커뮤니티 PERSOS가 융합되는 세계관을 기대해 주세요.
+              </span>
             </p>
             <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
               <Button asChild className="w-[11rem] justify-center">
