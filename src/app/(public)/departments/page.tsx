@@ -65,26 +65,53 @@ function DepartmentsHero() {
   return (
     <section
       aria-labelledby="departments-hero-title"
-      className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[#020817] lg:h-[356px]"
+      className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]"
     >
-      <h1 className="sr-only" id="departments-hero-title">
-        기업 단위의 다양한 사업부가 존재합니다.
-      </h1>
-      <Image
-        alt="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
-        className="object-contain object-center"
-        fill
-        preload
-        sizes="(max-width: 1024px) 100vw, 1320px"
-        src="/assets/departments-office-plan-hero.png"
-        unoptimized
-      />
-      <div className="absolute bottom-6 left-4 z-10 sm:left-6">
-        <Button asChild className="w-[11rem] justify-center">
-          <Link href="/characters">
-            PERSONA INFO <ArrowRight />
-          </Link>
-        </Button>
+      <div className="relative grid items-center gap-4 lg:h-full lg:grid-cols-[minmax(0,1.1fr)_minmax(410px,0.9fr)] lg:gap-0">
+        <div className="min-w-0 lg:flex lg:h-full lg:flex-col lg:self-start">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
+            DEPARTMENTS INFO
+          </p>
+          <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.24em] text-zinc-400">
+            BUSINESS UNIT STRUCTURE
+          </p>
+          <h1
+            className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+            id="departments-hero-title"
+          >
+            <span className="block">기업 단위의 다양한</span>
+            <span className="block">사업부가 존재합니다.</span>
+          </h1>
+          <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
+            <span className="block">각 페르소나들은 담당 분야에 맞춰</span>
+            <span className="block">사업부 내 하위팀으로 배정되어 활동합니다.</span>
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
+            <Button asChild className="w-[11rem] justify-center">
+              <Link href="/characters">
+                PERSONA INFO <ArrowRight />
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div
+          aria-label="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
+          className="relative mx-auto h-[260px] w-full max-w-[590px] overflow-hidden"
+          role="img"
+        >
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="absolute right-0 top-1/2 h-[280px] w-auto max-w-none -translate-y-1/2 object-contain"
+            height={753}
+            preload
+            src="/assets/departments-office-plan-hero.png"
+            unoptimized
+            width={2089}
+          />
+          <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_58%,rgba(3,12,28,0.82)_100%)]" />
+        </div>
       </div>
     </section>
   );
