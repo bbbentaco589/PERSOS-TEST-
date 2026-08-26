@@ -65,21 +65,21 @@ function DepartmentsHero() {
   return (
     <section
       aria-labelledby="departments-hero-title"
-      className="relative aspect-[2089/753] min-h-[220px] overflow-hidden border border-white/10 bg-[#020817]"
+      className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[#020817] lg:h-[356px]"
     >
       <h1 className="sr-only" id="departments-hero-title">
         기업 단위의 다양한 사업부가 존재합니다.
       </h1>
       <Image
         alt="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
-        className="object-contain"
+        className="object-cover object-center lg:object-fill"
         fill
         preload
         sizes="(max-width: 1024px) 100vw, 1320px"
         src="/assets/departments-office-plan-hero.png"
         unoptimized
       />
-      <div className="absolute bottom-[8.5%] left-[2.25%] z-10">
+      <div className="absolute bottom-6 left-4 z-10 sm:left-6">
         <Button asChild className="w-[11rem] justify-center">
           <Link href="/characters">
             PERSONA INFO <ArrowRight />
