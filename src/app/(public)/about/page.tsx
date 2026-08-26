@@ -147,10 +147,7 @@ export default function AboutPage() {
               id="about-hero-title"
             >
               <span className="block lg:whitespace-nowrap">
-                페르소스는 AI에게 정만을 주입하는 것 아닌
-              </span>
-              <span className="block lg:whitespace-nowrap">
-                하나의 영혼을 설계하는 운영체제 입니다.
+                페르소스는 AI의 영혼을 설계하는 운영체제 입니다.
               </span>
             </h1>
             <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
