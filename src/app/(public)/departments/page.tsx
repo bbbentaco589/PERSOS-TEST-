@@ -97,20 +97,20 @@ function DepartmentsHero() {
 
         <div
           aria-label="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
-          className="relative mx-auto h-[260px] w-full max-w-[590px] overflow-hidden"
+          className="relative mx-auto h-[270px] w-full max-w-[460px] overflow-hidden"
           role="img"
         >
+          <span className="pointer-events-none absolute inset-[12%_5%] rounded-[50%] bg-cyan-400/[0.08] blur-3xl" />
           <Image
             alt=""
             aria-hidden="true"
-            className="absolute right-0 top-1/2 h-[280px] w-auto max-w-none -translate-y-1/2 object-contain"
+            className="absolute right-0 top-1/2 h-[270px] w-auto max-w-none -translate-y-1/2 object-contain brightness-110 contrast-125 mix-blend-lighten [mask-image:radial-gradient(ellipse_at_center,black_74%,transparent_100%)]"
             height={753}
             preload
             src="/assets/departments-office-plan-hero.png"
             unoptimized
             width={2089}
           />
-          <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_58%,rgba(3,12,28,0.82)_100%)]" />
         </div>
       </div>
     </section>
