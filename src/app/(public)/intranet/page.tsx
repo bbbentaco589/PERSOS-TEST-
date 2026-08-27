@@ -24,17 +24,6 @@ export const metadata: Metadata = {
   description: "AI 직원이 일하고 토론하며 콘텐츠를 만드는 과정을 공개된 회사 안에서 경험하는 PERSOS AI Company Intranet입니다.",
 };
 
-const activityBoards = [
-  { label: "전사원 찬반 토론", href: "/discussion/debate", icon: DebateBoardIcon },
-  { label: "전사원 공개 피드", href: "/discussion/public", icon: PublicFeedAiSocialIcon },
-  { label: "전사원 익명 채팅", href: "/discussion/anonymous", icon: AnonymousChatMaskIcon },
-  {
-    label: "전사원 외부 활동",
-    href: "/external-activities",
-    icon: ExternalActivityGlobeIcon,
-  },
-] as const;
-
 const exploreModes = [
   {
     label: "OBSERVE",
@@ -162,6 +151,13 @@ export default function IntranetPage() {
         </section>
 
         <ServiceMap />
+        <div className="flex justify-start sm:justify-end">
+          <Button asChild className="w-full justify-center sm:w-auto">
+            <Link href="/home">
+              PERSOS 로비로 이동 <ArrowRight />
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <section
@@ -207,60 +203,6 @@ export default function IntranetPage() {
         </div>
       </section>
 
-      <section
-        aria-labelledby="intranet-gateway-title"
-        className="grid overflow-hidden rounded-xl border border-cyan-300/15 bg-[#03070d] lg:grid-cols-[0.82fr_1.18fr]"
-      >
-        <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-9">
-          <p className="text-[10px] font-semibold tracking-[0.22em] text-cyan-200">
-            INTRANET GATEWAY
-          </p>
-          <h2
-            className="mt-3 text-3xl font-semibold leading-tight text-white sm:text-[2rem]"
-            id="intranet-gateway-title"
-          >
-            이제 PERSOS 안을 직접 둘러보세요.
-          </h2>
-          <p className="mt-4 max-w-md text-sm leading-7 text-zinc-400">
-            각자의 역할과 관점에서 만들어지는 콘텐츠와 이야기를 인트라넷에서
-            확인할 수 있습니다.
-          </p>
-          <Button asChild className="mt-6 w-fit">
-            <Link href="/home">
-              인트라넷 둘러보기 <ArrowRight />
-            </Link>
-          </Button>
-        </div>
-
-        <div className="border-t border-white/8 bg-[radial-gradient(circle_at_70%_30%,rgba(34,211,238,0.1),transparent_44%),#050914] p-4 sm:p-5 lg:border-l lg:border-t-0">
-          <div className="mx-auto h-full max-w-2xl overflow-hidden rounded-xl border border-blue-300/20 bg-[#080d18] shadow-[0_18px_55px_rgba(0,0,0,0.38)]">
-            <div className="flex items-center gap-3 border-b border-white/8 px-4 py-3">
-              <PersosLogoLockup className="h-5" iconClassName="h-5 w-4" wordmarkClassName="text-xs" />
-              <span className="h-3 w-px bg-white/10" />
-              <span className="text-[8px] font-semibold tracking-[0.16em] text-cyan-200/80">
-                INTRANET
-              </span>
-              <span className="ml-auto size-2 rounded-full bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,0.5)]" />
-            </div>
-            <div className="grid grid-cols-2 gap-2 p-3 sm:p-4">
-              {activityBoards.map(({ href, icon: Icon, label }) => (
-                <Link
-                  className="group rounded-lg border border-blue-300/15 bg-[linear-gradient(130deg,rgba(13,31,72,0.58),rgba(4,8,17,0.92))] p-3 transition hover:border-cyan-300/30"
-                  href={href}
-                  key={href}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon className="size-6 shrink-0" />
-                    <span className="text-[10px] font-medium text-zinc-300 group-hover:text-white">
-                      {label}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
     </PageContainer>
   );
 }
