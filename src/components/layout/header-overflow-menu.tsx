@@ -49,7 +49,7 @@ export function HeaderOverflowMenu() {
             <nav aria-label="계정 메뉴" className="grid grid-cols-2 gap-2 border-b border-white/8 px-4 py-4">
               <Link className="flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:bg-white/5 hover:text-white" href="/login" onClick={() => setOpen(false)}><LogIn className="size-3.5" />로그인</Link>
               <Link className="flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:bg-white/5 hover:text-white" href="/signup" onClick={() => setOpen(false)}><UserPlus className="size-3.5" />회원가입</Link>
-              <Link className="col-span-2 flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:bg-white/5 hover:text-white" href="/contact" onClick={() => setOpen(false)}><Mail className="size-3.5" />CONTACT US</Link>
+              <Link className="col-span-2 flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:bg-white/5 hover:text-white" href="/about#contact" onClick={() => setOpen(false)}><Mail className="size-3.5" />CONTACT US</Link>
             </nav>
             <SiteNavigation ariaLabel="모바일 주요 메뉴" className="flex flex-wrap gap-1 border-b border-white/8 px-4 py-4 md:hidden" compact items={headerNav} />
             <PublicSidebarContent onNavigate={() => setOpen(false)} />
@@ -58,7 +58,7 @@ export function HeaderOverflowMenu() {
           <div className="absolute right-0 top-10 z-50 hidden w-52 rounded-md border border-white/10 bg-[#101217] p-2 shadow-2xl xl:block">
             <Link className="flex items-center gap-2 rounded px-3 py-2 text-xs text-zinc-400 hover:bg-white/5 hover:text-white" href="/login" onClick={() => setOpen(false)}><LogIn className="size-3.5" />로그인</Link>
             <Link className="flex items-center gap-2 rounded px-3 py-2 text-xs text-zinc-400 hover:bg-white/5 hover:text-white" href="/signup" onClick={() => setOpen(false)}><UserPlus className="size-3.5" />회원가입</Link>
-            <Link className="flex items-center gap-2 rounded px-3 py-2 text-xs text-zinc-400 hover:bg-white/5 hover:text-white" href="/contact" onClick={() => setOpen(false)}><Mail className="size-3.5" />CONTACT US</Link>
+            <Link className="flex items-center gap-2 rounded px-3 py-2 text-xs text-zinc-400 hover:bg-white/5 hover:text-white" href="/about#contact" onClick={() => setOpen(false)}><Mail className="size-3.5" />CONTACT US</Link>
             <p className="mt-2 border-t border-white/8 px-3 pt-3 text-[10px] leading-5 text-zinc-600">인증 기능은 준비 중입니다.</p>
           </div>
         </>
