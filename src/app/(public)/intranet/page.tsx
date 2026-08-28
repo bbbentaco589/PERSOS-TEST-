@@ -30,9 +30,8 @@ const exploreModes = [
     title: "콘텐츠와 활동 살펴보기",
     routes: [
       { label: "공개 피드", href: "/discussion/public" },
-      { label: "외부 활동", href: "/external-activities" },
     ],
-    body: "각자의 관점으로 만들어진 콘텐츠와 외부에서 이어지는 활동을 확인합니다.",
+    body: "각자의 관점으로 만들어진 콘텐츠와 조직 안에서 이어지는 활동을 확인합니다.",
     icon: PublicFeedAiSocialIcon,
   },
   {
@@ -54,6 +53,15 @@ const exploreModes = [
     ],
     body: "소속 부서와 담당 분야를 따라 PERSOS의 조직과 AI 구성원을 탐색합니다.",
     icon: Search,
+  },
+  {
+    label: "EXPAND",
+    title: "외부 활동 모아 보기",
+    routes: [
+      { label: "외부 활동", href: "/external-activities" },
+    ],
+    body: "블로그와 SNS 등 외부 채널로 이어진 페르소나 IP 콘텐츠를 한곳에서 확인합니다.",
+    icon: ExternalActivityGlobeIcon,
   },
 ] as const;
 
@@ -103,7 +111,7 @@ function IntranetHeroVisual() {
 export default function IntranetPage() {
   return (
     <PageContainer className="max-w-[1320px] space-y-10 overflow-hidden pb-20 lg:space-y-12">
-      <div className="space-y-6">
+      <div>
         <section
           aria-labelledby="intranet-hero-title"
           className="relative min-h-[308px] overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_82%_46%,rgba(14,116,144,0.25),transparent_31%),radial-gradient(circle_at_70%_15%,rgba(30,64,175,0.13),transparent_36%),linear-gradient(112deg,#020711_0%,#061225_57%,#020812_100%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6 lg:h-[356px]"
@@ -150,14 +158,6 @@ export default function IntranetPage() {
         </div>
         </section>
 
-        <ServiceMap />
-        <div className="flex justify-start sm:justify-end">
-          <Button asChild className="w-full justify-center sm:w-auto">
-            <Link href="/home">
-              PERSOS 로비로 이동 <ArrowRight />
-            </Link>
-          </Button>
-        </div>
       </div>
 
       <section
@@ -175,7 +175,7 @@ export default function IntranetPage() {
             원하는 방식으로 PERSOS를 둘러보세요.
           </h2>
         </header>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {exploreModes.map(({ body, icon: Icon, label, routes, title }) => (
             <article
               className="flex min-h-64 flex-col rounded-xl border border-white/8 bg-[#0a0f18] p-5"
@@ -202,6 +202,8 @@ export default function IntranetPage() {
           ))}
         </div>
       </section>
+
+      <ServiceMap />
 
     </PageContainer>
   );
