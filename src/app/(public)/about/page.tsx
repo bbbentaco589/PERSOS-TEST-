@@ -13,10 +13,8 @@ import {
 
 import { DivisionIcon } from "@/components/brand/division-icon";
 import { PageContainer } from "@/components/layout/page-container";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { divisions, employees } from "@/data";
-import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
+import { divisions } from "@/data";
 
 export const metadata: Metadata = {
   title: "PERSOS 소개",
@@ -47,19 +45,16 @@ const contactChannels = [
     icon: AtSign,
     title: "공식 이메일",
     description: "서비스 운영 및 일반 문의를 위한 공식 이메일을 등록할 예정입니다.",
-    detail: "주소 등록 예정",
   },
   {
     icon: Share2,
     title: "공식 SNS 채널",
     description: "YouTube, X, Instagram, Blog 등 페르소스 공식 채널을 연결할 예정입니다.",
-    detail: "채널 링크 등록 예정",
   },
   {
     icon: Handshake,
     title: "사업 및 협업 문의",
     description: "파트너십, 콘텐츠 제작 및 프로젝트 협업을 위한 문의 창구를 준비하고 있습니다.",
-    detail: "문의 방식 준비 중",
   },
 ] as const;
 
@@ -154,7 +149,6 @@ function AboutPersosDiagram() {
 }
 
 export default function AboutPage() {
-  const publicEmployees = employees.filter(isPublicActiveCharacter);
   const activeDivisions = [...divisions].sort(
     (a, b) => a.displayOrder - b.displayOrder,
   );
@@ -246,7 +240,7 @@ export default function AboutPage() {
             className="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl"
             id="persos-organization-title"
           >
-            서로 다른 역할을 가진 AI들이 하나의 회사를 이루고 있습니다.
+            현업에서의 활동을 통해 지속적인 관계성을 형성하는 AI 조직
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">
             PERSOS의 AI 페르소나들은 각자의 전문 분야와 역할에 따라 사업부와
@@ -285,10 +279,6 @@ export default function AboutPage() {
             />
             <div className="grid gap-px bg-cyan-200/[0.08] md:grid-cols-2 lg:grid-cols-3">
               {activeDivisions.map((division, index) => {
-                const representatives = publicEmployees
-                  .filter((employee) => employee.divisionId === division.id)
-                  .slice(0, 2);
-
                 return (
                   <article
                     className="relative min-h-[148px] bg-[#050b17] p-5 sm:p-6"
@@ -311,11 +301,6 @@ export default function AboutPage() {
                         </p>
                       </div>
                     </div>
-                    {representatives.length ? (
-                      <p className="mt-4 border-l border-cyan-200/30 pl-3 text-[10px] text-cyan-100/65">
-                        대표 AI · {representatives.map((employee) => employee.nameKo).join(" · ")}
-                      </p>
-                    ) : null}
                   </article>
                 );
               })}
@@ -347,16 +332,6 @@ export default function AboutPage() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs leading-6 text-zinc-500 sm:text-sm">
-            직원으로 배치되고 → 활동을 만들고 → 하나의 캐릭터로 확장됩니다.
-          </p>
-          <Button asChild className="w-fit shrink-0">
-            <Link href="/departments">
-              전체 조직 둘러보기 <ArrowRight />
-            </Link>
-          </Button>
-        </div>
       </section>
 
       <section
@@ -364,45 +339,39 @@ export default function AboutPage() {
         className="scroll-mt-24 overflow-hidden rounded-2xl border border-cyan-300/15 bg-[radial-gradient(circle_at_84%_24%,rgba(14,116,144,0.13),transparent_38%),#03070d]"
         id="contact"
       >
-        <div className="grid lg:grid-cols-[0.82fr_1.18fr]">
-          <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
-              CONTACT US
-            </p>
+        <div className="p-6 sm:p-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
+            CONTACT US
+          </p>
+          <div className="mt-4 grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-8">
+            <div>
             <h2
-              className="mt-4 text-3xl font-semibold leading-tight text-white sm:text-[2rem] lg:text-[2.15rem]"
+              className="text-2xl font-semibold leading-tight text-white sm:text-[1.75rem]"
               id="contact-title"
             >
               <span className="block">PERSOS와 함께</span>
               <span className="block">만들고 싶은 것이 있나요?</span>
             </h2>
-            <p className="mt-5 max-w-md text-sm leading-7 text-zinc-400">
+            <p className="mt-4 max-w-md text-sm leading-7 text-zinc-400">
               AI 페르소나, 캐릭터 IP, 콘텐츠, 브랜드를 비롯한 다양한 형태의
               프로젝트 협업과 파트너십 제안을 기다립니다.
             </p>
-            <Button asChild className="mt-8 w-fit" size="lg">
-              <Link href="/contact">
-                문의 채널 자세히 보기 <ArrowRight />
-              </Link>
-            </Button>
-          </div>
-          <div className="grid gap-px border-t border-white/8 bg-white/8 sm:grid-cols-3 lg:grid-cols-1 lg:border-l lg:border-t-0">
-            {contactChannels.map(({ description, detail, icon: Icon, title }) => (
-              <article className="bg-[#060b13] p-6 sm:p-7" key={title}>
-                <div className="flex items-start gap-4">
+            </div>
+            <div className="grid overflow-hidden rounded-xl border border-white/8 bg-white/8 sm:grid-cols-3 sm:gap-px">
+            {contactChannels.map(({ description, icon: Icon, title }) => (
+              <article className="bg-[#060b13] p-4 sm:p-5" key={title}>
+                <div className="flex flex-col items-start gap-3">
                   <span className="grid size-10 shrink-0 place-items-center rounded-md border border-cyan-300/20 bg-cyan-300/[0.06] text-cyan-200">
                     <Icon className="size-4" />
                   </span>
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
                     <p className="mt-2 text-xs leading-5 text-zinc-500">{description}</p>
-                    <Badge className="mt-3 w-fit" variant="outline">
-                      {detail}
-                    </Badge>
                   </div>
                 </div>
               </article>
             ))}
+            </div>
           </div>
         </div>
       </section>
