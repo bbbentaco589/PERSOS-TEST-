@@ -230,10 +230,10 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="persos-organization-title"
-        className="space-y-7 rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_50%_42%,rgba(14,116,144,0.08),transparent_36%),#030811] px-5 py-8 sm:px-7 sm:py-10 lg:px-9"
+        className="relative space-y-6 overflow-hidden border border-white/8 bg-[#010a1e] bg-[radial-gradient(circle_at_76%_38%,rgba(14,116,144,0.13),transparent_42%)] px-4 py-5 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-6"
       >
         <header className="max-w-4xl">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
             PERSOS ORGANIZATION
           </p>
           <h2
@@ -249,7 +249,7 @@ export default function AboutPage() {
           </p>
         </header>
 
-        <div className="overflow-hidden rounded-xl border border-cyan-200/15 bg-[#020815] shadow-[inset_0_0_60px_rgba(14,116,144,0.06)]">
+        <div className="overflow-hidden border border-cyan-200/15 bg-[#020815]/80 shadow-[inset_0_0_60px_rgba(14,116,144,0.06)]">
           <div className="relative border-b border-cyan-200/15 px-5 py-6 text-center">
             <div
               aria-hidden="true"
@@ -308,7 +308,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="grid overflow-hidden rounded-xl border border-white/8 bg-white/8 sm:grid-cols-3 sm:gap-px">
+        <div className="grid overflow-hidden border border-white/8 bg-white/8 sm:grid-cols-3 sm:gap-px">
           {organizationJourney.map(({ description, icon: Icon, label }, index) => (
             <div
               className="relative flex items-center gap-4 border-b border-white/8 bg-[#070c15] p-4 last:border-b-0 sm:border-b-0"
@@ -336,11 +336,11 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="contact-title"
-        className="scroll-mt-24 overflow-hidden rounded-2xl border border-cyan-300/15 bg-[radial-gradient(circle_at_84%_24%,rgba(14,116,144,0.13),transparent_38%),#03070d]"
+        className="scroll-mt-24 overflow-hidden border border-white/8 bg-[#010a1e] bg-[radial-gradient(circle_at_78%_44%,rgba(14,116,144,0.15),transparent_42%)] shadow-[inset_0_0_70px_rgba(2,132,199,0.05)]"
         id="contact"
       >
-        <div className="p-6 sm:p-8">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
+        <div className="px-4 py-5 sm:px-6 sm:py-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200">
             CONTACT US
           </p>
           <div className="mt-4 grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-8">
@@ -357,9 +357,9 @@ export default function AboutPage() {
               프로젝트 협업과 파트너십 제안을 기다립니다.
             </p>
             </div>
-            <div className="grid overflow-hidden rounded-xl border border-white/8 bg-white/8 sm:grid-cols-3 sm:gap-px">
+            <div className="grid overflow-hidden border border-cyan-200/15 bg-white/8 sm:grid-cols-3 sm:gap-px">
             {contactChannels.map(({ description, icon: Icon, title }) => (
-              <article className="bg-[#060b13] p-4 sm:p-5" key={title}>
+              <article className="bg-[#050b17] p-4 sm:p-5" key={title}>
                 <div className="flex flex-col items-start gap-3">
                   <span className="grid size-10 shrink-0 place-items-center rounded-md border border-cyan-300/20 bg-cyan-300/[0.06] text-cyan-200">
                     <Icon className="size-4" />
