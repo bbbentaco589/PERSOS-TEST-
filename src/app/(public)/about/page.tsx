@@ -168,10 +168,10 @@ export default function AboutPage() {
               AI PERSONA OPERATING SYSTEM
             </p>
             <h1
-              className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+              className="mt-5 break-keep text-[1.75rem] font-semibold leading-[1.22] tracking-[-0.045em] text-white sm:mt-6 sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
               id="about-hero-title"
             >
-              <span className="block lg:whitespace-nowrap">
+              <span className="block">
                 페르소스는 AI의 영혼을 설계하는 운영체제 입니다.
               </span>
             </h1>
@@ -183,13 +183,13 @@ export default function AboutPage() {
                 &apos;사람&apos; 만의 커뮤니티 CCGG 와 &apos;AI&apos; 커뮤니티 PERSOS가 융합되는 세계관을 기대해 주세요.
               </span>
             </p>
-            <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
-              <Button asChild className="w-[11rem] justify-center">
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3 lg:mt-auto">
+              <Button asChild className="w-full justify-center sm:w-[11rem]">
                 <Link href="#contact">
                   CONTACT US <ArrowRight />
                 </Link>
               </Button>
-              <Button asChild className="w-[11rem] justify-center">
+              <Button asChild className="w-full justify-center sm:w-[11rem]">
                 <Link href="/intranet">
                   INTRANET INFO <ArrowRight />
                 </Link>
@@ -202,7 +202,7 @@ export default function AboutPage() {
 
       <section
         aria-labelledby="what-is-persos-title"
-        className="relative grid min-h-[250px] items-center gap-x-8 gap-y-4 overflow-hidden border border-white/8 bg-[#010a1e] bg-[radial-gradient(circle_at_78%_44%,rgba(14,116,144,0.15),transparent_42%)] px-4 py-4 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-5 lg:grid-cols-[minmax(430px,0.9fr)_minmax(0,1.1fr)]"
+        className="relative grid min-h-[250px] items-center gap-x-8 gap-y-4 overflow-hidden border border-white/8 bg-[#010a1e] bg-[radial-gradient(circle_at_78%_44%,rgba(14,116,144,0.15),transparent_42%)] px-4 pb-5 pt-12 shadow-[inset_0_0_70px_rgba(2,132,199,0.05)] sm:px-6 sm:py-5 lg:grid-cols-[minmax(430px,0.9fr)_minmax(0,1.1fr)]"
       >
         <p className="absolute left-4 top-5 z-40 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-6 sm:top-6">
           PERSOS ECOSYSTEM
@@ -210,7 +210,7 @@ export default function AboutPage() {
         <AboutPersosDiagram />
         <div className="flex min-w-0 flex-col justify-center lg:pr-4">
           <h2
-            className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-white sm:whitespace-nowrap lg:text-3xl xl:text-4xl"
+            className="break-keep text-[1.75rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:whitespace-nowrap sm:text-3xl xl:text-4xl"
             id="what-is-persos-title"
           >
             하나의 조직에서 연결되는 생태계

@@ -27,14 +27,14 @@ export function CharacterCard({ character }: { character: Character }) {
 
   return (
     <Link
-      className="group relative block h-full min-h-[420px] overflow-hidden rounded-xl border border-white/10 bg-[#0a0d12] shadow-[0_18px_55px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/30 hover:shadow-[0_24px_70px_rgba(0,0,0,0.3)] motion-reduce:transform-none"
+      className="group relative block h-full min-h-0 overflow-hidden rounded-xl border border-white/10 bg-[#0a0d12] shadow-[0_18px_55px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/30 hover:shadow-[0_24px_70px_rgba(0,0,0,0.3)] motion-reduce:transform-none sm:min-h-[420px]"
       href={`/characters/${character.slug}`}
     >
       <div aria-hidden="true" className="absolute left-1/2 top-2 z-20 h-1.5 w-12 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 shadow-inner" />
       <div className="relative flex min-h-14 items-end justify-between gap-3 border-b border-white/8 px-4 pb-3 pt-5">
         <div>
-          <p className="font-mono text-[8px] font-semibold tracking-[0.14em] text-cyan-100/80">PERSOS AI COMPANY</p>
-          <p className="mt-1 font-mono text-[8px] tracking-[0.16em] text-zinc-700">EMPLOYEE IDENTIFICATION</p>
+          <p className="font-mono text-[9px] font-semibold tracking-[0.14em] text-cyan-100/80 sm:text-[8px]">PERSOS AI COMPANY</p>
+          <p className="mt-1 font-mono text-[9px] tracking-[0.16em] text-zinc-600 sm:text-[8px] sm:text-zinc-700">EMPLOYEE IDENTIFICATION</p>
         </div>
         <Badge
           className={isActive ? "whitespace-nowrap border-emerald-300/25 bg-emerald-300/10 text-emerald-200" : "whitespace-nowrap border-amber-300/20 bg-amber-300/[0.07] text-amber-200"}
@@ -46,7 +46,7 @@ export function CharacterCard({ character }: { character: Character }) {
 
       <div className="p-3">
         <div
-          className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black"
+          className="relative aspect-[4/3] overflow-hidden rounded-lg border border-white/10 bg-black sm:aspect-square"
           data-asset-placeholder={character.profileStage === "Rough" && character.slug !== "tect" ? "employee-profile" : undefined}
         >
           <Image
@@ -63,7 +63,7 @@ export function CharacterCard({ character }: { character: Character }) {
           />
           <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-md border border-white/10 bg-black/60 px-2 py-1.5 backdrop-blur-md">
             <DivisionIcon className="size-7" divisionId={character.divisionId} />
-            <span className="max-w-32 truncate text-[9px] font-medium text-zinc-200">{division?.nameKo}</span>
+            <span className="max-w-32 truncate text-[10px] font-medium text-zinc-200 sm:text-[9px]">{division?.nameKo}</span>
           </div>
         </div>
 

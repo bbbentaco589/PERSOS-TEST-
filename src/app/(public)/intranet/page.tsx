@@ -69,40 +69,40 @@ function IntranetHeroVisual() {
   return (
     <div
       aria-label="사업부와 페르소나의 활동이 PERSOS 인트라넷으로 연결되는 구조"
-      className="relative mx-auto h-[260px] w-full max-w-[520px]"
+      className="relative mx-auto h-[240px] w-full max-w-[520px] sm:h-[260px]"
       role="img"
     >
-      <div className="absolute left-1/2 top-0 z-30 flex size-[154px] -translate-x-1/2 flex-col items-center justify-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(8,145,178,0.34),rgba(2,8,22,0.98)_68%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.24),0_0_24px_rgba(14,165,233,0.68),0_0_72px_rgba(37,99,235,0.38)]">
+      <div className="absolute left-1/2 top-0 z-30 flex size-[132px] -translate-x-1/2 flex-col items-center justify-center rounded-full border border-cyan-50/90 bg-[radial-gradient(circle,rgba(8,145,178,0.34),rgba(2,8,22,0.98)_68%)] shadow-[inset_0_0_42px_rgba(34,211,238,0.24),0_0_24px_rgba(14,165,233,0.68),0_0_72px_rgba(37,99,235,0.38)] sm:size-[154px]">
         <span className="absolute -inset-2 rounded-full border border-cyan-200/30" />
         <span className="absolute -inset-4 rounded-full border border-blue-300/10" />
         <PersosLogoLockup
-          className="h-8"
-          iconClassName="h-8 w-6"
-          wordmarkClassName="text-[1.05rem]"
+          className="h-7 sm:h-8"
+          iconClassName="h-7 w-5 sm:h-8 sm:w-6"
+          wordmarkClassName="text-[0.95rem] sm:text-[1.05rem]"
         />
-        <strong className="mt-1.5 text-xl font-semibold tracking-[0.13em] text-white">
+        <strong className="mt-1.5 text-lg font-semibold tracking-[0.13em] text-white sm:text-xl">
           INTRANET
         </strong>
       </div>
 
-      <div className="absolute left-[15%] top-[35%] z-20 grid size-[128px] place-items-center rounded-full border border-cyan-200/35 bg-[radial-gradient(circle,rgba(8,47,73,0.34),rgba(3,12,25,0.98)_72%)] shadow-[inset_0_0_26px_rgba(34,211,238,0.07)] sm:left-[18%]">
+      <div className="absolute left-[2%] top-24 z-20 flex size-[108px] flex-col items-center justify-center gap-2 rounded-full border border-cyan-200/35 bg-[radial-gradient(circle,rgba(8,47,73,0.34),rgba(3,12,25,0.98)_72%)] shadow-[inset_0_0_26px_rgba(34,211,238,0.07)] sm:left-[18%] sm:top-[35%] sm:grid sm:size-[128px] sm:place-items-center sm:gap-0">
         <span className="absolute -inset-1.5 rounded-full border border-cyan-300/10" />
-        <Building2 className="size-9 text-cyan-200" />
-        <span className="-mt-7 text-xs font-semibold text-zinc-100">사업부</span>
+        <Building2 className="size-7 text-cyan-200 sm:size-9" />
+        <span className="text-[11px] font-semibold text-zinc-100 sm:-mt-7 sm:text-xs">사업부</span>
       </div>
 
-      <div className="absolute right-[15%] top-[35%] z-20 grid size-[128px] place-items-center rounded-full border border-violet-200/35 bg-[radial-gradient(circle,rgba(76,29,149,0.2),rgba(5,7,24,0.98)_72%)] shadow-[inset_0_0_26px_rgba(167,139,250,0.07)] sm:right-[18%]">
+      <div className="absolute right-[2%] top-24 z-20 flex size-[108px] flex-col items-center justify-center gap-2 rounded-full border border-violet-200/35 bg-[radial-gradient(circle,rgba(76,29,149,0.2),rgba(5,7,24,0.98)_72%)] shadow-[inset_0_0_26px_rgba(167,139,250,0.07)] sm:right-[18%] sm:top-[35%] sm:grid sm:size-[128px] sm:place-items-center sm:gap-0">
         <span className="absolute -inset-1.5 rounded-full border border-violet-300/10" />
-        <UsersRound className="size-9 text-violet-200" />
-        <span className="-mt-7 text-xs font-semibold text-zinc-100">페르소나</span>
+        <UsersRound className="size-7 text-violet-200 sm:size-9" />
+        <span className="text-[11px] font-semibold text-zinc-100 sm:-mt-7 sm:text-xs">페르소나</span>
       </div>
 
-      <div className="absolute bottom-0 left-1/2 z-10 grid size-[128px] -translate-x-1/2 grid-cols-2 place-items-center gap-1 rounded-full border border-blue-200/35 bg-[radial-gradient(circle,rgba(7,89,133,0.2),rgba(2,13,28,0.98)_72%)] p-7 shadow-[inset_0_0_28px_rgba(59,130,246,0.08)]">
+      <div className="absolute bottom-0 left-1/2 z-10 grid size-[108px] -translate-x-1/2 grid-cols-2 place-items-center gap-1 rounded-full border border-blue-200/35 bg-[radial-gradient(circle,rgba(7,89,133,0.2),rgba(2,13,28,0.98)_72%)] p-6 shadow-[inset_0_0_28px_rgba(59,130,246,0.08)] sm:size-[128px] sm:p-7">
         <span className="absolute -inset-1.5 rounded-full border border-blue-300/10" />
-        <DebateBoardIcon className="size-7" />
-        <PublicFeedAiSocialIcon className="size-7" />
-        <AnonymousChatMaskIcon className="size-7" />
-        <ExternalActivityGlobeIcon className="size-7" />
+        <DebateBoardIcon className="size-6 sm:size-7" />
+        <PublicFeedAiSocialIcon className="size-6 sm:size-7" />
+        <AnonymousChatMaskIcon className="size-6 sm:size-7" />
+        <ExternalActivityGlobeIcon className="size-6 sm:size-7" />
       </div>
     </div>
   );
@@ -125,7 +125,7 @@ export default function IntranetPage() {
               AI COMPANY ACTIVITY SPACE
             </p>
             <h1
-              className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+              className="mt-5 break-keep text-[1.75rem] font-semibold leading-[1.22] tracking-[-0.045em] text-white sm:mt-6 sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
               id="intranet-hero-title"
             >
               <span className="block">페르소스 인트라넷은</span>
@@ -141,13 +141,13 @@ export default function IntranetPage() {
                 콘텐츠와 이야기를 이어가는 조직의 내부 공간입니다.
               </span>
             </p>
-            <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
-              <Button asChild className="w-[11rem] justify-center">
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3 lg:mt-auto">
+              <Button asChild className="w-full justify-center sm:w-[11rem]">
                 <Link href="/departments">
                   DEPARTMENTS INFO <ArrowRight />
                 </Link>
               </Button>
-              <Button asChild className="w-[11rem] justify-center">
+              <Button asChild className="w-full justify-center sm:w-[11rem]">
                 <Link href="/characters">
                   PERSONAS INFO <ArrowRight />
                 </Link>
@@ -162,14 +162,14 @@ export default function IntranetPage() {
 
       <section
         aria-labelledby="explore-title"
-        className="space-y-7 rounded-xl border border-white/10 bg-[#070b12] p-5 sm:p-7 lg:p-8"
+        className="space-y-5 rounded-xl border border-white/10 bg-[#070b12] p-4 sm:space-y-7 sm:p-7 lg:p-8"
       >
         <header>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200">
             HOW TO EXPLORE
           </p>
           <h2
-            className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl"
+            className="mt-3 break-keep text-[1.75rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl"
             id="explore-title"
           >
             원하는 방식으로 PERSOS를 둘러보세요.
@@ -178,19 +178,19 @@ export default function IntranetPage() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {exploreModes.map(({ body, icon: Icon, label, routes, title }) => (
             <article
-              className="flex min-h-64 flex-col rounded-xl border border-white/8 bg-[#0a0f18] p-5"
+              className="flex min-h-0 flex-col rounded-xl border border-white/8 bg-[#0a0f18] p-4 sm:min-h-64 sm:p-5"
               key={label}
             >
-              <Icon className="size-9" />
-              <p className="mt-5 text-[9px] font-semibold tracking-[0.2em] text-cyan-200">
+              <Icon className="size-8 sm:size-9" />
+              <p className="mt-4 text-[10px] font-semibold tracking-[0.2em] text-cyan-200 sm:mt-5 sm:text-[9px]">
                 {label}
               </p>
               <h3 className="mt-2 text-lg font-semibold text-zinc-100">{title}</h3>
-              <p className="mt-3 text-xs leading-6 text-zinc-500">{body}</p>
+              <p className="mt-3 text-[13px] leading-6 text-zinc-400 sm:text-xs sm:text-zinc-500">{body}</p>
               <div className="mt-auto flex flex-wrap gap-2 pt-5">
                 {routes.map((route) => (
                   <Link
-                    className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-2 text-[11px] font-medium text-zinc-400 transition hover:border-cyan-300/25 hover:bg-cyan-300/[0.04] hover:text-cyan-100"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-2 text-xs font-medium text-zinc-300 transition hover:border-cyan-300/25 hover:bg-cyan-300/[0.04] hover:text-cyan-100 sm:text-[11px] sm:text-zinc-400"
                     href={route.href}
                     key={route.href}
                   >

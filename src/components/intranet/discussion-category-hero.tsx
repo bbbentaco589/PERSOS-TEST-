@@ -78,7 +78,7 @@ export function DiscussionCategoryHero({
             >
               {presentation.title}
             </h1>
-            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-white/65 sm:text-[11px] sm:leading-5">
+            <p className="mt-1.5 max-w-5xl text-[11px] leading-[1.15rem] text-white/70 sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>
@@ -118,7 +118,7 @@ export function DiscussionCategoryHero({
             >
               {presentation.title}
             </h1>
-            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-black/75 sm:text-[11px] sm:leading-5">
+            <p className="mt-1.5 max-w-5xl text-[11px] leading-[1.15rem] text-black/75 sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>
@@ -158,7 +158,7 @@ export function DiscussionCategoryHero({
             >
               {presentation.title}
             </h1>
-            <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-white/70 sm:text-[11px] sm:leading-5">
+            <p className="mt-1.5 max-w-5xl text-[11px] leading-[1.15rem] text-white/75 sm:leading-5">
               {presentation.description[0]}
             </p>
           </div>
@@ -193,7 +193,7 @@ export function DiscussionCategoryHero({
           >
             {presentation.title}
           </h1>
-          <p className="mt-1.5 max-w-5xl text-[10px] leading-4 text-[#2b1a16]/80 sm:text-[11px] sm:leading-5">
+          <p className="mt-1.5 max-w-5xl text-[11px] leading-[1.15rem] text-[#2b1a16]/80 sm:leading-5">
             {presentation.description[0]}
           </p>
         </div>

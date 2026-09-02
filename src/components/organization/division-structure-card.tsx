@@ -48,31 +48,31 @@ export function DivisionStructureCard({
         id={`division-${division.slug}`}
       >
         <div
-          className="relative grid h-64 shrink-0 grid-cols-[5rem_minmax(0,1fr)] overflow-hidden sm:h-60 sm:grid-cols-[7rem_minmax(0,1fr)]"
+          className="relative grid h-56 shrink-0 grid-cols-[4.5rem_minmax(0,1fr)] overflow-hidden sm:h-60 sm:grid-cols-[7rem_minmax(0,1fr)]"
           style={{
             background: `radial-gradient(circle at 9% 50%, ${accent}, transparent 38%), linear-gradient(110deg, ${accent}, rgba(8,11,17,0.9) 48%, #080b11 100%)`,
           }}
         >
           <div className="relative flex min-h-0 items-center justify-center overflow-hidden border-r border-white/[0.06]">
             <DivisionIcon
-              className="relative size-16 sm:size-20"
+              className="relative size-14 sm:size-20"
               featured
               divisionId={division.id}
             />
           </div>
-          <div className="flex min-w-0 flex-col px-5 py-5 sm:px-7 sm:py-6">
+          <div className="flex min-w-0 flex-col px-4 py-4 sm:px-7 sm:py-6">
             <div className="flex items-center gap-3 font-mono text-[9px] tracking-[0.22em] text-zinc-600">
               <span>PERSOS ORGANIZATION</span>
               <span className="h-px flex-1 bg-white/8" />
               <span>{String(sequence).padStart(2, "0")}</span>
             </div>
-            <h2 className="mt-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            <h2 className="mt-2.5 text-xl font-semibold tracking-tight text-white sm:mt-3 sm:text-2xl">
               {division.nameKo}
             </h2>
             <p className="mt-1 break-words font-mono text-[10px] tracking-wide text-zinc-500">
               {division.nameEn}
             </p>
-            <p className="mt-4 line-clamp-3 h-[4.5rem] max-w-xl text-sm leading-6 text-zinc-400">
+            <p className="mt-3 line-clamp-3 max-w-xl text-[13px] leading-5 text-zinc-400 sm:mt-4 sm:h-[4.5rem] sm:text-sm sm:leading-6">
               {division.descriptionKo}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-5 text-[11px] text-zinc-500">

@@ -59,7 +59,7 @@ function ServicePanel({
   return (
     <nav
       aria-label={ariaLabel}
-      className="relative z-10 w-full rounded-[1.75rem] border border-blue-300/35 bg-[#040a18]/95 p-4 shadow-[inset_0_0_35px_rgba(37,99,235,0.08),0_18px_50px_rgba(0,0,0,0.22)] sm:p-5"
+      className="relative z-10 w-full rounded-2xl border border-blue-300/35 bg-[#040a18]/95 p-3 shadow-[inset_0_0_35px_rgba(37,99,235,0.08),0_18px_50px_rgba(0,0,0,0.22)] sm:rounded-[1.75rem] sm:p-5"
     >
       <p className="px-2 pb-4 pt-1 text-center text-[10px] font-semibold uppercase tracking-[0.36em] text-blue-100/75">
         {title}
@@ -67,7 +67,7 @@ function ServicePanel({
       <div className="space-y-2.5">
         {links.map(({ description, href, icon: Icon, label }) => (
           <Link
-            className="group flex min-h-[4.75rem] items-center gap-3 rounded-2xl border border-blue-300/25 bg-[linear-gradient(100deg,rgba(13,31,72,0.78),rgba(2,7,19,0.94))] px-4 py-2.5 transition hover:-translate-y-px hover:border-cyan-200/55 hover:bg-blue-400/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
+            className="group flex min-h-[4.25rem] items-center gap-3 rounded-xl border border-blue-300/25 bg-[linear-gradient(100deg,rgba(13,31,72,0.78),rgba(2,7,19,0.94))] px-3 py-2.5 transition hover:-translate-y-px hover:border-cyan-200/55 hover:bg-blue-400/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80 sm:min-h-[4.75rem] sm:rounded-2xl sm:px-4"
             href={href}
             key={href}
           >
@@ -78,7 +78,7 @@ function ServicePanel({
               <span className="block text-sm font-semibold tracking-[-0.02em] text-zinc-100">
                 {label}
               </span>
-              <span className="mt-1 block text-[10px] leading-4 text-zinc-500">
+              <span className="mt-1 block text-[11px] leading-4 text-zinc-400 sm:text-[10px] sm:text-zinc-500">
                 {description}
               </span>
             </span>
@@ -113,7 +113,7 @@ export function ServiceMap() {
   return (
     <section
       aria-labelledby="service-map-title"
-      className="relative overflow-hidden rounded-2xl border border-blue-400/25 bg-[#020713] px-5 py-8 shadow-[inset_0_0_90px_rgba(16,46,110,0.12)] sm:px-8 lg:px-10 lg:py-9"
+      className="relative overflow-hidden rounded-2xl border border-blue-400/25 bg-[#020713] px-4 py-6 shadow-[inset_0_0_90px_rgba(16,46,110,0.12)] sm:px-8 sm:py-8 lg:px-10 lg:py-9"
     >
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(96,165,250,0.32)_0.65px,transparent_0.75px)] [background-size:38px_38px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_62%,rgba(29,78,216,0.2),transparent_30%)]" />
@@ -121,24 +121,24 @@ export function ServiceMap() {
       <p className="absolute left-5 top-6 z-10 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-8 lg:left-10 lg:top-9">
         PERSOS INTRANET SERVICE MAP
       </p>
-      <header className="relative pt-8 text-center sm:pt-6">
+      <header className="relative pt-9 text-left sm:pt-6 sm:text-center">
         <h2
-          className="text-balance text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl"
+          className="break-keep text-[1.65rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-balance sm:text-4xl"
           id="service-map-title"
         >
           조직과 활동을 잇는 페르소스 인트라넷
         </h2>
       </header>
 
-        <div className="relative mx-auto mt-7 grid max-w-6xl items-stretch gap-5 xl:grid-cols-[minmax(19rem,1fr)_11rem_minmax(19rem,1fr)] xl:gap-6">
+        <div className="relative mx-auto mt-6 grid max-w-6xl items-stretch gap-4 sm:mt-7 sm:gap-5 xl:grid-cols-[minmax(19rem,1fr)_11rem_minmax(19rem,1fr)] xl:gap-6">
         <ServicePanel ariaLabel="페르소스 안내 페이지" links={introLinks} title="페르소스 안내" />
 
-        <div className="relative z-0 mx-auto flex h-32 w-full max-w-56 items-center justify-center xl:h-full xl:w-44">
+        <div className="relative z-0 mx-auto flex h-28 w-full max-w-56 items-center justify-center sm:h-32 xl:h-full xl:w-44">
           <span aria-hidden="true" className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-blue-300/15 via-cyan-200/65 to-blue-300/15 xl:hidden" />
           <Connection side="left" />
           <Connection side="right" />
 
-          <div className="relative z-10 flex size-36 flex-col items-center justify-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.2),0_0_34px_rgba(37,99,235,0.3)]">
+          <div className="relative z-10 flex size-28 flex-col items-center justify-center rounded-full border border-cyan-100/80 bg-[radial-gradient(circle,rgba(14,116,144,0.3),rgba(2,7,19,1)_70%)] shadow-[inset_0_0_32px_rgba(34,211,238,0.2),0_0_34px_rgba(37,99,235,0.3)] sm:size-36">
             <span className="absolute inset-2 rounded-full border border-blue-400/20" />
             <PersosLogoLockup
               className="relative h-7"

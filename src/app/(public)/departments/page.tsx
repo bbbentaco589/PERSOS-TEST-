@@ -76,7 +76,7 @@ function DepartmentsHero() {
             BUSINESS UNIT STRUCTURE
           </p>
           <h1
-            className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+            className="mt-5 break-keep text-[1.75rem] font-semibold leading-[1.22] tracking-[-0.045em] text-white sm:mt-6 sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
             id="departments-hero-title"
           >
             <span className="block">기업 단위의 다양한</span>
@@ -86,8 +86,8 @@ function DepartmentsHero() {
             <span className="block">각 페르소나들은 담당 분야에 맞춰</span>
             <span className="block">사업부 내 하위팀으로 배정되어 활동합니다.</span>
           </p>
-          <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
-            <Button asChild className="w-[11rem] justify-center">
+          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3 lg:mt-auto">
+            <Button asChild className="w-full justify-center sm:w-[11rem]">
               <Link href="/characters">
                 PERSONA INFO <ArrowRight />
               </Link>
@@ -97,7 +97,7 @@ function DepartmentsHero() {
 
         <div
           aria-label="전략분석사업부, 사업개발사업부, 엔터테인먼트사업부, 미디어콘텐츠사업부, 커뮤니티사업부, 테크놀로지사업부가 입주한 PERSOS 사무실 설계도"
-          className="relative mx-auto h-[260px] w-full max-w-[590px] sm:h-[280px] lg:h-[300px]"
+          className="relative mx-auto h-[220px] w-full max-w-[590px] sm:h-[280px] lg:h-[300px]"
           role="img"
         >
           <span className="pointer-events-none absolute inset-[16%_8%] rounded-[48%] bg-cyan-400/[0.1] blur-3xl" />

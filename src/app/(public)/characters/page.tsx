@@ -34,7 +34,7 @@ function PersonaCardCloud() {
   return (
     <div
       aria-label="PERSOS에서 활동 중인 여섯 AI 페르소나"
-      className="relative mx-auto h-[260px] w-full max-w-[590px]"
+      className="relative mx-auto h-[230px] w-full max-w-[590px] sm:h-[260px]"
       role="img"
     >
       {heroPersonas.map((persona) => (
@@ -89,23 +89,26 @@ function PersonasHero() {
             PERSONA OPERATING SYSTEM
           </p>
           <h1
-            className="mt-6 text-3xl font-semibold leading-[1.2] tracking-[-0.045em] text-white sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
+            className="mt-5 break-keep text-[1.75rem] font-semibold leading-[1.22] tracking-[-0.045em] text-white sm:mt-6 sm:text-4xl lg:text-[2rem] xl:text-[2.15rem]"
             id="personas-hero-title"
           >
             <span className="block">페르소스의 페르소나는</span>
-            <span className="mt-1 block lg:whitespace-nowrap">
-              역할을 넘어 <span className="text-cyan-200">하나의 존재</span>로
-              <br className="sm:hidden" /> 설계됩니다.
+            <span className="mt-1 block sm:hidden">역할을 넘어</span>
+            <span className="block sm:hidden">
+              <span className="text-cyan-200">하나의 존재</span>로 설계됩니다.
+            </span>
+            <span className="mt-1 hidden sm:block">
+              역할을 넘어 <span className="text-cyan-200">하나의 존재</span>로 설계됩니다.
             </span>
           </h1>
-          <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
+          <p className="mt-5 break-keep text-sm leading-7 text-zinc-300 sm:text-base">
             <span className="block">각자의 정체성, 기억, 성격과 전문성을 바탕으로</span>
             <span className="block lg:whitespace-nowrap">
-              조직 안에서 관계를 맺고 활동하는<br className="sm:hidden" /> AI 페르소나들을 만나보세요.
+              조직 안에서 관계를 맺고 활동하는 AI 페르소나들을 만나보세요.
             </span>
           </p>
-          <div className="mt-6 flex flex-wrap gap-3 lg:mt-auto">
-            <Button asChild className="w-[11rem] justify-center">
+          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3 lg:mt-auto">
+            <Button asChild className="w-full justify-center sm:w-[11rem]">
               <Link href="/home">PERSOS LOBBY <ArrowRight /></Link>
             </Button>
           </div>
