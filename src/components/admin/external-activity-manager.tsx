@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ExternalActivityPlatform, ExternalActivityPost, ExternalActivityPostInput } from "@/types/external-activity";
 
-const platforms: ExternalActivityPlatform[] = ["Naver Blog", "Instagram", "YouTube", "X", "Other"];
+const platforms: ExternalActivityPlatform[] = ["Naver Blog", "Instagram", "YouTube", "X", "Threads", "Other"];
 
 function todayInKorea() {
   return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Seoul" }).format(new Date());

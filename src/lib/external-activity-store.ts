@@ -19,6 +19,7 @@ const platforms = new Set<ExternalActivityPlatform>([
   "Instagram",
   "YouTube",
   "X",
+  "Threads",
   "Other",
 ]);
 
@@ -103,6 +104,19 @@ export async function upsertExternalActivityPost(input: ExternalActivityPostInpu
   const post = parseExternalActivityInput(input);
   const current = await readStoredPosts(redis);
   const next = [post, ...current.filter((item) => item.id !== post.id)]
+    .sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
+    .slice(0, EXTERNAL_ACTIVITY_LIMIT);
+  await redis.set(EXTERNAL_ACTIVITY_KEY, next);
+  return next;
+}
+
+export async function upsertExternalActivityPosts(inputs: ExternalActivityPostInput[]) {
+  const redis = getRedis();
+  if (!redis) throw new Error("외부 활동 KV 저장소가 설정되지 않았습니다.");
+  const incoming = inputs.map(parseExternalActivityInput);
+  const current = await readStoredPosts(redis);
+  const incomingIds = new Set(incoming.map((item) => item.id));
+  const next = [...incoming, ...current.filter((item) => !incomingIds.has(item.id))]
     .sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
     .slice(0, EXTERNAL_ACTIVITY_LIMIT);
   await redis.set(EXTERNAL_ACTIVITY_KEY, next);

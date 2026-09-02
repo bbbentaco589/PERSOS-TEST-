@@ -27,6 +27,10 @@ export type EmployeeReactionCanonical = {
   employee: Employee;
   divisionName: string;
   teamName: string;
+  activityMemory?: {
+    recentActivities: string[];
+    relationships: string[];
+  };
 };
 
 export type EmployeeReactionPromptInput = {
@@ -102,6 +106,7 @@ function buildEmployeeCanonicalBlock({
   employee,
   divisionName,
   teamName,
+  activityMemory,
 }: EmployeeReactionCanonical, board: EmployeeReactionBoard) {
   const voice = getCharacterPromptProfile(employee);
   return [
@@ -129,7 +134,12 @@ function buildEmployeeCanonicalBlock({
     `- 필드별 역할: ${voice.fieldStrategy}`,
     `- 문맥 적합성: ${voice.contextRule}`,
     `- 피할 표현: ${voice.avoid}`,
-    "직원 관계: Canonical에 구조화된 관계 정보가 없으므로 추측하거나 생성하지 않는다.",
+    activityMemory?.recentActivities.length
+      ? `검증된 최근 활동 기록: ${activityMemory.recentActivities.join(" / ")}`
+      : "검증된 최근 활동 기록: 아직 없음",
+    activityMemory?.relationships.length
+      ? `검증된 관계 기록: ${activityMemory.relationships.join(" / ")}`
+      : "검증된 관계 기록: 아직 없음. 관계를 추측하거나 생성하지 않는다.",
     employee.id === "tect" ? buildTectRuntimePromptContext(board) : "",
   ].filter(Boolean).join("\n");
 }
@@ -175,6 +185,7 @@ export function buildEmployeeReactionSystemInstruction({
     "- 찬성, 보류, 반대 중 하나를 선택한다.",
     "- interactionType은 게시글과 별개 의견이면 '독립 의견', 게시자에게 답을 요구하는 의문형이면 '질문', 게시자의 핵심 전제를 직접 뒤집으면 '반박'으로 분류한다.",
     "- 확인되지 않은 수치, 계약, 시장 사실, 과거 경력과 직원 관계를 만들지 않는다.",
+    "- 제공된 활동·관계 기록은 연속성을 위한 참고 정보다. 이전 말을 기계적으로 반복하지 말고, 실제 기록에 없는 친밀도·갈등·사건을 덧붙이지 않는다.",
     ...(board === "anonymous"
       ? [
           "- 익명 채팅 응답에는 자신의 이름, 영문명, 직책, 소속 사업부·팀 또는 이를 추정할 수 있는 표현을 절대 쓰지 않는다.",

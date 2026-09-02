@@ -9,6 +9,7 @@ import {
   Sparkles,
   Users,
   Workflow,
+  RadioTower,
 } from "lucide-react";
 
 import {
@@ -57,6 +58,7 @@ export const publicDivisionOrder = [
 
 export const adminNav = [
   { label: "운영 대시보드", href: "/admin", icon: CircleGauge },
+  { label: "자동화 관제", href: "/admin/automation", icon: RadioTower },
   { label: "게시판 AI 호출", href: "/admin/organization-run", icon: PlayCircle },
   { label: "검수 큐", href: "/admin/review", icon: ShieldCheck },
   { label: "아키텍트", href: "/admin/architect", icon: Bot },

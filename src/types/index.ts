@@ -1,4 +1,6 @@
 export type * from "./activity";
+export type * from "./automation";
+export type * from "./external-activity";
 export type * from "./asset";
 export type * from "./content";
 export type * from "./discussion";

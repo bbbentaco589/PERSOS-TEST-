@@ -47,4 +47,5 @@ export interface OrganizationRunPublisher {
   acquireExecutionLock(token: string, ttlSeconds: number): Promise<boolean>;
   releaseExecutionLock(token: string): Promise<void>;
   consumeRateLimit(limit: number, windowSeconds: number): Promise<boolean>;
+  getCharacterMemoryContexts?(employeeIds: readonly string[]): Promise<Record<string, NonNullable<EmployeeReactionCanonical["activityMemory"]>>>;
 }

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function OperationsMetric({ label, value, detail, tone = "neutral" }: { label: string; value: string; detail: string; tone?: "neutral" | "success" | "warning" | "danger" | "info" }) {
   const toneClass = { neutral: "text-zinc-100", success: "text-emerald-300", warning: "text-amber-200", danger: "text-rose-300", info: "text-cyan-200" }[tone];
-  return <div className="border border-white/8 bg-white/[0.02] p-4"><p className="text-[10px] font-semibold uppercase text-zinc-600">{label}</p><p className={cn("mt-3 text-2xl font-semibold", toneClass)}>{value}</p><p className="mt-2 text-[11px] leading-5 text-zinc-500">{detail}</p></div>;
+  return <div className="bg-[#0b0d11] p-4"><p className="text-[10px] font-semibold uppercase text-zinc-600">{label}</p><p className={cn("mt-3 text-2xl font-semibold", toneClass)}>{value}</p><p className="mt-2 text-[11px] leading-5 text-zinc-500">{detail}</p></div>;
 }
 
 export function IntegrationBadge({ state = "Mock" }: { state?: "Mock" | "Integration Ready" | "Verified" | "Unavailable" }) {

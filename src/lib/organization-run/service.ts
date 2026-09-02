@@ -25,6 +25,13 @@ import type {
   OrganizationRunGenerator,
   OrganizationRunPublisher,
 } from "./types";
+import {
+  getAutomationPolicy,
+  isFreeTierConfirmed,
+  reserveAutomationBudget,
+  saveAutomationRun,
+  settleAutomationBudget,
+} from "@/lib/automation-control-store";
 
 const LOCK_TTL_SECONDS = 180;
 const RATE_LIMIT = 6;
@@ -228,7 +235,12 @@ export async function runAIOrganization(input: {
     const employeeIds = topic.relevantEmployeeIds;
     stage = "employees";
     input.onProgress?.("employees");
-    const employees = await getOrganizationRunCanonicalEmployees(employeeIds);
+    const canonicalEmployees = await getOrganizationRunCanonicalEmployees(employeeIds);
+    const memoryContexts = await input.publisher.getCharacterMemoryContexts?.(employeeIds);
+    const employees = canonicalEmployees.map((employee) => ({
+      ...employee,
+      activityMemory: memoryContexts?.[employee.employee.id],
+    }));
 
     stage = "reactions";
     input.onProgress?.("reactions");
@@ -352,6 +364,7 @@ export async function runAIOrganization(input: {
 
 export async function runAIOrganizationFromEnvironment(input?: {
   forcedBoardType?: OrganizationRunBoardType;
+  trigger?: "scheduled" | "manual";
 }) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
@@ -371,11 +384,55 @@ export async function runAIOrganizationFromEnvironment(input?: {
       true
     );
   }
-  return runAIOrganization({
-    generator: new GeminiOrganizationRunGenerator(apiKey),
-    publisher,
-    forcedBoardType: input?.forcedBoardType,
-  });
+  const trigger = input?.trigger ?? "manual";
+  const policy = await getAutomationPolicy();
+  const reservedCalls = 2 + policy.maxParticipants * 2 - 1;
+  if (trigger === "scheduled") {
+    if (!policy.enabled) {
+      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, message: "자동 소통 Kill Switch가 꺼져 있습니다." });
+      throw new OrganizationRunError("자동 소통이 관리자 설정에서 중지되어 있습니다.", "topic", 409, false);
+    }
+    if (!isFreeTierConfirmed()) {
+      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, message: "Gemini 무료 프로젝트 확인 가드가 설정되지 않았습니다." });
+      throw new OrganizationRunError("AI_AUTOMATION_FREE_TIER_CONFIRMED=true 확인 전에는 예약 AI 호출을 실행하지 않습니다.", "topic", 412, false);
+    }
+    const reservation = await reserveAutomationBudget({ policy, expectedCalls: reservedCalls });
+    if (!reservation.allowed) {
+      const message = reservation.reason === "daily_run_limit" ? "일일 자동 실행 상한에 도달했습니다." : "일일 Gemini 호출 상한에 도달했습니다.";
+      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, message });
+      throw new OrganizationRunError(message, "topic", 429, false);
+    }
+  }
+  try {
+    const result = await runAIOrganization({
+      generator: new GeminiOrganizationRunGenerator(apiKey),
+      publisher,
+      forcedBoardType: input?.forcedBoardType,
+      fullReviewMode: trigger === "scheduled" ? !policy.autoPublish : undefined,
+    });
+    if (trigger === "scheduled") {
+      await settleAutomationBudget({ reservedCalls, actualCalls: result.geminiCallCount });
+      await saveAutomationRun({
+        trigger,
+        boardType: result.boardType,
+        status: result.reviewPending ? "review_pending" : "published",
+        geminiCallCount: result.geminiCallCount,
+        message: result.reviewPending ? "자동 생성 후 검수 큐로 이동했습니다." : "자동 생성·검수·발행을 완료했습니다.",
+      });
+    }
+    return result;
+  } catch (error) {
+    if (trigger === "scheduled") {
+      await saveAutomationRun({
+        trigger,
+        boardType: input?.forcedBoardType,
+        status: "failed",
+        geminiCallCount: 0,
+        message: error instanceof Error ? error.message : "자동 실행에 실패했습니다.",
+      });
+    }
+    throw error;
+  }
 }
 
 export async function runManualAIOrganization(input: {
@@ -437,9 +494,16 @@ export async function runManualAIOrganization(input: {
 
     stage = "employees";
     input.onProgress?.("employees");
-    const employees = await getOrganizationRunCanonicalEmployees(
+    const canonicalEmployees = await getOrganizationRunCanonicalEmployees(
       topic.relevantEmployeeIds
     );
+    const memoryContexts = await input.publisher.getCharacterMemoryContexts?.(
+      topic.relevantEmployeeIds
+    );
+    const employees = canonicalEmployees.map((employee) => ({
+      ...employee,
+      activityMemory: memoryContexts?.[employee.employee.id],
+    }));
 
     stage = "reactions";
     input.onProgress?.("reactions");

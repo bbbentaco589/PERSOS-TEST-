@@ -1,11 +1,14 @@
 import { Redis } from "@upstash/redis";
 
 import type {
+  CharacterActivityMemory,
+  CharacterRelationship,
   EmployeeReactionBoard,
   EmployeeReactionPost,
   OrganizationRunReviewItem,
   OrganizationRunReviewStatus,
 } from "@/types";
+import { getAutomationPolicy } from "@/lib/automation-control-store";
 
 import type { OrganizationRunPublisher } from "./types";
 import { normalizePublicFeedAuthorship } from "./public-feed-interactions";
@@ -54,6 +57,9 @@ function createKeys(prefix: string) {
     reviews: `${prefix}:reviews:all`,
     lock: `${prefix}:execution-lock`,
     rate: (bucket: number) => `${prefix}:rate:${bucket}`,
+    memories: `${prefix}:automation:memory:all`,
+    employeeMemories: (employeeId: string) => `${prefix}:automation:memory:employee:${employeeId}`,
+    relationships: `${prefix}:automation:relationships:all`,
   } as const;
 }
 
@@ -194,6 +200,71 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         "게시글 상세 데이터 또는 목록 인덱스 저장을 확인하지 못했습니다."
       );
     }
+    await this.recordCharacterContinuity(post);
+  }
+
+  private async recordCharacterContinuity(post: EmployeeReactionPost) {
+    const policy = await getAutomationPolicy();
+    const boardType: CharacterActivityMemory["boardType"] = post.board === "public-feed" ? "public" : post.board;
+    const participantIds = [...new Set(post.reactions.map((reaction) => reaction.employeeId))];
+    const currentAll = (await this.redis.get<CharacterActivityMemory[]>(this.key.memories)) ?? [];
+    const created: CharacterActivityMemory[] = post.reactions.map((reaction) => ({
+      id: `${post.id}:${reaction.employeeId}`,
+      employeeId: reaction.employeeId,
+      boardType,
+      postSlug: post.slug,
+      title: post.title,
+      summary: post.summary,
+      stance: reaction.stance,
+      participantIds,
+      createdAt: reaction.createdAt || post.publishedAt,
+    }));
+
+    const currentRelationships = (await this.redis.get<CharacterRelationship[]>(this.key.relationships)) ?? [];
+    const relationshipMap = new Map(currentRelationships.map((item) => [`${item.employeeId}:${item.counterpartEmployeeId}`, item]));
+    for (const employeeId of participantIds) {
+      for (const counterpartEmployeeId of participantIds) {
+        if (employeeId === counterpartEmployeeId) continue;
+        const relationKey = `${employeeId}:${counterpartEmployeeId}`;
+        const current = relationshipMap.get(relationKey);
+        relationshipMap.set(relationKey, {
+          employeeId,
+          counterpartEmployeeId,
+          interactionCount: (current?.interactionCount ?? 0) + 1,
+          boardTypes: [...new Set([...(current?.boardTypes ?? []), boardType])],
+          lastPostSlug: post.slug,
+          lastInteractionAt: post.publishedAt,
+        });
+      }
+    }
+
+    const pipeline = this.redis.multi()
+      .set(this.key.memories, [...created, ...currentAll.filter((item) => item.postSlug !== post.slug)].slice(0, 500))
+      .set(this.key.relationships, [...relationshipMap.values()].slice(0, 500));
+    for (const employeeId of participantIds) {
+      const current = (await this.redis.get<CharacterActivityMemory[]>(this.key.employeeMemories(employeeId))) ?? [];
+      pipeline.set(
+        this.key.employeeMemories(employeeId),
+        [...created.filter((item) => item.employeeId === employeeId), ...current.filter((item) => item.postSlug !== post.slug)].slice(0, policy.memoryRetention)
+      );
+    }
+    await pipeline.exec();
+  }
+
+  async getCharacterMemoryContexts(employeeIds: readonly string[]) {
+    const [memoryLists, relationships] = await Promise.all([
+      Promise.all(employeeIds.map((employeeId) => this.redis.get<CharacterActivityMemory[]>(this.key.employeeMemories(employeeId)))),
+      this.redis.get<CharacterRelationship[]>(this.key.relationships),
+    ]);
+    const relationList = relationships ?? [];
+    return Object.fromEntries(employeeIds.map((employeeId, index) => [employeeId, {
+      recentActivities: (memoryLists[index] ?? []).slice(0, 5).map((item) => `${item.title} (${item.boardType}, ${item.stance ?? "입장 없음"})`),
+      relationships: relationList
+        .filter((item) => item.employeeId === employeeId)
+        .sort((left, right) => right.lastInteractionAt.localeCompare(left.lastInteractionAt))
+        .slice(0, 5)
+        .map((item) => `${item.counterpartEmployeeId}와 ${item.interactionCount}회 함께 참여; 최근 ${item.boardTypes.at(-1) ?? "활동"}`),
+    }]));
   }
 
   async listReviewItems(status?: OrganizationRunReviewStatus) {

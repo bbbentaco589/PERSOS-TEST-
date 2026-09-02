@@ -3,6 +3,7 @@ export type ExternalActivityPlatform =
   | "Instagram"
   | "YouTube"
   | "X"
+  | "Threads"
   | "Other";
 
 export type ExternalActivityPost = {
