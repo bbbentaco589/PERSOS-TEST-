@@ -49,6 +49,26 @@ test("직원 반응 Prompt가 등록된 Character Canonical과 게시판 Context
   assert.doesNotMatch(prompt, /시스템 및 조직 설계 담당/);
 });
 
+test("관리자가 고정한 검증 컨텍스트만 직원 Prompt에 포함한다", () => {
+  const canonical = canonicalEmployees[0];
+  const prompt = buildEmployeeReactionSystemInstruction({
+    board: "public-feed",
+    title: "후속 협업 기록",
+    body: "이전 활동에서 확인된 맥락을 이어갑니다.",
+    employees: [{
+      ...canonical,
+      activityMemory: {
+        recentActivities: ["공개 피드 운영 원칙"],
+        relationships: ["char-001과 공동 참여 2회"],
+        verifiedContext: ["협업 원칙: 결론 전에 책임 경계를 확인한다"],
+      },
+    }],
+  });
+
+  assert.match(prompt, /관리자가 승인·고정한 컨텍스트/);
+  assert.match(prompt, /결론 전에 책임 경계를 확인한다/);
+});
+
 test("ON 상태 6명의 Voice Direction이 말투와 사고 순서를 서로 다르게 강제한다", () => {
   const expectedVoiceMarkers: Record<string, [RegExp, RegExp]> = {
     tect: [/책임 경계/, /완료 기준/],

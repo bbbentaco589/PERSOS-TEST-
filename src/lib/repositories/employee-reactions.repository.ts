@@ -33,6 +33,30 @@ async function listDynamicPosts(
   }
 }
 
+async function listDynamicPostsByEmployeeId(employeeId: string) {
+  const publisher = getOrganizationRunPublisher();
+  if (!publisher) return [];
+  try {
+    if (publisher.listPostsByEmployeeId) {
+      return await publisher.listPostsByEmployeeId(employeeId);
+    }
+    const posts = await publisher.listPosts();
+    return posts.filter((post) => participatesInPost(post, employeeId));
+  } catch (error) {
+    console.error(
+      "[Employee reactions] employee KV read failed:",
+      error instanceof Error ? error.message : "unknown error"
+    );
+    return [];
+  }
+}
+
+function participatesInPost(post: EmployeeReactionPost, employeeId: string) {
+  return post.authorEmployeeId === employeeId ||
+    post.reactions.some((reaction) => reaction.employeeId === employeeId) ||
+    (post.replies ?? []).some((reply) => reply.employeeId === employeeId);
+}
+
 export async function listEmployeeReactionPosts(
   board?: Exclude<EmployeeReactionBoard, "investor-demo">
 ) {
@@ -41,6 +65,14 @@ export async function listEmployeeReactionPosts(
     employeeReactionPosts,
     dynamicPosts,
     board
+  );
+}
+
+export async function listEmployeeReactionPostsByEmployeeId(employeeId: string) {
+  const dynamicPosts = await listDynamicPostsByEmployeeId(employeeId);
+  return mergeEmployeeReactionPosts(
+    employeeReactionPosts.filter((post) => participatesInPost(post, employeeId)),
+    dynamicPosts
   );
 }
 

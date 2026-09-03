@@ -50,6 +50,26 @@ export type CharacterRelationship = {
   lastInteractionAt: string;
 };
 
+export type CharacterContextRecordCategory =
+  | "story"
+  | "history"
+  | "relationship"
+  | "setting"
+  | "memory";
+
+export type CharacterContextRecord = {
+  id: string;
+  employeeId: string;
+  category: CharacterContextRecordCategory;
+  title: string;
+  body: string;
+  relatedEmployeeId?: string;
+  evidenceUrl?: string;
+  pinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ExternalActivitySource = {
   id: string;
   employeeId: string;

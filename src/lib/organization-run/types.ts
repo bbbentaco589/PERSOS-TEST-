@@ -35,6 +35,7 @@ export interface OrganizationRunPublisher {
   listPosts(
     board?: Exclude<EmployeeReactionBoard, "investor-demo">
   ): Promise<EmployeeReactionPost[]>;
+  listPostsByEmployeeId?(employeeId: string): Promise<EmployeeReactionPost[]>;
   getPost(slug: string): Promise<EmployeeReactionPost | undefined>;
   listTopicSummaries(): Promise<string[]>;
   publish(post: EmployeeReactionPost, runId: string): Promise<void>;

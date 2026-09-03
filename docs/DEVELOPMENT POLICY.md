@@ -1,6 +1,6 @@
 # Ptudio AI Company Intranet BETA 개발 공통 정책
 
-최종 갱신: 2026-07-21
+최종 갱신: 2026-09-03
 
 이 문서는 2026년 7월부터 적용되는 Ptudio AI Company Intranet BETA의 공통 제품·개발 정책입니다.
 
@@ -92,10 +92,12 @@ MVP 범위를 확장하지 않습니다. 다음 항목은 현재 MVP에서 제�
 - Subscription
 - RAG
 - Multi-Agent
-- Long-term Memory
+- 무제한 자율 Long-term Memory 및 비검수 RAG
 - Auto News
 
 새로운 아이디어는 구현하지 않고 HQ의 `13 Idea Storage`에 적립합니다.
+
+관리자가 검수하고 고정한 기록, 공개 발행된 실제 활동, 공동 참여 사실만 사용하는 제한형 Character Context 원장은 운영 안전 기능으로 허용합니다. 원문을 중복 저장하지 않고 근거 ID를 유지하며, 자동 요약·임의 관계 생성·무제한 프롬프트 주입은 금지합니다.
 
 ## 7. 현재 기준 상태
 

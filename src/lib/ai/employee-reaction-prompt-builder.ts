@@ -30,6 +30,7 @@ export type EmployeeReactionCanonical = {
   activityMemory?: {
     recentActivities: string[];
     relationships: string[];
+    verifiedContext?: string[];
   };
 };
 
@@ -140,6 +141,9 @@ function buildEmployeeCanonicalBlock({
     activityMemory?.relationships.length
       ? `검증된 관계 기록: ${activityMemory.relationships.join(" / ")}`
       : "검증된 관계 기록: 아직 없음. 관계를 추측하거나 생성하지 않는다.",
+    activityMemory?.verifiedContext?.length
+      ? `관리자가 승인·고정한 컨텍스트: ${activityMemory.verifiedContext.join(" / ")}`
+      : "관리자가 승인·고정한 추가 컨텍스트: 없음",
     employee.id === "tect" ? buildTectRuntimePromptContext(board) : "",
   ].filter(Boolean).join("\n");
 }

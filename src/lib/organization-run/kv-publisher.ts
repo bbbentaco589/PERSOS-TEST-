@@ -9,6 +9,7 @@ import type {
   OrganizationRunReviewStatus,
 } from "@/types";
 import { getAutomationPolicy } from "@/lib/automation-control-store";
+import { listCharacterContextRecords } from "@/lib/character-context-store";
 
 import type { OrganizationRunPublisher } from "./types";
 import { normalizePublicFeedAuthorship } from "./public-feed-interactions";
@@ -51,6 +52,7 @@ function createKeys(prefix: string) {
     post: (slug: string) => `${prefix}:post:${slug}`,
     posts: `${prefix}:posts:all`,
     boardPosts: (board: PublishedBoard) => `${prefix}:posts:board:${board}`,
+    employeePosts: (employeeId: string) => `${prefix}:posts:employee:${employeeId}`,
     summaries: `${prefix}:topic-summaries`,
     run: (runId: string) => `${prefix}:run:${runId}`,
     review: (id: string) => `${prefix}:review:${id}`,
@@ -203,10 +205,28 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     await this.recordCharacterContinuity(post);
   }
 
+  async listPostsByEmployeeId(employeeId: string) {
+    const indexedSlugs = await this.redis.get<string[]>(this.key.employeePosts(employeeId));
+    if (!indexedSlugs) {
+      const posts = await this.listPosts();
+      return posts.filter((post) =>
+        post.authorEmployeeId === employeeId ||
+        post.reactions.some((reaction) => reaction.employeeId === employeeId) ||
+        (post.replies ?? []).some((reply) => reply.employeeId === employeeId)
+      );
+    }
+    const posts = await Promise.all(indexedSlugs.map((slug) => this.getPost(slug)));
+    return posts.filter((post): post is EmployeeReactionPost => Boolean(post));
+  }
+
   private async recordCharacterContinuity(post: EmployeeReactionPost) {
     const policy = await getAutomationPolicy();
     const boardType: CharacterActivityMemory["boardType"] = post.board === "public-feed" ? "public" : post.board;
-    const participantIds = [...new Set(post.reactions.map((reaction) => reaction.employeeId))];
+    const participantIds = [...new Set([
+      ...(post.authorEmployeeId ? [post.authorEmployeeId] : []),
+      ...post.reactions.map((reaction) => reaction.employeeId),
+      ...(post.replies ?? []).map((reply) => reply.employeeId),
+    ])];
     const currentAll = (await this.redis.get<CharacterActivityMemory[]>(this.key.memories)) ?? [];
     const created: CharacterActivityMemory[] = post.reactions.map((reaction) => ({
       id: `${post.id}:${reaction.employeeId}`,
@@ -219,6 +239,19 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
       participantIds,
       createdAt: reaction.createdAt || post.publishedAt,
     }));
+    if (post.authorEmployeeId && post.authorPosition) {
+      created.push({
+        id: `${post.id}:${post.authorEmployeeId}`,
+        employeeId: post.authorEmployeeId,
+        boardType,
+        postSlug: post.slug,
+        title: post.title,
+        summary: post.summary,
+        stance: post.authorPosition.stance,
+        participantIds,
+        createdAt: post.publishedAt,
+      });
+    }
 
     const currentRelationships = (await this.redis.get<CharacterRelationship[]>(this.key.relationships)) ?? [];
     const relationshipMap = new Map(currentRelationships.map((item) => [`${item.employeeId}:${item.counterpartEmployeeId}`, item]));
@@ -241,20 +274,41 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     const pipeline = this.redis.multi()
       .set(this.key.memories, [...created, ...currentAll.filter((item) => item.postSlug !== post.slug)].slice(0, 500))
       .set(this.key.relationships, [...relationshipMap.values()].slice(0, 500));
-    for (const employeeId of participantIds) {
-      const current = (await this.redis.get<CharacterActivityMemory[]>(this.key.employeeMemories(employeeId))) ?? [];
+    const participantState = await Promise.all(participantIds.map(async (employeeId) => {
+      const [currentMemories, currentPostSlugs] = await Promise.all([
+        this.redis.get<CharacterActivityMemory[]>(this.key.employeeMemories(employeeId)),
+        this.redis.get<string[]>(this.key.employeePosts(employeeId)),
+      ]);
+      return { employeeId, currentMemories, currentPostSlugs };
+    }));
+    const legacyPosts = participantState.some((item) => !item.currentPostSlugs)
+      ? await this.listPosts()
+      : [];
+    for (const { employeeId, currentMemories, currentPostSlugs } of participantState) {
+      const backfilledSlugs = currentPostSlugs ?? legacyPosts
+        .filter((candidate) =>
+          candidate.authorEmployeeId === employeeId ||
+          candidate.reactions.some((reaction) => reaction.employeeId === employeeId) ||
+          (candidate.replies ?? []).some((reply) => reply.employeeId === employeeId)
+        )
+        .map((candidate) => candidate.slug);
       pipeline.set(
         this.key.employeeMemories(employeeId),
-        [...created.filter((item) => item.employeeId === employeeId), ...current.filter((item) => item.postSlug !== post.slug)].slice(0, policy.memoryRetention)
+        [...created.filter((item) => item.employeeId === employeeId), ...(currentMemories ?? []).filter((item) => item.postSlug !== post.slug)].slice(0, policy.memoryRetention)
+      );
+      pipeline.set(
+        this.key.employeePosts(employeeId),
+        [post.slug, ...backfilledSlugs.filter((slug) => slug !== post.slug)].slice(0, 200)
       );
     }
     await pipeline.exec();
   }
 
   async getCharacterMemoryContexts(employeeIds: readonly string[]) {
-    const [memoryLists, relationships] = await Promise.all([
+    const [memoryLists, relationships, contextRecordLists] = await Promise.all([
       Promise.all(employeeIds.map((employeeId) => this.redis.get<CharacterActivityMemory[]>(this.key.employeeMemories(employeeId)))),
       this.redis.get<CharacterRelationship[]>(this.key.relationships),
+      Promise.all(employeeIds.map((employeeId) => listCharacterContextRecords(employeeId))),
     ]);
     const relationList = relationships ?? [];
     return Object.fromEntries(employeeIds.map((employeeId, index) => [employeeId, {
@@ -264,6 +318,10 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         .sort((left, right) => right.lastInteractionAt.localeCompare(left.lastInteractionAt))
         .slice(0, 5)
         .map((item) => `${item.counterpartEmployeeId}와 ${item.interactionCount}회 함께 참여; 최근 ${item.boardTypes.at(-1) ?? "활동"}`),
+      verifiedContext: contextRecordLists[index]
+        .filter((item) => item.pinned)
+        .slice(0, 5)
+        .map((item) => `${item.title}: ${item.body}`),
     }]));
   }
 
