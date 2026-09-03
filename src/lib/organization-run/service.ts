@@ -400,9 +400,13 @@ export async function runAIOrganizationFromEnvironment(input?: {
       await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, activityCount: 0, message: "Gemini 무료 프로젝트 확인 가드가 설정되지 않았습니다." });
       throw new OrganizationRunError("AI_AUTOMATION_FREE_TIER_CONFIRMED=true 확인 전에는 예약 AI 호출을 실행하지 않습니다.", "topic", 412, false);
     }
-    const reservation = await reserveAutomationBudget({ policy, expectedCalls: reservedCalls });
+    const reservation = await reserveAutomationBudget({ policy, expectedCalls: reservedCalls, boardType: input?.forcedBoardType });
     if (!reservation.allowed) {
-      const message = reservation.reason === "daily_run_limit" ? "일일 자동 실행 상한에 도달했습니다." : "일일 Gemini 호출 상한에 도달했습니다.";
+      const message = reservation.reason === "daily_run_limit"
+        ? "일일 자동 실행 상한에 도달했습니다."
+        : reservation.reason === "duplicate_board"
+          ? "오늘 이 게시판의 자동 실행이 이미 예약되었습니다."
+          : "일일 Gemini 호출 상한에 도달했습니다.";
       await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, activityCount: 0, message });
       throw new OrganizationRunError(message, "topic", 429, false);
     }
@@ -417,7 +421,10 @@ export async function runAIOrganizationFromEnvironment(input?: {
       maxRepliesPerPost: policy.maxRepliesPerPost,
     });
     if (trigger === "scheduled") {
-      const activityCount = (result.post.authorEmployeeId ? 1 : 0) + result.post.reactions.length + (result.post.replies?.length ?? 0);
+      const activityCount = 1
+        + (result.post.authorPosition ? 1 : 0)
+        + result.post.reactions.length
+        + (result.post.replies?.length ?? 0);
       await settleAutomationBudget({ reservedCalls, actualCalls: result.geminiCallCount, activities: activityCount });
       budgetSettled = true;
       try {

@@ -29,10 +29,22 @@ test("최근 실제 활동에서 저위험 적응 컨텍스트를 도출한다",
   assert.match(context.activityPattern, /공개 피드/);
 });
 
-test("자동화 정책은 3~6개 활동과 보존기간 안전값을 유지한다", () => {
-  const policy = parseAutomationPolicy({ dailyActivityMin: 6, dailyActivityMax: 3, metadataRetentionDays: 1, draftRetentionDays: 1 });
-  assert.equal(policy.dailyActivityMin, 6);
-  assert.equal(policy.dailyActivityMax, 6);
+test("자동화 정책은 세 게시판 일일 운영값과 보존기간 안전값을 유지한다", () => {
+  const policy = parseAutomationPolicy({ dailyActivityMin: 14, dailyActivityMax: 12, metadataRetentionDays: 1, draftRetentionDays: 1 });
+  assert.equal(policy.policyVersion, 2);
+  assert.equal(policy.dailyActivityMin, 14);
+  assert.equal(policy.dailyActivityMax, 14);
   assert.equal(policy.metadataRetentionDays, 90);
   assert.equal(policy.draftRetentionDays, 30);
+});
+
+test("자동화 정책 기본값은 세 게시판을 매일 실행하는 무료 한도 운영값이다", () => {
+  const policy = parseAutomationPolicy(undefined);
+  assert.deepEqual(policy.enabledBoards, ["debate", "public", "anonymous"]);
+  assert.equal(policy.dailyRunLimit, 3);
+  assert.equal(policy.dailyGeminiCallLimit, 20);
+  assert.equal(policy.dailyActivityMin, 12);
+  assert.equal(policy.dailyActivityMax, 14);
+  assert.equal(policy.maxParticipants, 3);
+  assert.equal(policy.maxRepliesPerPost, 2);
 });

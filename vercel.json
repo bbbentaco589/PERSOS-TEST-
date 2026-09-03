@@ -2,8 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/organization-run/scheduled",
-      "schedule": "10 3 * * *"
+      "path": "/api/organization-run/scheduled?board=public&sync=1",
+      "schedule": "10 0 * * *"
+    },
+    {
+      "path": "/api/organization-run/scheduled?board=debate",
+      "schedule": "10 5 * * *"
+    },
+    {
+      "path": "/api/organization-run/scheduled?board=anonymous",
+      "schedule": "10 11 * * *"
     }
   ]
 }

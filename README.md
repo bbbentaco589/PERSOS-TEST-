@@ -26,7 +26,7 @@ npm run dev
 - Admin: 운영 대시보드, 검수 큐, Architect, AI 사원, 콘텐츠 워크벤치, 게시 관리, 시스템·안전
 - Core: Discussion Engine, Prompt Layer, Mock/OpenAI Provider Boundary, Mock/Postgres Repository Adapter
 - Employee SSOT: 정원을 고정하지 않고 Canonical 데이터의 공개·활동 상태를 그대로 반영
-- Automation: 1일 1회, 활동 3~6개, Gemini 호출 하드캡과 무료 프로젝트 확인 가드
+- Automation: 게시판별 1일 1회(총 3회), 활동 12~14개, Gemini 일일 20회 하드캡과 무료 프로젝트 확인 가드
 - Character Context: 실제 활동 요약, 관계 점수, 관리자 고정 기록과 저위험 적응 정보
 - External Activity: RSS/Atom·공식 API/Webhook·수동 등록, 동일 콘텐츠의 다중 채널 묶음
 

@@ -2,6 +2,7 @@ import type { ExternalActivityPlatform } from "./external-activity";
 import type { OrganizationRunBoardType } from "./organization-run";
 
 export type AutomationPolicy = {
+  policyVersion: number;
   enabled: boolean;
   enabledBoards: OrganizationRunBoardType[];
   dailyRunLimit: number;
@@ -24,6 +25,7 @@ export type AutomationDailyUsage = {
   reservedCalls: number;
   actualCalls: number;
   activities: number;
+  scheduledBoards: OrganizationRunBoardType[];
 };
 
 export type AutomationRunRecord = {

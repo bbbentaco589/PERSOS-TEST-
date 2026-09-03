@@ -32,7 +32,9 @@ async function trigger(request: Request) {
   }
 
   const policy = await getAutomationPolicy();
-  const requestedBoard = new URL(request.url).searchParams.get("board");
+  const searchParams = new URL(request.url).searchParams;
+  const requestedBoard = searchParams.get("board");
+  const shouldSyncExternal = searchParams.get("sync") === "1";
   const forcedBoardType = boards.has(requestedBoard as OrganizationRunBoardType)
     ? (requestedBoard as OrganizationRunBoardType)
     : getScheduledBoard(policy);
@@ -59,8 +61,11 @@ async function trigger(request: Request) {
     }
   }
 
-  let externalSync: Record<string, unknown> = { status: "skipped", reason: "외부 수집이 중지되어 있습니다." };
-  if (policy.externalSyncEnabled) {
+  let externalSync: Record<string, unknown> = {
+    status: "skipped",
+    reason: policy.externalSyncEnabled ? "이번 예약 실행에는 외부 수집이 배정되지 않았습니다." : "외부 수집이 중지되어 있습니다.",
+  };
+  if (policy.externalSyncEnabled && shouldSyncExternal) {
     try {
       externalSync = await syncExternalActivitySources();
     } catch (error) {

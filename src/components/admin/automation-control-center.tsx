@@ -137,11 +137,11 @@ export function AutomationControlCenter({ initialSnapshot, personas }: {
               <label className="space-y-2 text-xs text-zinc-400">일일 실행 상한<Input max={3} min={1} onChange={(event) => setPolicy({ ...policy, dailyRunLimit: Number(event.target.value) })} type="number" value={policy.dailyRunLimit} /></label>
               <label className="space-y-2 text-xs text-zinc-400">일일 호출 하드캡<Input max={20} min={3} onChange={(event) => setPolicy({ ...policy, dailyGeminiCallLimit: Number(event.target.value) })} type="number" value={policy.dailyGeminiCallLimit} /></label>
               <label className="space-y-2 text-xs text-zinc-400">직원별 기억 보존<Input max={100} min={10} onChange={(event) => setPolicy({ ...policy, memoryRetention: Number(event.target.value) })} type="number" value={policy.memoryRetention} /></label>
-              <label className="space-y-2 text-xs text-zinc-400">일일 활동 최소<Input max={6} min={3} onChange={(event) => setPolicy({ ...policy, dailyActivityMin: Number(event.target.value) })} type="number" value={policy.dailyActivityMin} /></label>
-              <label className="space-y-2 text-xs text-zinc-400">일일 활동 최대<Input max={6} min={3} onChange={(event) => setPolicy({ ...policy, dailyActivityMax: Number(event.target.value) })} type="number" value={policy.dailyActivityMax} /></label>
+              <label className="space-y-2 text-xs text-zinc-400">일일 활동 최소<Input max={18} min={3} onChange={(event) => setPolicy({ ...policy, dailyActivityMin: Number(event.target.value) })} type="number" value={policy.dailyActivityMin} /></label>
+              <label className="space-y-2 text-xs text-zinc-400">일일 활동 최대<Input max={18} min={3} onChange={(event) => setPolicy({ ...policy, dailyActivityMax: Number(event.target.value) })} type="number" value={policy.dailyActivityMax} /></label>
               <label className="space-y-2 text-xs text-zinc-400">게시글당 자동 답글<Input max={2} min={0} onChange={(event) => setPolicy({ ...policy, maxRepliesPerPost: Number(event.target.value) })} type="number" value={policy.maxRepliesPerPost} /></label>
             </div>
-            <p className="rounded-md border border-cyan-300/10 bg-cyan-300/[0.035] p-3 text-[11px] leading-5 text-zinc-400">하루 1회 실행에서 페르소나 3명과 게시자 답글을 조합해 3~6개 활동을 생성합니다. 동일 글의 자동 대화는 1단계 답글로 제한합니다. 운영 메타데이터는 90일, 미발행 생성 원문은 30일 보존합니다.</p>
+            <p className="rounded-md border border-cyan-300/10 bg-cyan-300/[0.035] p-3 text-[11px] leading-5 text-zinc-400">하루 3회, 세 게시판을 각각 1회 실행합니다. 실행마다 페르소나 3명이 참여하며 공개 피드만 게시자 답글을 최대 2개 생성해 하루 12~14개 활동을 목표로 합니다. 외부 콘텐츠 수집은 첫 예약 실행에서 하루 1회 진행합니다.</p>
           </div>
         </div>
         <div className="flex justify-end border-t border-white/8 px-5 py-4 sm:px-6"><Button disabled={!snapshot.configured || busy === "policy"} type="submit">{busy === "policy" ? <LoaderCircle className="animate-spin" /> : <Save />}정책 저장</Button></div>
