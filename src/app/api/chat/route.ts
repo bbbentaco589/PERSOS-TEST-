@@ -1,7 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
-import { hasSameOrigin } from "@/lib/admin-auth/session";
+import {
+  hasSameOrigin,
+  hasValidAdminSession,
+} from "@/lib/admin-auth/session";
 
 import {
   buildEmployeeReactionSystemInstruction,
@@ -22,7 +25,7 @@ export const dynamic = "force-dynamic";
 const MAX_MESSAGE_LENGTH = 4_000;
 const MAX_REQUEST_BYTES = 16_384;
 const CHAT_RATE_LIMIT = {
-  scope: "public-chat",
+  scope: "admin-chat",
   limit: 6,
   windowSeconds: 10 * 60,
 } as const;
@@ -95,6 +98,13 @@ export async function POST(request: Request) {
     return privateJson(
       { error: "허용되지 않은 요청입니다." },
       { status: 403, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
+  if (!hasValidAdminSession(request)) {
+    return privateJson(
+      { error: "관리자 인증이 필요합니다." },
+      { status: 401 }
     );
   }
 

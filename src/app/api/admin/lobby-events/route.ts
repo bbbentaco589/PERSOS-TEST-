@@ -2,6 +2,11 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import {
+  hasAuthorizedAdminMutation,
+  hasAuthorizedAdminRead,
+} from "@/lib/admin-auth/session";
+
+import {
   deleteLobbyEventBanner,
   listLobbyEventBanners,
   upsertLobbyEventBanner,
@@ -9,11 +14,6 @@ import {
 import type { LobbyEventBannerInput } from "@/types/lobby-events";
 
 export const dynamic = "force-dynamic";
-
-function isSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  return !origin || origin === new URL(request.url).origin;
-}
 
 function errorResponse(error: unknown, status = 400) {
   return NextResponse.json(
@@ -29,7 +29,8 @@ function errorResponse(error: unknown, status = 400) {
   );
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!hasAuthorizedAdminRead(request)) return errorResponse("관리자 인증이 필요합니다.", 401);
   return NextResponse.json(
     { banners: await listLobbyEventBanners({ includeInactive: true }) },
     { headers: { "Cache-Control": "no-store" } }
@@ -37,7 +38,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!isSameOrigin(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
+  if (!hasAuthorizedAdminMutation(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
   try {
     const banners = await upsertLobbyEventBanner(
       (await request.json()) as LobbyEventBannerInput
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!isSameOrigin(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
+  if (!hasAuthorizedAdminMutation(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
   try {
     const { id } = (await request.json()) as { id?: string };
     if (!id) return errorResponse("삭제할 배너 ID가 필요합니다.", 400);

@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
+import { hasAuthorizedAdminMutation } from "@/lib/admin-auth/session";
 import {
   getOrganizationRunPublisher,
   reviewOrganizationRunItem,
@@ -8,16 +9,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function isSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  return !origin || origin === new URL(request.url).origin;
-}
-
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  if (!isSameOrigin(request)) {
+  if (!hasAuthorizedAdminMutation(request)) {
     return NextResponse.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
   }
   const publisher = getOrganizationRunPublisher();

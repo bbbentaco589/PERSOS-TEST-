@@ -38,8 +38,15 @@ export function createAdminLoginHandler(
 
     const clientId = getAdminLoginClientId(request);
     const rateLimitStore = getRateLimitStore();
+    if (!rateLimitStore) {
+      return NextResponse.json(
+        { error: "로그인 보호 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요." },
+        { status: 503, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
     try {
-      if (await rateLimitStore?.isBlocked(clientId)) {
+      if (await rateLimitStore.isBlocked(clientId)) {
         return NextResponse.json(
           { error: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." },
           {
@@ -52,7 +59,10 @@ export function createAdminLoginHandler(
         );
       }
     } catch {
-      // Rate Limit 저장소 장애가 관리자 인증 자체를 차단하지 않게 한다.
+      return NextResponse.json(
+        { error: "로그인 보호 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요." },
+        { status: 503, headers: { "Cache-Control": "no-store" } }
+      );
     }
 
     let body: unknown;
@@ -75,9 +85,12 @@ export function createAdminLoginHandler(
 
     if (!password || !verifyAdminPassword(password)) {
       try {
-        await rateLimitStore?.recordFailure(clientId);
+        await rateLimitStore.recordFailure(clientId);
       } catch {
-        // 실패 기록 장애 시에도 일반 인증 실패 응답은 유지한다.
+        return NextResponse.json(
+          { error: "로그인 보호 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요." },
+          { status: 503, headers: { "Cache-Control": "no-store" } }
+        );
       }
       return NextResponse.json(
         { error: "비밀번호가 올바르지 않습니다." },
@@ -86,9 +99,12 @@ export function createAdminLoginHandler(
     }
 
     try {
-      await rateLimitStore?.reset(clientId);
+      await rateLimitStore.reset(clientId);
     } catch {
-      // 인증 성공은 Rate Limit 저장소 가용성과 분리한다.
+      return NextResponse.json(
+        { error: "로그인 보호 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요." },
+        { status: 503, headers: { "Cache-Control": "no-store" } }
+      );
     }
 
     const response = NextResponse.json({ authenticated: true });

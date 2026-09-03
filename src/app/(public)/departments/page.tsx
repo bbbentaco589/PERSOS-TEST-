@@ -109,7 +109,6 @@ function DepartmentsHero() {
             preload
             sizes="(min-width: 1280px) 48vw, (min-width: 1024px) 52vw, 100vw"
             src="/assets/departments-office-plan-cutout-v4.png"
-            unoptimized
           />
         </div>
       </div>

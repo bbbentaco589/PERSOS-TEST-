@@ -41,14 +41,51 @@ function getClientIp(request: Request) {
 }
 
 export function getAdminLoginClientId(request: Request) {
-  const password = process.env.ADMIN_PASSWORD?.trim();
-  if (!password) {
+  const signingSecret =
+    process.env.RATE_LIMIT_SECRET?.trim() ||
+    process.env.ADMIN_SESSION_SECRET?.trim() ||
+    process.env.ADMIN_PASSWORD?.trim();
+  if (!signingSecret) {
     throw new Error("관리자 인증 설정이 필요합니다.");
   }
 
-  return createHmac("sha256", password)
+  return createHmac("sha256", signingSecret)
     .update(`persos-admin-login-rate-limit-v1:${getClientIp(request)}`)
     .digest("hex");
+}
+
+class MemoryAdminLoginRateLimitStore implements AdminLoginRateLimitStore {
+  private readonly failures = new Map<string, { count: number; expiresAt: number }>();
+  private readonly blocks = new Map<string, number>();
+
+  async isBlocked(clientId: string) {
+    const now = Date.now();
+    const blockedUntil = this.blocks.get(clientId) ?? 0;
+    if (blockedUntil <= now) {
+      this.blocks.delete(clientId);
+      return false;
+    }
+    return true;
+  }
+
+  async recordFailure(clientId: string) {
+    const now = Date.now();
+    const current = this.failures.get(clientId);
+    const next = !current || current.expiresAt <= now
+      ? { count: 1, expiresAt: now + ADMIN_LOGIN_FAILURE_WINDOW_SECONDS * 1_000 }
+      : { ...current, count: current.count + 1 };
+
+    this.failures.set(clientId, next);
+    if (next.count >= ADMIN_LOGIN_FAILURE_LIMIT) {
+      this.blocks.set(clientId, now + ADMIN_LOGIN_BLOCK_SECONDS * 1_000);
+    }
+    return next.count;
+  }
+
+  async reset(clientId: string) {
+    this.failures.delete(clientId);
+    this.blocks.delete(clientId);
+  }
 }
 
 export class KVAdminLoginRateLimitStore
@@ -88,9 +125,14 @@ export class KVAdminLoginRateLimitStore
 }
 
 let rateLimitStore: KVAdminLoginRateLimitStore | undefined;
+let developmentRateLimitStore: MemoryAdminLoginRateLimitStore | undefined;
 
 export function getAdminLoginRateLimitStore() {
-  if (!readRedisConfig()) return undefined;
+  if (!readRedisConfig()) {
+    if (process.env.NODE_ENV === "production") return undefined;
+    developmentRateLimitStore ??= new MemoryAdminLoginRateLimitStore();
+    return developmentRateLimitStore;
+  }
   rateLimitStore ??= new KVAdminLoginRateLimitStore();
   return rateLimitStore;
 }

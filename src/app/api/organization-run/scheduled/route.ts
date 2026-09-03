@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import {
@@ -31,8 +32,17 @@ async function trigger(request: Request) {
     return NextResponse.json({ error: "Scheduler 인증에 실패했습니다." }, { status: 401 });
   }
 
+  const startedAt = Date.now();
+  const requestId = request.headers.get("x-vercel-id") ?? randomUUID();
+  const requestUrl = new URL(request.url);
+  console.info(JSON.stringify({
+    event: "scheduled_organization_run_started",
+    requestId,
+    requestedBoard: requestUrl.searchParams.get("board"),
+  }));
+
   const policy = await getAutomationPolicy();
-  const searchParams = new URL(request.url).searchParams;
+  const searchParams = requestUrl.searchParams;
   const requestedBoard = searchParams.get("board");
   const shouldSyncExternal = searchParams.get("sync") === "1";
   const forcedBoardType = boards.has(requestedBoard as OrganizationRunBoardType)
@@ -56,7 +66,14 @@ async function trigger(request: Request) {
       const failure = error instanceof OrganizationRunError
         ? error
         : new OrganizationRunError("예약 조직 실행 중 알 수 없는 오류가 발생했습니다.", "failed", 500, true);
-      console.error("[Scheduled organization run] failed:", failure.stage, failure.message);
+      console.error(JSON.stringify({
+        event: "scheduled_organization_run_failed",
+        requestId,
+        stage: failure.stage,
+        statusCode: failure.statusCode,
+        retryable: failure.retryable,
+        message: failure.message,
+      }));
       organizationRun = { status: failure.statusCode === 409 || failure.statusCode === 412 || failure.statusCode === 429 ? "skipped" : "failed", stage: failure.stage, error: failure.message, retryable: failure.retryable };
     }
   }
@@ -72,7 +89,27 @@ async function trigger(request: Request) {
       externalSync = { status: "failed", error: error instanceof Error ? error.message : "외부 활동 수집에 실패했습니다." };
     }
   }
-  return NextResponse.json({ status: "completed", organizationRun, externalSync }, { headers: { "Cache-Control": "no-store" } });
+  const failed = organizationRun.status === "failed" || externalSync.status === "failed";
+  const completed = organizationRun.status !== "skipped" || externalSync.status !== "skipped";
+  const status = failed ? "failed" : completed ? "completed" : "skipped";
+  const durationMs = Date.now() - startedAt;
+
+  console[failed ? "error" : "info"](JSON.stringify({
+    event: "scheduled_organization_run_finished",
+    requestId,
+    status,
+    durationMs,
+    organizationStatus: organizationRun.status,
+    externalSyncStatus: externalSync.status,
+  }));
+
+  return NextResponse.json(
+    { status, requestId, durationMs, organizationRun, externalSync },
+    {
+      status: failed ? 500 : 200,
+      headers: { "Cache-Control": "no-store" },
+    }
+  );
 }
 
 export async function GET(request: Request) {

@@ -6,7 +6,10 @@ import {
   listExternalActivityPosts,
   upsertExternalActivityPost,
 } from "@/lib/external-activity-store";
-import { hasSameOrigin } from "@/lib/admin-auth/session";
+import {
+  hasAuthorizedAdminMutation,
+  hasAuthorizedAdminRead,
+} from "@/lib/admin-auth/session";
 import type { ExternalActivityPostInput } from "@/types/external-activity";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +21,8 @@ function errorResponse(error: unknown, status = 400) {
   );
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!hasAuthorizedAdminRead(request)) return errorResponse("관리자 인증이 필요합니다.", 401);
   return NextResponse.json(
     { posts: await listExternalActivityPosts({ includeInactive: true }) },
     { headers: { "Cache-Control": "no-store" } }
@@ -26,7 +30,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!hasSameOrigin(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
+  if (!hasAuthorizedAdminMutation(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
   try {
     const posts = await upsertExternalActivityPost((await request.json()) as ExternalActivityPostInput);
     revalidatePath("/external-activities");
@@ -37,7 +41,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!hasSameOrigin(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
+  if (!hasAuthorizedAdminMutation(request)) return errorResponse("허용되지 않은 요청입니다.", 403);
   try {
     const { id } = (await request.json()) as { id?: string };
     if (!id) return errorResponse("삭제할 게시물 ID가 필요합니다.");

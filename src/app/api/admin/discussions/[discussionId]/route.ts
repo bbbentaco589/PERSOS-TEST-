@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { hasAuthorizedAdminRead } from "@/lib/admin-auth/session";
 import { getRepositories } from "@/lib/repositories";
 import type { ApiErrorResponse, GetDiscussionResponse } from "@/types/api";
 
@@ -18,9 +19,12 @@ function errorResponse(code: string, message: string, status: number) {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ discussionId: string }> }
 ) {
+  if (!hasAuthorizedAdminRead(request)) {
+    return errorResponse("UNAUTHORIZED", "관리자 인증이 필요합니다.", 401);
+  }
   const { discussionId } = await context.params;
   const repositories = getRepositories();
   const storedFlow =

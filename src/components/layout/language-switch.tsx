@@ -19,7 +19,7 @@ export function LanguageSwitch() {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="언어 선택"
-        className="flex h-8 items-center gap-1 rounded-md border border-white/10 px-2 text-[9px] text-zinc-400 transition hover:bg-white/5 hover:text-white sm:text-[10px]"
+        className="flex h-10 items-center gap-1 rounded-md border border-white/10 px-2 text-[9px] text-zinc-400 transition hover:bg-white/5 hover:text-white sm:h-8 sm:text-[10px]"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >

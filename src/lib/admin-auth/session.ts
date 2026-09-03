@@ -20,6 +20,10 @@ function getAdminPassword() {
   return password;
 }
 
+function getAdminSessionSecret() {
+  return process.env.ADMIN_SESSION_SECRET?.trim() || getAdminPassword();
+}
+
 function safeEqual(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
   const rightBuffer = Buffer.from(right);
@@ -30,7 +34,7 @@ function safeEqual(left: string, right: string) {
 }
 
 function sign(payload: string) {
-  return createHmac("sha256", getAdminPassword())
+  return createHmac("sha256", getAdminSessionSecret())
     .update(`${SIGNING_CONTEXT}.${payload}`)
     .digest("base64url");
 }
@@ -106,6 +110,14 @@ export function hasSameOrigin(request: Request) {
 
   if (!forwardedHost) return false;
   return origin === `${forwardedProto}://${forwardedHost}`;
+}
+
+export function hasAuthorizedAdminRead(request: Request) {
+  return hasValidAdminSession(request);
+}
+
+export function hasAuthorizedAdminMutation(request: Request) {
+  return hasValidAdminSession(request) && hasSameOrigin(request);
 }
 
 export function getSafeAdminReturnPath(value: string | undefined) {

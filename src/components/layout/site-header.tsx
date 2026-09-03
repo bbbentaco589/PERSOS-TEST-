@@ -24,7 +24,7 @@ export function SiteHeader() {
         <div className="ml-auto flex shrink-0 items-center gap-1.5 md:ml-2 sm:gap-2">
           <HeaderOverflowMenu />
           <LanguageSwitch />
-          <Link aria-label="특수 권한 접근" className="grid size-8 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white" href="/admin" title="특수 권한 접근"><KeyRound className="size-3.5" /></Link>
+          <Link aria-label="특수 권한 접근" className="grid size-10 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white sm:size-8" href="/admin" title="특수 권한 접근"><KeyRound className="size-3.5" /></Link>
         </div>
       </div>
     </header>

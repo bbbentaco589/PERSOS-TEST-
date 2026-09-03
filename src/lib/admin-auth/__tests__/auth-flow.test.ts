@@ -15,6 +15,8 @@ import {
   ADMIN_SESSION_TTL_SECONDS,
   adminSessionCookie,
   createAdminSessionToken,
+  hasAuthorizedAdminMutation,
+  hasAuthorizedAdminRead,
   verifyAdminPassword,
   verifyAdminSessionToken,
 } from "@/lib/admin-auth/session";
@@ -97,10 +99,12 @@ function loginRequest(password: string, clientIp = "203.0.113.10") {
 
 test.beforeEach(() => {
   process.env.ADMIN_PASSWORD = TEST_PASSWORD;
+  delete process.env.ADMIN_SESSION_SECRET;
 });
 
 test.after(() => {
   delete process.env.ADMIN_PASSWORD;
+  delete process.env.ADMIN_SESSION_SECRET;
 });
 
 test("비밀번호와 24시간 서명 세션을 검증한다", () => {
@@ -123,6 +127,15 @@ test("비밀번호와 24시간 서명 세션을 검증한다", () => {
     ),
     false
   );
+});
+
+test("관리자 비밀번호와 별도 세션 서명 키를 사용할 수 있다", () => {
+  process.env.ADMIN_SESSION_SECRET = "dedicated-session-secret";
+  const token = createAdminSessionToken();
+  assert.equal(verifyAdminSessionToken(token), true);
+
+  process.env.ADMIN_SESSION_SECRET = "rotated-session-secret";
+  assert.equal(verifyAdminSessionToken(token), false);
 });
 
 test("로그인 실패와 성공 쿠키 속성을 반환한다", async () => {
@@ -174,6 +187,27 @@ test("미인증 직접 접근을 막고 유효한 쿠키는 통과시킨다", ()
     })
   );
   assert.equal(allowed.headers.get("x-middleware-next"), "1");
+});
+
+test("관리자 API 라우트도 프록시와 별개로 인증을 검증한다", () => {
+  assert.equal(
+    hasAuthorizedAdminRead(request("/api/admin/external-activities")),
+    false
+  );
+  assert.equal(
+    hasAuthorizedAdminMutation(
+      request("/api/admin/lobby-events", { method: "POST" })
+    ),
+    false
+  );
+
+  const token = createAdminSessionToken();
+  const authenticatedRequest = request("/api/admin/lobby-events", {
+    method: "POST",
+    headers: { cookie: `${adminSessionCookie.name}=${token}` },
+  });
+  assert.equal(hasAuthorizedAdminRead(authenticatedRequest), true);
+  assert.equal(hasAuthorizedAdminMutation(authenticatedRequest), true);
 });
 
 test("로그아웃은 관리자 쿠키를 즉시 만료한다", async () => {
@@ -264,7 +298,7 @@ test("로그인 성공 시 해당 IP의 실패 기록을 초기화한다", async
   );
 });
 
-test("Rate Limit 저장소 장애 시 관리자 로그인을 fail-open 처리한다", async () => {
+test("Rate Limit 저장소 장애 시 관리자 로그인을 fail-closed 처리한다", async () => {
   const unavailableStore: AdminLoginRateLimitStore = {
     isBlocked: async () => {
       throw new Error("store unavailable");
@@ -280,10 +314,18 @@ test("Rate Limit 저장소 장애 시 관리자 로그인을 fail-open 처리한
 
   assert.equal(
     (await resilientLogin(loginRequest(TEST_PASSWORD))).status,
-    200
+    503
   );
   assert.equal(
     (await resilientLogin(loginRequest("wrong-password"))).status,
-    401
+    503
+  );
+});
+
+test("Rate Limit 저장소가 없으면 관리자 로그인을 fail-closed 처리한다", async () => {
+  const protectedLogin = createAdminLoginHandler(() => undefined);
+  assert.equal(
+    (await protectedLogin(loginRequest(TEST_PASSWORD))).status,
+    503
   );
 });

@@ -3,6 +3,10 @@ import test from "node:test";
 
 import { POST as postChat } from "@/app/api/chat/route";
 import { POST as createOrganizationRunSession } from "@/app/api/organization-run/session/route";
+import {
+  adminSessionCookie,
+  createAdminSessionToken,
+} from "@/lib/admin-auth/session";
 import { checkRequestRateLimit } from "@/lib/security/request-rate-limit";
 
 function sameOriginHeaders(extra: HeadersInit = {}) {
@@ -24,14 +28,34 @@ test("공개 AI API는 출처 없는 직접 요청을 거부한다", async () =>
 });
 
 test("공개 AI API는 큰 요청 본문을 AI 호출 전에 거부한다", async () => {
+  process.env.ADMIN_PASSWORD = "security-test-password";
+  try {
+    const response = await postChat(
+      new Request("https://persos.test/api/chat", {
+        method: "POST",
+        headers: sameOriginHeaders({
+          "content-length": "16385",
+          cookie: `${adminSessionCookie.name}=${createAdminSessionToken()}`,
+        }),
+      })
+    );
+
+    assert.equal(response.status, 413);
+  } finally {
+    delete process.env.ADMIN_PASSWORD;
+  }
+});
+
+test("공개 AI API는 동일 출처라도 관리자 세션 없이는 비용 호출을 거부한다", async () => {
   const response = await postChat(
     new Request("https://persos.test/api/chat", {
       method: "POST",
-      headers: sameOriginHeaders({ "content-length": "16385" }),
+      headers: sameOriginHeaders(),
     })
   );
 
-  assert.equal(response.status, 413);
+  assert.equal(response.status, 401);
+  assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
 test("조직 실행 Secret 입력은 출처 없는 직접 요청을 거부한다", async () => {

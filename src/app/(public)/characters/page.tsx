@@ -93,11 +93,7 @@ function PersonasHero() {
             id="personas-hero-title"
           >
             <span className="block">페르소스의 페르소나는</span>
-            <span className="mt-1 block sm:hidden">역할을 넘어</span>
-            <span className="block sm:hidden">
-              <span className="text-cyan-200">하나의 존재</span>로 설계됩니다.
-            </span>
-            <span className="mt-1 hidden sm:block">
+            <span className="mt-1 block">
               역할을 넘어 <span className="text-cyan-200">하나의 존재</span>로 설계됩니다.
             </span>
           </h1>

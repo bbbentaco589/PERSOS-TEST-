@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { DiscussionStatus } from "@/constants/discussion";
 import { getAIProvider, isAIProviderError, AIErrorCode } from "@/lib/ai";
+import { hasAuthorizedAdminMutation } from "@/lib/admin-auth/session";
 import {
   createAIDiscussionEngineFlow,
   generateAIConsensusForDiscussion,
@@ -33,6 +34,9 @@ function errorResponse(code: string, message: string, status: number) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!hasAuthorizedAdminMutation(request)) {
+    return errorResponse("FORBIDDEN", "허용되지 않은 요청입니다.", 403);
+  }
   try {
     const body = (await request.json()) as GenerateDiscussionFlowRequest;
     const repositories = getRepositories();

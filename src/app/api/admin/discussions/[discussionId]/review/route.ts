@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { hasAuthorizedAdminMutation } from "@/lib/admin-auth/session";
 import { getRepositories } from "@/lib/repositories";
 import type {
   ApiErrorResponse,
@@ -25,6 +26,9 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ discussionId: string }> }
 ) {
+  if (!hasAuthorizedAdminMutation(request)) {
+    return errorResponse("FORBIDDEN", "허용되지 않은 요청입니다.", 403);
+  }
   try {
     const { discussionId } = await context.params;
     const body = (await request.json()) as UpdateReviewStatusRequest;

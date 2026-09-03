@@ -6,6 +6,7 @@ import { LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
 import { CharacterCard } from "@/components/cards/character-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { publicDivisionOrder } from "@/constants/navigation";
 import { characters, divisions, teams } from "@/data";
 import { isPublicCharacter } from "@/lib/character-runtime-policy";
@@ -43,6 +44,7 @@ export function EmployeeDirectory() {
   const [teamId, setTeamId] = useState("all");
   const [status, setStatus] = useState("all");
   const [expertise, setExpertise] = useState("all");
+  const [mobileExpanded, setMobileExpanded] = useState(false);
 
   const visibleTeams = teams.filter((team) => divisionId === "all" || team.divisionId === divisionId);
   const filteredCharacters = (() => {
@@ -62,15 +64,38 @@ export function EmployeeDirectory() {
       <section aria-label="페르소나 검색 및 필터" className="border-y border-white/8 py-4">
         <div className="flex items-center gap-2 text-[10px] font-semibold uppercase text-zinc-500"><SlidersHorizontal className="size-3.5" />Employee Filter</div>
         <div className="mt-3 grid grid-cols-2 gap-2 xl:grid-cols-[minmax(200px,1.25fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.7fr)_minmax(0,1fr)]">
-          <label className="relative col-span-2 xl:col-span-1"><span className="sr-only">직원 검색</span><Search className="pointer-events-none absolute left-3 top-3 size-4 text-zinc-600" /><input className="h-10 w-full rounded-md border border-white/10 bg-[#0d1015] pl-9 pr-3 text-sm outline-none placeholder:text-zinc-700 focus:border-cyan-300/50" onChange={(event) => setQuery(event.target.value)} placeholder="이름, 직무, 전문 분야 검색" value={query} /></label>
-          <select aria-label="사업부" className={selectClass} onChange={(event) => { setDivisionId(event.target.value); setTeamId("all"); }} value={divisionId}><option value="all">전체 사업부</option>{[...divisions].sort((a, b) => a.displayOrder - b.displayOrder).map((division) => <option key={division.id} value={division.id}>{division.nameKo}</option>)}</select>
-          <select aria-label="팀" className={selectClass} onChange={(event) => setTeamId(event.target.value)} value={teamId}><option value="all">전체 팀</option>{visibleTeams.map((team) => <option key={team.id} value={team.id}>{team.nameKo}</option>)}</select>
-          <select aria-label="상태" className={selectClass} onChange={(event) => setStatus(event.target.value)} value={status}><option value="all">전체 상태</option><option value="Active">업무 중</option><option value="Draft">채용 중</option></select>
-          <select aria-label="전문 분야" className={selectClass} onChange={(event) => setExpertise(event.target.value)} value={expertise}><option value="all">전체 전문 분야</option>{expertiseOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <label className="relative col-span-2 xl:col-span-1"><span className="sr-only">직원 검색</span><Search className="pointer-events-none absolute left-3 top-3 size-4 text-zinc-600" /><input className="h-10 w-full rounded-md border border-white/10 bg-[#0d1015] pl-9 pr-3 text-sm outline-none placeholder:text-zinc-700 focus:border-cyan-300/50" onChange={(event) => { setQuery(event.target.value); setMobileExpanded(false); }} placeholder="이름, 직무, 전문 분야 검색" value={query} /></label>
+          <select aria-label="사업부" className={selectClass} onChange={(event) => { setDivisionId(event.target.value); setTeamId("all"); setMobileExpanded(false); }} value={divisionId}><option value="all">전체 사업부</option>{[...divisions].sort((a, b) => a.displayOrder - b.displayOrder).map((division) => <option key={division.id} value={division.id}>{division.nameKo}</option>)}</select>
+          <select aria-label="팀" className={selectClass} onChange={(event) => { setTeamId(event.target.value); setMobileExpanded(false); }} value={teamId}><option value="all">전체 팀</option>{visibleTeams.map((team) => <option key={team.id} value={team.id}>{team.nameKo}</option>)}</select>
+          <select aria-label="상태" className={selectClass} onChange={(event) => { setStatus(event.target.value); setMobileExpanded(false); }} value={status}><option value="all">전체 상태</option><option value="Active">업무 중</option><option value="Draft">채용 중</option></select>
+          <select aria-label="전문 분야" className={selectClass} onChange={(event) => { setExpertise(event.target.value); setMobileExpanded(false); }} value={expertise}><option value="all">전체 전문 분야</option>{expertiseOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select>
         </div>
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500"><span>공개 프로필 {filteredCharacters.length}명 / 전체 {publicCharacters.length}명</span><div className="flex gap-2"><Badge variant="accent">업무 중 {publicCharacters.filter((item) => item.status === "Active").length}</Badge><Badge variant="outline">채용 중 {publicCharacters.filter((item) => item.status === "Draft").length}</Badge><span className="grid size-6 place-items-center rounded border border-white/10" title="그리드 보기"><LayoutGrid className="size-3" /></span></div></div>
-      {filteredCharacters.length ? <section aria-label="AI 직원 목록" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{filteredCharacters.map((character) => <CharacterCard character={character} key={character.id} />)}</section> : <EmptyState title="조건에 맞는 페르소나가 없습니다" description="검색어 또는 조직·상태 필터를 조정해 주세요." />}
+      {filteredCharacters.length ? (
+        <>
+          <section aria-label="AI 직원 목록" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {filteredCharacters.map((character, index) => (
+              <div className={index < 6 || mobileExpanded ? "" : "hidden md:block"} key={character.id}>
+                <CharacterCard character={character} />
+              </div>
+            ))}
+          </section>
+          {filteredCharacters.length > 6 ? (
+            <Button
+              aria-expanded={mobileExpanded}
+              className="w-full md:hidden"
+              onClick={() => setMobileExpanded((current) => !current)}
+              type="button"
+              variant="outline"
+            >
+              {mobileExpanded
+                ? "페르소나 목록 접기"
+                : `페르소나 ${filteredCharacters.length - 6}명 더 보기`}
+            </Button>
+          ) : null}
+        </>
+      ) : <EmptyState title="조건에 맞는 페르소나가 없습니다" description="검색어 또는 조직·상태 필터를 조정해 주세요." />}
     </>
   );
 }

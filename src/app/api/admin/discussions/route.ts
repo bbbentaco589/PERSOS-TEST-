@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { DiscussionStatus } from "@/constants/discussion";
 import {
+  hasAuthorizedAdminMutation,
+  hasAuthorizedAdminRead,
+} from "@/lib/admin-auth/session";
+import {
   attachSourcesToDiscussion,
   createDiscussionFromTopic,
 } from "@/lib/discussion-engine";
@@ -27,7 +31,10 @@ function errorResponse(code: string, message: string, status: number) {
   return jsonResponse<ApiErrorResponse>({ error: { code, message } }, { status });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!hasAuthorizedAdminRead(request)) {
+    return errorResponse("UNAUTHORIZED", "관리자 인증이 필요합니다.", 401);
+  }
   const repositories = getRepositories();
   const [staticDiscussions, generatedDiscussions, generatedFlows] = await Promise.all([
     repositories.discussions.listDiscussions(),
@@ -42,6 +49,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!hasAuthorizedAdminMutation(request)) {
+    return errorResponse("FORBIDDEN", "허용되지 않은 요청입니다.", 403);
+  }
   try {
     const body = (await request.json()) as CreateDiscussionRequest;
 
@@ -90,7 +100,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  if (!hasAuthorizedAdminMutation(request)) {
+    return errorResponse("FORBIDDEN", "허용되지 않은 요청입니다.", 403);
+  }
   await getRepositories().discussionPersistence.clearGeneratedDiscussions();
 
   return jsonResponse({

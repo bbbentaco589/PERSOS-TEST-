@@ -17,7 +17,7 @@ export function HeaderOverflowMenu() {
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label="계정 및 전체 메뉴"
-        className="grid size-8 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        className="grid size-10 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white sm:size-8"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
@@ -42,7 +42,7 @@ export function HeaderOverflowMenu() {
                 <p className="text-xs font-semibold">PERSOS Intranet</p>
                 <p className="mt-1 text-[9px] text-zinc-600">Public Navigation</p>
               </div>
-              <button aria-label="메뉴 닫기" className="grid size-8 place-items-center rounded-md border border-white/10 text-zinc-400" onClick={() => setOpen(false)} type="button">
+              <button aria-label="메뉴 닫기" className="grid size-10 place-items-center rounded-md border border-white/10 text-zinc-400" onClick={() => setOpen(false)} type="button">
                 <X className="size-4" />
               </button>
             </header>
