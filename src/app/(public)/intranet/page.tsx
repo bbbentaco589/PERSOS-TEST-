@@ -162,35 +162,47 @@ export default function IntranetPage() {
 
       <section
         aria-labelledby="explore-title"
-        className="space-y-5 rounded-xl border border-white/10 bg-[#070b12] p-4 sm:space-y-7 sm:p-7 lg:p-8"
+        className="relative overflow-hidden rounded-2xl border border-blue-400/25 bg-[#020713] px-4 py-6 shadow-[inset_0_0_90px_rgba(16,46,110,0.12)] sm:px-8 sm:py-8 lg:px-10 lg:py-9"
       >
-        <header>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200">
-            HOW TO EXPLORE
-          </p>
+        <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(96,165,250,0.32)_0.65px,transparent_0.75px)] [background-size:38px_38px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(29,78,216,0.18),transparent_38%)]" />
+
+        <p className="absolute left-5 top-6 z-10 text-[10px] font-semibold uppercase tracking-[0.34em] text-cyan-200 sm:left-8 lg:left-10 lg:top-9">
+          HOW TO EXPLORE
+        </p>
+        <header className="relative pt-9 text-left sm:pt-6 sm:text-center">
           <h2
-            className="mt-3 break-keep text-[1.75rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl"
+            className="break-keep text-[1.65rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-balance sm:text-4xl"
             id="explore-title"
           >
             원하는 방식으로 PERSOS를 둘러보세요.
           </h2>
         </header>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {exploreModes.map(({ body, icon: Icon, label, routes, title }) => (
+
+        <div className="relative mt-6 grid overflow-hidden rounded-2xl border border-blue-300/30 bg-[#040a18]/95 shadow-[inset_0_0_38px_rgba(37,99,235,0.08),0_18px_50px_rgba(0,0,0,0.22)] sm:mt-7 sm:grid-cols-2 xl:grid-cols-4">
+          {exploreModes.map(({ body, icon: Icon, label, routes, title }, index) => (
             <article
-              className="flex min-h-0 flex-col rounded-xl border border-white/8 bg-[#0a0f18] p-4 sm:min-h-64 sm:p-5"
+              className="group relative flex min-h-[15rem] flex-col border-blue-300/15 bg-[linear-gradient(145deg,rgba(13,31,72,0.42),rgba(2,7,19,0.94)_58%)] p-5 transition hover:bg-[linear-gradient(145deg,rgba(14,116,144,0.16),rgba(2,7,19,0.96)_62%)] sm:min-h-[16rem] sm:border-r sm:p-6 sm:[&:nth-child(2n)]:border-r-0 sm:[&:nth-child(n+3)]:border-t xl:border-t-0 xl:[&:nth-child(2n)]:border-r xl:[&:last-child]:border-r-0 xl:[&:nth-child(n+3)]:border-t-0"
               key={label}
             >
-              <Icon className="size-8 sm:size-9" />
-              <p className="mt-4 text-[10px] font-semibold tracking-[0.2em] text-cyan-200 sm:mt-5 sm:text-[9px]">
+              <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/55 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-blue-300/30 bg-[radial-gradient(circle,rgba(37,99,235,0.24),rgba(5,14,33,0.96))] text-blue-50 shadow-[inset_0_0_18px_rgba(59,130,246,0.13)]">
+                  <Icon className="size-7" />
+                </span>
+                <span className="font-mono text-[10px] tracking-[0.18em] text-blue-200/35">
+                  0{index + 1}
+                </span>
+              </div>
+              <p className="mt-5 text-[9px] font-semibold tracking-[0.24em] text-cyan-200">
                 {label}
               </p>
-              <h3 className="mt-2 text-lg font-semibold text-zinc-100">{title}</h3>
-              <p className="mt-3 text-[13px] leading-6 text-zinc-400 sm:text-xs sm:text-zinc-500">{body}</p>
+              <h3 className="mt-2 break-keep text-lg font-semibold tracking-[-0.025em] text-zinc-100">{title}</h3>
+              <p className="mt-3 text-[12px] leading-6 text-zinc-500">{body}</p>
               <div className="mt-auto flex flex-wrap gap-2 pt-5">
                 {routes.map((route) => (
                   <Link
-                    className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-2 text-xs font-medium text-zinc-300 transition hover:border-cyan-300/25 hover:bg-cyan-300/[0.04] hover:text-cyan-100 sm:text-[11px] sm:text-zinc-400"
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-blue-300/20 bg-blue-300/[0.035] px-3 text-[11px] font-medium text-zinc-300 transition hover:border-cyan-200/50 hover:bg-cyan-300/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
                     href={route.href}
                     key={route.href}
                   >
