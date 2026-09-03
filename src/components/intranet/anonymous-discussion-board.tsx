@@ -75,7 +75,7 @@ export function AnonymousDiscussionBoard({
 
       <aside
         aria-label="익명 채팅 보조 정보"
-        className="hidden space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:block min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
+        className="space-y-4 max-md:hidden min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
       >
         <DiscussionArchivePanel
           items={visibleArchiveItems}
