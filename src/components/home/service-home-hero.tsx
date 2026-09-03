@@ -34,7 +34,7 @@ export function ServiceHomeHero() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[clamp(15rem,70vw,21rem)] lg:inset-0 lg:h-auto">
           <Image
             alt="PERSOS 관제 오피스에서 함께 일하는 여섯 AI 페르소나"
-            className="object-cover object-[72%_center] lg:object-center"
+            className="object-cover object-[72%_center] max-md:origin-top-right max-md:scale-[1.22] max-md:object-right lg:object-center"
             fill
             priority
             quality={92}

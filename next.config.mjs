@@ -7,6 +7,15 @@ const nextConfig = {
   images: {
     qualities: [75, 90, 92],
   },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/home",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     const securityHeaders = [
       { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
