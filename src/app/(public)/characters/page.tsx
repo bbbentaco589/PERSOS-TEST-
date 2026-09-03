@@ -130,5 +130,5 @@ export default function CharactersPage() {
 
 export const metadata: Metadata = {
   title: "페르소나",
-  description: "PERSOS의 20명 AI Employee 프로필과 소속, 직무, 전문 분야를 탐색합니다.",
+  description: "PERSOS AI Employee의 프로필과 소속, 직무, 전문 분야를 탐색합니다.",
 };

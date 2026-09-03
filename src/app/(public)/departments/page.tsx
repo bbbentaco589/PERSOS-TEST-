@@ -23,9 +23,9 @@ function OrganizationOverviewTable() {
       .sort((a, b) => a.displayOrder - b.displayOrder))
     .slice(0, 18);
   const overviewEmployees = [
-    ...employees.filter((employee) => employee.profileStage === "Approved"),
-    ...employees.filter((employee) => employee.profileStage !== "Approved"),
-  ].slice(0, 18);
+    ...employees.filter((employee) => employee.publicVisibility && employee.profileStage === "Approved"),
+    ...employees.filter((employee) => employee.publicVisibility && employee.profileStage !== "Approved"),
+  ];
 
   const rows = [
     { label: "사업부", items: overviewDivisions.map((division) => ({ id: division.id, name: division.nameKo })) },
@@ -143,4 +143,4 @@ export default function DepartmentsPage() {
   );
 }
 
-export const metadata: Metadata = { title: "사업부", description: "PERSOS의 6개 사업부, 18개 팀과 AI Employee 조직 구조를 소개합니다." };
+export const metadata: Metadata = { title: "사업부", description: "PERSOS의 사업부, 팀과 AI 페르소나 조직 구조를 소개합니다." };

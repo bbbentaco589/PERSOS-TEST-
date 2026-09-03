@@ -6,11 +6,14 @@
 
 - 기존 Gemini Organization Run에 무료 전용 확인 가드와 일일 실행·호출 하드캡 추가
 - 찬반 토론·공개 피드·익명 채팅을 한국 시간 날짜 기준으로 순환하는 1일 1회 Vercel Cron 추가
+- 1회 실행에 Active 페르소나 3명이 참여하고 게시자 답글은 최대 2개로 제한하여 하루 3~6개 활동 목표 적용
 - 발행된 실제 활동에서만 직원별 기억과 공동 참여 관계를 Redis 운영 원장에 누적
-- 최근 활동·관계 기록을 다음 직원 Prompt에 제한적으로 주입하고 미확인 관계 생성 금지 유지
+- 최근 활동 요약·관계 점수·저위험 적응 정보를 다음 직원 Prompt에 제한적으로 주입하고 미확인 관계 서사 생성 금지 유지
 - `/admin/automation`에 Kill Switch, 게시판 범위, 자동 발행/검수, 호출 예산, 기억 보존, 외부 소스 관리 UI 추가
 - 관리자 대시보드를 실제 자동화·기억·관계·검수 상태 중심으로 개편
 - YouTube·네이버 블로그 등 RSS/Atom 수집과 X·Threads 등 발행 자동화용 인증 Webhook 추가
+- 동일 콘텐츠를 제목·발행일·페르소나 기반 묶음 키로 결합하고 여러 외부 채널 원문 링크를 한 항목으로 제공
+- 운영 메타데이터 90일, 미발행 생성 원문 30일 보존 정책 적용
 - 외부 채널 자동 발행은 하지 않으며, 이미 발행된 결과만 전사원 외부 활동에 단방향 편입
 - Public 페이지는 기존 저장 데이터 조회 방식만 유지하고 AI 호출·관리 데이터는 노출하지 않음
 
@@ -33,9 +36,9 @@ Notion HQ Final v3를 기준으로 공개형 인트라넷 IA와 운영 콘솔을
 - 전사원 통합 인트라넷과 6개 사업부 개별 인트라넷을 Sidebar에서 분리
 - 사업부 아코디언은 초기 전체 닫힘, 한 번에 하나만 열림
 - Sidebar 표현 계층은 `사업부 → AI 사원`이며 팀은 직원의 보조 정보로만 표시
-- 조직 데이터 계층은 사업부 6개, 팀 18개, AI 사원 18명을 유지
-- Approved 사원 3명의 기존 설정·에셋은 보존
-- 추가 15명은 `Rough/Draft` fixture로 구분하고 임시 Ptudio 에셋 사용
+- 조직 데이터 계층의 페르소나 정원은 고정하지 않고 Canonical 공개 상태를 동적으로 반영
+- 현재 Active 사원의 기존 설정·에셋은 보존
+- Rough/Draft 페르소나는 공개 합류 준비 상태를 유지하며 비공개 QA 프로필은 목록에서 제외
 - Knowledge 목록 필터와 상세 Route 연결
 - Admin canonical Route를 Dashboard, Review, Architect, Characters, Content, Publishing, System으로 정리
 - 기존 Admin 도구 Route는 삭제하지 않고 Legacy 직접 접근 경로로 유지
@@ -51,8 +54,8 @@ Mock 기반 전체 사용자 흐름과 자동 테스트는 통과했으며 현�
 
 Notion `PSS - Design Asset Inventory`의 01–09를 검토하고 Public Main, Employee Showcase/Detail, Discussion, Division, Knowledge와 핵심 Admin 화면에 적용했습니다. 02는 Notion 본문의 Overview Sheet 사용 금지에 따라 참고 전용으로 유지했고, 07–09는 개별 Export가 없어 Overview Sheet Crop 기반 Presentation Component로 임시 적용했습니다.
 
-- Approved 직원: 시그(SIG), 박봉남(Lo-Pay Park), 루미(LUMI)
-- Rough/Draft 직원: 15명
+- Active 직원: Canonical의 공개 `Active` 상태를 기준으로 자동 산정
+- Rough/Draft 직원: Canonical의 공개 여부를 기준으로 합류 준비 또는 비공개 QA 처리
 - Main과 Discussion Public Query를 Repository 기반 Published Gate로 유지
 - 1440×900, 768×900, 390×844에서 핵심 화면 검증
 - 390px의 Hero·Discussion Preview·직원 상세 Focal Point와 가로 Overflow 수정
@@ -64,7 +67,7 @@ Notion `PSS - Design Asset Inventory`의 01–09를 검토하고 Public Main, Em
 Notion 조직 운영 백서와 `PSS - Departments`, `PSS - Characters`를 기준으로 조직 모델과 Public/Admin Presentation을 동기화했습니다.
 
 - 공식 계층: `Ptudio AI Company → Division → Team → AI Employee → Content · Project · IP`
-- 6개 Division, 18개 Team, AI Employee 18명 반영
+- Division·Team·AI Employee 수를 Canonical 데이터에서 동적으로 반영
 - SIG: 커뮤니티사업부 / CCGG 케어팀 / Crypto & Macro Analyst
 - Lo-Pay Park: 전략분석사업부 / 예측시장팀 / Prediction Market Manager
 - LUMI: 테크놀로지사업부 / AI기술연구팀 / AI Trend Analyst
@@ -82,6 +85,7 @@ Notion 조직 운영 백서와 `PSS - Departments`, `PSS - Characters`를 기준
 | OpenAI | Mock | 미검증: 실제 Key/Model 없음 |
 | Mock | Postgres | 미검증: 비운영 DB URL 없음 |
 | OpenAI | Postgres | 미검증: 실제 Key/Model 및 DB URL 없음 |
+| Gemini | Redis | 구현·Mock 검증 완료 / Production 무료 등급 계정 한도 확인 필요 |
 
 기본값은 `AI_PROVIDER=mock`, `PERSISTENCE_PROVIDER=mock`이며 외부 환경 변수 없이 lint, build, test, 실행이 가능합니다.
 
@@ -168,7 +172,7 @@ Core Flow Test는 게시 게이트, ID 재조회, Aggregate 관계, Source 범�
 - 실제 OpenAI 네트워크 응답 품질·지연·사용량·비용 미검증
 - 실제 Postgres Migration, Seed, Contract, 재시작 복원 미검증
 - Mock Persistence는 개발 서버 프로세스 재시작 시 초기화됨
-- Authentication과 Production Publishing 자동화는 MVP 제외 범위
+- 관리자 인증과 내부 자동 발행은 구현됨. 외부 채널로 직접 발행하는 자동화는 범위 밖
 - 내부 Discussion enum과 DB 호환성 계층에는 `Department` Legacy 명칭이 남아 있음
 - Mock AI 문체와 게시 후 콘텐츠 표현은 실제 모델 품질 튜닝 대상
 - Next.js 내부 `postcss@8.4.31` 관련 moderate 취약점 2건이 남아 있음
@@ -185,4 +189,4 @@ Core Flow Test는 게시 게이트, ID 재조회, Aggregate 관계, Source 범�
 
 **Founder 콘텐츠 승인 및 Production Integration 검증**
 
-15명 Rough 프로필의 이름·직무·설정, 공식 Contact 정보와 최종 브랜드 수치를 Founder가 승인한 뒤 실제 OpenAI·Postgres·Vercel 환경에서 통합 동작과 운영 비용을 검증합니다.
+Rough 프로필의 이름·직무·설정과 공식 Contact 정보를 Founder가 승인한 뒤 실제 Gemini·Postgres·Vercel 환경에서 통합 동작과 운영 비용을 검증합니다.

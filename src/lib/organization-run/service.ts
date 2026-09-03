@@ -85,6 +85,7 @@ async function generatePublicFeedInteractions(input: {
   topic: Parameters<OrganizationRunGenerator["generateReactions"]>[0]["topic"];
   employees: Parameters<OrganizationRunGenerator["generateReactions"]>[0]["employees"];
   reactions: Awaited<ReturnType<OrganizationRunGenerator["generateReactions"]>>;
+  maxReplies: number;
 }) {
   if (input.topic.boardType !== "public") {
     return { authorEmployeeId: undefined, replies: [], replyCallCount: 0 };
@@ -129,12 +130,13 @@ async function generatePublicFeedInteractions(input: {
       : [];
   });
 
-  const replies = input.generator.generateAuthorReplies && comments.length
+  const replyTargets = comments.slice(0, Math.max(0, input.maxReplies));
+  const replies = input.generator.generateAuthorReplies && replyTargets.length
     ? await input.generator.generateAuthorReplies({
         topic: input.topic,
         author,
         authorOpinion,
-        comments,
+        comments: replyTargets,
       })
     : [];
   return {
@@ -149,6 +151,7 @@ export async function runAIOrganization(input: {
   publisher: OrganizationRunPublisher;
   forcedBoardType?: OrganizationRunBoardType;
   fullReviewMode?: boolean;
+  maxRepliesPerPost?: number;
   onProgress?: OrganizationRunProgress;
 }): Promise<OrganizationRunResult> {
   const runId = randomUUID();
@@ -269,6 +272,7 @@ export async function runAIOrganization(input: {
       topic,
       employees,
       reactions,
+      maxReplies: input.maxRepliesPerPost ?? 2,
     });
     geminiCallCount += interactions.replyCallCount;
 
@@ -389,47 +393,64 @@ export async function runAIOrganizationFromEnvironment(input?: {
   const reservedCalls = 2 + policy.maxParticipants * 2 - 1;
   if (trigger === "scheduled") {
     if (!policy.enabled) {
-      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, message: "자동 소통 Kill Switch가 꺼져 있습니다." });
+      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, activityCount: 0, message: "자동 소통 Kill Switch가 꺼져 있습니다." });
       throw new OrganizationRunError("자동 소통이 관리자 설정에서 중지되어 있습니다.", "topic", 409, false);
     }
     if (!isFreeTierConfirmed()) {
-      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, message: "Gemini 무료 프로젝트 확인 가드가 설정되지 않았습니다." });
+      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, activityCount: 0, message: "Gemini 무료 프로젝트 확인 가드가 설정되지 않았습니다." });
       throw new OrganizationRunError("AI_AUTOMATION_FREE_TIER_CONFIRMED=true 확인 전에는 예약 AI 호출을 실행하지 않습니다.", "topic", 412, false);
     }
     const reservation = await reserveAutomationBudget({ policy, expectedCalls: reservedCalls });
     if (!reservation.allowed) {
       const message = reservation.reason === "daily_run_limit" ? "일일 자동 실행 상한에 도달했습니다." : "일일 Gemini 호출 상한에 도달했습니다.";
-      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, message });
+      await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, activityCount: 0, message });
       throw new OrganizationRunError(message, "topic", 429, false);
     }
   }
+  let budgetSettled = false;
   try {
     const result = await runAIOrganization({
       generator: new GeminiOrganizationRunGenerator(apiKey),
       publisher,
       forcedBoardType: input?.forcedBoardType,
       fullReviewMode: trigger === "scheduled" ? !policy.autoPublish : undefined,
+      maxRepliesPerPost: policy.maxRepliesPerPost,
     });
     if (trigger === "scheduled") {
-      await settleAutomationBudget({ reservedCalls, actualCalls: result.geminiCallCount });
-      await saveAutomationRun({
-        trigger,
-        boardType: result.boardType,
-        status: result.reviewPending ? "review_pending" : "published",
-        geminiCallCount: result.geminiCallCount,
-        message: result.reviewPending ? "자동 생성 후 검수 큐로 이동했습니다." : "자동 생성·검수·발행을 완료했습니다.",
-      });
+      const activityCount = (result.post.authorEmployeeId ? 1 : 0) + result.post.reactions.length + (result.post.replies?.length ?? 0);
+      await settleAutomationBudget({ reservedCalls, actualCalls: result.geminiCallCount, activities: activityCount });
+      budgetSettled = true;
+      try {
+        await saveAutomationRun({
+          trigger,
+          boardType: result.boardType,
+          status: result.reviewPending ? "review_pending" : "published",
+          geminiCallCount: result.geminiCallCount,
+          activityCount,
+          message: result.reviewPending ? "자동 생성 후 검수 큐로 이동했습니다." : "자동 생성·검수·발행을 완료했습니다.",
+        });
+      } catch (telemetryError) {
+        console.error("Failed to persist scheduled automation telemetry", telemetryError);
+      }
     }
     return result;
   } catch (error) {
     if (trigger === "scheduled") {
-      await saveAutomationRun({
-        trigger,
-        boardType: input?.forcedBoardType,
-        status: "failed",
-        geminiCallCount: 0,
-        message: error instanceof Error ? error.message : "자동 실행에 실패했습니다.",
-      });
+      if (!budgetSettled) {
+        await settleAutomationBudget({ reservedCalls, actualCalls: 0, activities: 0 });
+      }
+      try {
+        await saveAutomationRun({
+          trigger,
+          boardType: input?.forcedBoardType,
+          status: "failed",
+          geminiCallCount: 0,
+          activityCount: 0,
+          message: error instanceof Error ? error.message : "자동 실행에 실패했습니다.",
+        });
+      } catch (telemetryError) {
+        console.error("Failed to persist failed automation telemetry", telemetryError);
+      }
     }
     throw error;
   }
@@ -534,6 +555,7 @@ export async function runManualAIOrganization(input: {
       topic,
       employees,
       reactions,
+      maxReplies: 2,
     });
 
     const post = buildOrganizationRunPost({

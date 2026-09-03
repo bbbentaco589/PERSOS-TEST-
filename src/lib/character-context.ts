@@ -9,6 +9,11 @@ import {
 import { listExternalActivityPosts } from "@/lib/external-activity-store";
 import { listEmployeeReactionPostsByEmployeeId } from "@/lib/repositories";
 import type { EmployeeReactionBoard } from "@/types";
+import {
+  calculateRelationshipScore,
+  deriveCharacterAdaptiveContext,
+  formatAdaptiveContext,
+} from "@/lib/character-adaptive-context";
 
 export type CharacterContextActivity = {
   id: string;
@@ -103,11 +108,20 @@ export async function getCharacterContext(employeeId: string) {
     .filter((relationship) => relationship.employeeId === employeeId)
     .map((relationship) => ({
       ...relationship,
+      relationshipScore: calculateRelationshipScore(
+        relationship.interactionCount,
+        relationship.boardTypes
+      ),
       counterpart: employees.find((item) => item.id === relationship.counterpartEmployeeId),
     }))
     .sort((left, right) => right.lastInteractionAt.localeCompare(left.lastInteractionAt));
 
   const pinnedRecords = records.filter((record) => record.pinned);
+  const adaptiveContext = deriveCharacterAdaptiveContext({
+    employeeId,
+    memories,
+    relationships,
+  });
   const recentContext = [
     `정체성: ${employee.nameKo}, ${employee.jobTitleKo}`,
     `현재 역할: ${employee.specialtiesKo.slice(0, 3).join(", ")}`,
@@ -115,6 +129,7 @@ export async function getCharacterContext(employeeId: string) {
     `최근 검증 활동: ${activities.slice(0, 5).map((activity) => `${activity.board}의 ${activity.title}`).join(" / ") || "없음"}`,
     `관계 기록: ${relationships.slice(0, 5).map((relationship) => `${relationship.counterpart?.nameKo ?? relationship.counterpartEmployeeId}와 공동 참여 ${relationship.interactionCount}회`).join(" / ") || "없음"}`,
     `관리자 고정 기록: ${pinnedRecords.slice(0, 5).map((record) => `${record.title}: ${record.body}`).join(" / ") || "없음"}`,
+    ...formatAdaptiveContext(adaptiveContext),
   ];
 
   return {
@@ -122,6 +137,7 @@ export async function getCharacterContext(employeeId: string) {
     activities,
     memories,
     relationships,
+    adaptiveContext,
     records,
     recentContext,
     storeConfigured: isCharacterContextStoreConfigured(),

@@ -6,9 +6,15 @@ export type AutomationPolicy = {
   enabledBoards: OrganizationRunBoardType[];
   dailyRunLimit: number;
   dailyGeminiCallLimit: number;
+  dailyActivityMin: number;
+  dailyActivityMax: number;
   maxParticipants: number;
+  maxRepliesPerPost: number;
   autoPublish: boolean;
   memoryRetention: number;
+  metadataRetentionDays: number;
+  draftRetentionDays: number;
+  autoApplyAdaptiveContext: boolean;
   externalSyncEnabled: boolean;
 };
 
@@ -17,6 +23,7 @@ export type AutomationDailyUsage = {
   runs: number;
   reservedCalls: number;
   actualCalls: number;
+  activities: number;
 };
 
 export type AutomationRunRecord = {
@@ -25,6 +32,7 @@ export type AutomationRunRecord = {
   boardType?: OrganizationRunBoardType;
   status: "published" | "review_pending" | "failed" | "skipped";
   geminiCallCount: number;
+  activityCount: number;
   message: string;
   createdAt: string;
 };
@@ -45,9 +53,19 @@ export type CharacterRelationship = {
   employeeId: string;
   counterpartEmployeeId: string;
   interactionCount: number;
+  relationshipScore?: number;
   boardTypes: OrganizationRunBoardType[];
   lastPostSlug: string;
   lastInteractionAt: string;
+};
+
+export type CharacterAdaptiveContext = {
+  employeeId: string;
+  evidenceCount: number;
+  preferredBoards: OrganizationRunBoardType[];
+  collaborationMode: string;
+  activityPattern: string;
+  updatedAt?: string;
 };
 
 export type CharacterContextRecordCategory =
@@ -102,4 +120,5 @@ export type AutomationSnapshot = {
   recentSyncRuns: ExternalActivitySyncRun[];
   memories: CharacterActivityMemory[];
   relationships: CharacterRelationship[];
+  adaptiveContexts: CharacterAdaptiveContext[];
 };

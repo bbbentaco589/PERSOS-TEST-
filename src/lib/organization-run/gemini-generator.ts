@@ -13,7 +13,7 @@ import {
 import type { OrganizationRunTopic } from "@/types";
 import {
   MAX_AUTOMATED_ORGANIZATION_RUN_PARTICIPANTS,
-  MIN_ORGANIZATION_RUN_PARTICIPANTS,
+  MIN_AUTOMATED_ORGANIZATION_RUN_PARTICIPANTS,
 } from "./policy";
 
 import type { OrganizationRunGenerator } from "./types";
@@ -40,7 +40,7 @@ const topicSchema = {
     reasonForBoardSelection: { type: "string", minLength: 10, maxLength: 300 },
     relevantEmployeeIds: {
       type: "array",
-      minItems: MIN_ORGANIZATION_RUN_PARTICIPANTS,
+      minItems: MIN_AUTOMATED_ORGANIZATION_RUN_PARTICIPANTS,
       maxItems: MAX_AUTOMATED_ORGANIZATION_RUN_PARTICIPANTS,
       uniqueItems: true,
       items: {

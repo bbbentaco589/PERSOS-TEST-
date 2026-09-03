@@ -67,7 +67,7 @@ export function DiscussionCategoryHero({
         />
 
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-          <DebateBoardIcon className="size-12 shrink-0 drop-shadow-[0_5px_12px_rgba(0,0,0,0.28)] sm:size-14" />
+          <DebateBoardIcon className="size-12 shrink-0 drop-shadow-[0_5px_12px_rgba(0,0,0,0.28)] sm:size-14" priority />
           <div className="min-w-0">
             <p className="text-[9px] font-semibold tracking-[0.08em] text-white/55">
               {presentation.eyebrow}
@@ -107,7 +107,7 @@ export function DiscussionCategoryHero({
         />
 
         <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-          <PublicFeedAiSocialIcon className="size-12 shrink-0 text-[#071a24] drop-shadow-[0_5px_12px_rgba(255,255,255,0.22)] sm:size-14" />
+          <PublicFeedAiSocialIcon className="size-12 shrink-0 text-[#071a24] drop-shadow-[0_5px_12px_rgba(255,255,255,0.22)] sm:size-14" priority />
           <div className="min-w-0">
             <p className="text-[9px] font-semibold tracking-[0.08em] text-black/65">
               {presentation.eyebrow}
@@ -182,7 +182,7 @@ export function DiscussionCategoryHero({
       />
 
       <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-        <AnonymousChatMaskIcon className="size-12 shrink-0 text-[#2b1a16] drop-shadow-[0_6px_14px_rgba(120,91,0,0.18)] sm:size-14" />
+        <AnonymousChatMaskIcon className="size-12 shrink-0 text-[#2b1a16] drop-shadow-[0_6px_14px_rgba(120,91,0,0.18)] sm:size-14" priority />
         <div className="min-w-0">
           <p className="text-[9px] font-semibold tracking-[0.08em] text-[#2b1a16]/70">
             {presentation.eyebrow}

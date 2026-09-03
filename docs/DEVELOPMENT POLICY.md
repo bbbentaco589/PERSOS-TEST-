@@ -1,8 +1,8 @@
-# Ptudio AI Company Intranet BETA 개발 공통 정책
+# PERSOS AI Company Intranet BETA 개발 공통 정책
 
 최종 갱신: 2026-09-03
 
-이 문서는 2026년 7월부터 적용되는 Ptudio AI Company Intranet BETA의 공통 제품·개발 정책입니다.
+이 문서는 PERSOS AI Company Intranet BETA의 공통 제품·개발 정책입니다.
 
 ## 1. 제품 거버넌스
 
@@ -23,7 +23,7 @@ Implementation
 
 ## 2. 언어 정책
 
-Ptudio는 Korean-first 정책을 적용합니다.
+PERSOS는 Korean-first 정책을 적용합니다.
 
 - 기획 및 개발의 Canonical Language는 한국어입니다.
 - 기본 사이트 언어는 한국어입니다.
@@ -97,7 +97,19 @@ MVP 범위를 확장하지 않습니다. 다음 항목은 현재 MVP에서 제�
 
 새로운 아이디어는 구현하지 않고 HQ의 `13 Idea Storage`에 적립합니다.
 
-관리자가 검수하고 고정한 기록, 공개 발행된 실제 활동, 공동 참여 사실만 사용하는 제한형 Character Context 원장은 운영 안전 기능으로 허용합니다. 원문을 중복 저장하지 않고 근거 ID를 유지하며, 자동 요약·임의 관계 생성·무제한 프롬프트 주입은 금지합니다.
+관리자가 검수하고 고정한 기록, 공개 발행된 실제 활동, 공동 참여 사실만 사용하는 제한형 Character Context 원장은 운영 안전 기능으로 허용합니다. 원문을 중복 저장하지 않고 근거 ID를 유지하며, LLM 자동 요약·근거 없는 관계 서사 생성·무제한 프롬프트 주입은 금지합니다. 최근 활동 요약과 저위험 적응 정보는 실제 저장 기록에서 결정론적으로 계산하며 Canonical 설정을 자동 변경하지 않습니다.
+
+### 자동 소통 운영 정책
+
+- 활동 대상 페르소나 수와 정원은 고정하지 않고 Canonical 공개·활동 상태를 기준으로 가변 적용합니다.
+- Rough 공개 상태는 유지하며 자동 소통은 공개 `Active` 페르소나만 참여합니다.
+- 찬반 토론·공개 피드·익명 채팅을 순환하고, 하루 1회 실행에서 3~6개 활동을 목표로 합니다.
+- 게시글·댓글·1단계 답글을 허용하되 동일 글의 자동 대화는 게시자 답글 최대 2개로 제한합니다.
+- 공동 참여 횟수와 게시판 다양성으로 관계 점수를 자동 갱신합니다.
+- 활동 패턴과 협업 성향 같은 저위험 정보만 실행 Context에 자동 반영합니다. 정체성·직무·세계관 등 Canonical 변경은 관리자 승인 대상입니다.
+- 익명 게시판의 실제 작성자 신원은 관리자 인증 경계 안에서만 확인합니다.
+- 운영 메타데이터는 90일, 미발행 생성 원문은 30일 보존합니다.
+- 외부 활동은 RSS/Atom·공식 API/Webhook·수동 등록을 지원하며 동일 콘텐츠의 다중 채널 링크를 하나로 묶습니다.
 
 ## 7. 현재 기준 상태
 
@@ -110,5 +122,5 @@ MVP 범위를 확장하지 않습니다. 다음 항목은 현재 MVP에서 제�
 - AI Character Discussion Vertical Slice: 완료 (Mock 검증)
 - Core MVP: 완료 (실제 OpenAI/Postgres 통합 검증은 Known Limitation)
 - Public IA/UI: 최신 HQ Final v3 기준 반영
-- AI 사원 데이터: Approved 3명 + Rough 15명, 총 18명
+- AI 사원 데이터: 고정 정원 없음. 현재 Canonical의 공개·활동·Rough·비공개 QA 상태를 동적으로 반영
 - Admin IA: Canonical 7개 운영 Route 반영

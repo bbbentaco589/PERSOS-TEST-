@@ -4,6 +4,10 @@ import { Redis } from "@upstash/redis";
 
 import { employees } from "@/data";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
+import {
+  calculateRelationshipScore,
+  deriveCharacterAdaptiveContext,
+} from "@/lib/character-adaptive-context";
 import type {
   AutomationDailyUsage,
   AutomationPolicy,
@@ -30,9 +34,15 @@ export const DEFAULT_AUTOMATION_POLICY: AutomationPolicy = {
   enabledBoards: ["debate", "public", "anonymous"],
   dailyRunLimit: 1,
   dailyGeminiCallLimit: 7,
+  dailyActivityMin: 3,
+  dailyActivityMax: 6,
   maxParticipants: 3,
+  maxRepliesPerPost: 2,
   autoPublish: true,
   memoryRetention: 40,
+  metadataRetentionDays: 90,
+  draftRetentionDays: 30,
+  autoApplyAdaptiveContext: true,
   externalSyncEnabled: true,
 };
 
@@ -86,14 +96,25 @@ export function parseAutomationPolicy(value: unknown): AutomationPolicy {
   const enabledBoards = Array.isArray(input.enabledBoards)
     ? input.enabledBoards.filter((board): board is OrganizationRunBoardType => validBoards.has(board))
     : DEFAULT_AUTOMATION_POLICY.enabledBoards;
+  const dailyActivityMin = clampInteger(input.dailyActivityMin, 3, 3, 6);
+  const dailyActivityMax = Math.max(
+    dailyActivityMin,
+    clampInteger(input.dailyActivityMax, 6, 3, 6)
+  );
   return {
     enabled: input.enabled !== false,
     enabledBoards: [...new Set(enabledBoards)],
     dailyRunLimit: clampInteger(input.dailyRunLimit, 1, 1, 3),
     dailyGeminiCallLimit: clampInteger(input.dailyGeminiCallLimit, 7, 3, 20),
+    dailyActivityMin,
+    dailyActivityMax,
     maxParticipants: 3,
+    maxRepliesPerPost: clampInteger(input.maxRepliesPerPost, 2, 0, 2),
     autoPublish: input.autoPublish !== false,
     memoryRetention: clampInteger(input.memoryRetention, 40, 10, 100),
+    metadataRetentionDays: 90,
+    draftRetentionDays: 30,
+    autoApplyAdaptiveContext: input.autoApplyAdaptiveContext !== false,
     externalSyncEnabled: input.externalSyncEnabled !== false,
   };
 }
@@ -118,8 +139,10 @@ export function isFreeTierConfirmed() {
 
 export async function getAutomationDailyUsage(date = todayInKorea()) {
   const redis = getRedis();
-  const empty: AutomationDailyUsage = { date, runs: 0, reservedCalls: 0, actualCalls: 0 };
-  return redis ? (await redis.get<AutomationDailyUsage>(key(`usage:${date}`))) ?? empty : empty;
+  const empty: AutomationDailyUsage = { date, runs: 0, reservedCalls: 0, actualCalls: 0, activities: 0 };
+  if (!redis) return empty;
+  const stored = await redis.get<AutomationDailyUsage>(key(`usage:${date}`));
+  return stored ? { ...empty, ...stored, activities: stored.activities ?? 0 } : empty;
 }
 
 export async function reserveAutomationBudget(input: { policy: AutomationPolicy; expectedCalls: number }) {
@@ -146,7 +169,7 @@ export async function reserveAutomationBudget(input: { policy: AutomationPolicy;
   };
 }
 
-export async function settleAutomationBudget(input: { reservedCalls: number; actualCalls: number }) {
+export async function settleAutomationBudget(input: { reservedCalls: number; actualCalls: number; activities: number }) {
   const redis = getRedis();
   if (!redis) return;
   const date = todayInKorea();
@@ -156,22 +179,22 @@ export async function settleAutomationBudget(input: { reservedCalls: number; act
      local refund = math.max(0, tonumber(ARGV[1]) - tonumber(ARGV[2]))
      usage.reservedCalls = math.max(0, usage.reservedCalls - refund)
      usage.actualCalls = (usage.actualCalls or 0) + tonumber(ARGV[2])
+     usage.activities = (usage.activities or 0) + tonumber(ARGV[3])
      redis.call('set', KEYS[1], cjson.encode(usage), 'EX', 172800)
      return 1`,
     [key(`usage:${date}`)],
-    [input.reservedCalls, input.actualCalls]
+    [input.reservedCalls, input.actualCalls, input.activities]
   );
-}
-
-async function prependBounded<T>(redis: Redis, storageKey: string, item: T, limit: number) {
-  const current = (await redis.get<T[]>(storageKey)) ?? [];
-  await redis.set(storageKey, [item, ...current].slice(0, limit));
 }
 
 export async function saveAutomationRun(record: Omit<AutomationRunRecord, "id" | "createdAt">) {
   const redis = getRedis();
   if (!redis) return;
-  await prependBounded(redis, key("runs"), { ...record, id: randomUUID(), createdAt: new Date().toISOString() }, 100);
+  const policy = await getAutomationPolicy();
+  const cutoff = Date.now() - policy.metadataRetentionDays * 86_400_000;
+  const current = (await redis.get<AutomationRunRecord[]>(key("runs"))) ?? [];
+  const next = { ...record, id: randomUUID(), createdAt: new Date().toISOString() };
+  await redis.set(key("runs"), [next, ...current.filter((item) => Date.parse(item.createdAt) >= cutoff)].slice(0, 500));
 }
 
 export async function listExternalActivitySources() {
@@ -227,7 +250,11 @@ export async function deleteExternalActivitySource(id: string) {
 export async function saveExternalActivitySyncRun(run: Omit<ExternalActivitySyncRun, "id" | "createdAt">) {
   const redis = getRedis();
   if (!redis) return;
-  await prependBounded(redis, key("external-sync-runs"), { ...run, id: randomUUID(), createdAt: new Date().toISOString() }, 50);
+  const policy = await getAutomationPolicy();
+  const cutoff = Date.now() - policy.metadataRetentionDays * 86_400_000;
+  const current = (await redis.get<ExternalActivitySyncRun[]>(key("external-sync-runs"))) ?? [];
+  const next = { ...run, id: randomUUID(), createdAt: new Date().toISOString() };
+  await redis.set(key("external-sync-runs"), [next, ...current.filter((item) => Date.parse(item.createdAt) >= cutoff)].slice(0, 200));
 }
 
 export async function getAutomationSnapshot(): Promise<AutomationSnapshot> {
@@ -242,17 +269,30 @@ export async function getAutomationSnapshot(): Promise<AutomationSnapshot> {
         redis.get<CharacterRelationship[]>(key("relationships:all")),
       ])
     : [[], [], [], [], []];
+  const cutoff = Date.now() - policy.metadataRetentionDays * 86_400_000;
+  const normalizedRelationships = (relationships ?? []).map((relationship) => ({
+    ...relationship,
+    relationshipScore: calculateRelationshipScore(relationship.interactionCount, relationship.boardTypes),
+  }));
+  const adaptiveContexts = employees
+    .filter(isPublicActiveCharacter)
+    .map((employee) => deriveCharacterAdaptiveContext({
+      employeeId: employee.id,
+      memories: memories ?? [],
+      relationships: normalizedRelationships,
+    }));
   return {
     configured: Boolean(redis),
     providerConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
     freeTierConfirmed: isFreeTierConfirmed(),
     policy,
     usage,
-    recentRuns: recentRuns ?? [],
+    recentRuns: (recentRuns ?? []).filter((item) => Date.parse(item.createdAt) >= cutoff),
     sources: sources ?? [],
-    recentSyncRuns: recentSyncRuns ?? [],
+    recentSyncRuns: (recentSyncRuns ?? []).filter((item) => Date.parse(item.createdAt) >= cutoff),
     memories: memories ?? [],
-    relationships: relationships ?? [],
+    relationships: normalizedRelationships,
+    adaptiveContexts,
   };
 }
 

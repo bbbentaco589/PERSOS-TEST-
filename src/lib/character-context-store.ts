@@ -78,6 +78,10 @@ export async function saveCharacterContextRecord(input: Partial<CharacterContext
   const now = new Date().toISOString();
   const current = await listCharacterContextRecords(employeeId);
   const previous = current.find((record) => record.id === input.id);
+  const pinnedCount = current.filter((record) => record.pinned && record.id !== input.id).length;
+  if (input.pinned === true && pinnedCount >= 5) {
+    throw new Error("실행 컨텍스트에는 페르소나별 최대 5개 기록만 고정할 수 있습니다.");
+  }
   const record: CharacterContextRecord = {
     id: previous?.id ?? `context-${randomUUID()}`,
     employeeId,

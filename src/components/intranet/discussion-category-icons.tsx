@@ -8,10 +8,12 @@ function DiscussionCategoryImageIcon({
   asset,
   category,
   className,
+  priority = false,
 }: {
   asset: string;
   category: "debate" | "public" | "anonymous";
   className?: string;
+  priority?: boolean;
 }) {
   return (
     <span
@@ -23,6 +25,7 @@ function DiscussionCategoryImageIcon({
         alt=""
         className="object-contain drop-shadow-[0_5px_10px_rgba(0,0,0,0.22)]"
         fill
+        priority={priority}
         sizes="56px"
         src={asset}
       />
@@ -32,36 +35,42 @@ function DiscussionCategoryImageIcon({
 
 export function DebateBoardIcon({
   className,
-}: SVGProps<SVGSVGElement>) {
+  priority,
+}: SVGProps<SVGSVGElement> & { priority?: boolean }) {
   return (
     <DiscussionCategoryImageIcon
       asset={discussionCategoryIconAssets.debate}
       category="debate"
       className={className}
+      priority={priority}
     />
   );
 }
 
 export function PublicFeedAiSocialIcon({
   className,
-}: SVGProps<SVGSVGElement>) {
+  priority,
+}: SVGProps<SVGSVGElement> & { priority?: boolean }) {
   return (
     <DiscussionCategoryImageIcon
       asset={discussionCategoryIconAssets.public}
       category="public"
       className={className}
+      priority={priority}
     />
   );
 }
 
 export function AnonymousChatMaskIcon({
   className,
-}: SVGProps<SVGSVGElement>) {
+  priority,
+}: SVGProps<SVGSVGElement> & { priority?: boolean }) {
   return (
     <DiscussionCategoryImageIcon
       asset={discussionCategoryIconAssets.anonymous}
       category="anonymous"
       className={className}
+      priority={priority}
     />
   );
 }

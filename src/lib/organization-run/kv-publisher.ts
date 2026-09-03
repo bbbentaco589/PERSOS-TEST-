@@ -9,6 +9,11 @@ import type {
   OrganizationRunReviewStatus,
 } from "@/types";
 import { getAutomationPolicy } from "@/lib/automation-control-store";
+import {
+  calculateRelationshipScore,
+  deriveCharacterAdaptiveContext,
+  formatAdaptiveContext,
+} from "@/lib/character-adaptive-context";
 import { listCharacterContextRecords } from "@/lib/character-context-store";
 
 import type { OrganizationRunPublisher } from "./types";
@@ -154,6 +159,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   }
 
   async publish(post: EmployeeReactionPost, runId: string) {
+    const policy = await getAutomationPolicy();
     const [currentSlugs, currentBoardSlugs, currentSummaries] =
       await Promise.all([
         this.redis.get<string[]>(this.key.posts),
@@ -185,7 +191,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         postSlug: post.slug,
         board: post.board,
         publishedAt: post.publishedAt,
-      })
+      }, { ex: policy.metadataRetentionDays * 86_400 })
       .exec();
 
     const [storedPost, storedSlugs, storedBoardSlugs] = await Promise.all([
@@ -264,6 +270,10 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
           employeeId,
           counterpartEmployeeId,
           interactionCount: (current?.interactionCount ?? 0) + 1,
+          relationshipScore: calculateRelationshipScore(
+            (current?.interactionCount ?? 0) + 1,
+            [...new Set([...(current?.boardTypes ?? []), boardType])]
+          ),
           boardTypes: [...new Set([...(current?.boardTypes ?? []), boardType])],
           lastPostSlug: post.slug,
           lastInteractionAt: post.publishedAt,
@@ -305,12 +315,19 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   }
 
   async getCharacterMemoryContexts(employeeIds: readonly string[]) {
-    const [memoryLists, relationships, contextRecordLists] = await Promise.all([
+    const [memoryLists, relationships, contextRecordLists, policy] = await Promise.all([
       Promise.all(employeeIds.map((employeeId) => this.redis.get<CharacterActivityMemory[]>(this.key.employeeMemories(employeeId)))),
       this.redis.get<CharacterRelationship[]>(this.key.relationships),
       Promise.all(employeeIds.map((employeeId) => listCharacterContextRecords(employeeId))),
+      getAutomationPolicy(),
     ]);
-    const relationList = relationships ?? [];
+    const relationList = (relationships ?? []).map((relationship) => ({
+      ...relationship,
+      relationshipScore: calculateRelationshipScore(
+        relationship.interactionCount,
+        relationship.boardTypes
+      ),
+    }));
     return Object.fromEntries(employeeIds.map((employeeId, index) => [employeeId, {
       recentActivities: (memoryLists[index] ?? []).slice(0, 5).map((item) => `${item.title} (${item.boardType}, ${item.stance ?? "입장 없음"})`),
       relationships: relationList
@@ -318,24 +335,41 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         .sort((left, right) => right.lastInteractionAt.localeCompare(left.lastInteractionAt))
         .slice(0, 5)
         .map((item) => `${item.counterpartEmployeeId}와 ${item.interactionCount}회 함께 참여; 최근 ${item.boardTypes.at(-1) ?? "활동"}`),
-      verifiedContext: contextRecordLists[index]
+      verifiedContext: [
+        ...contextRecordLists[index]
         .filter((item) => item.pinned)
         .slice(0, 5)
         .map((item) => `${item.title}: ${item.body}`),
+        ...(policy.autoApplyAdaptiveContext
+          ? formatAdaptiveContext(deriveCharacterAdaptiveContext({
+              employeeId,
+              memories: memoryLists[index] ?? [],
+              relationships: relationList,
+            }))
+          : []),
+      ],
     }]));
   }
 
   async listReviewItems(status?: OrganizationRunReviewStatus) {
+    const policy = await getAutomationPolicy();
+    const cutoff = Date.now() - policy.draftRetentionDays * 86_400_000;
     const ids = (await this.redis.get<string[]>(this.key.reviews)) ?? [];
     const items = await Promise.all(
       ids.map((id) =>
         this.redis.get<OrganizationRunReviewItem>(this.key.review(id))
       )
     );
-    return items
+    const retained = items
       .filter((item): item is OrganizationRunReviewItem => Boolean(item))
+      .filter((item) => Date.parse(item.updatedAt) >= cutoff)
       .filter((item) => !status || item.status === status)
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    const retainedIds = retained.map((item) => item.id);
+    if (!status && retainedIds.length !== ids.length) {
+      await this.redis.set(this.key.reviews, retainedIds);
+    }
+    return retained;
   }
 
   async getReviewItem(id: string) {
@@ -346,6 +380,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
   }
 
   async saveReviewItem(item: OrganizationRunReviewItem) {
+    const policy = await getAutomationPolicy();
     const currentIds = (await this.redis.get<string[]>(this.key.reviews)) ?? [];
     const ids = [item.id, ...currentIds.filter((id) => id !== item.id)].slice(
       0,
@@ -353,7 +388,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     );
     await this.redis
       .multi()
-      .set(this.key.review(item.id), item)
+      .set(this.key.review(item.id), item, { ex: policy.draftRetentionDays * 86_400 })
       .set(this.key.reviews, ids)
       .set(this.key.run(item.runId), {
         runId: item.runId,
@@ -361,14 +396,15 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         reviewItemId: item.id,
         board: item.boardType,
         updatedAt: item.updatedAt,
-      })
+      }, { ex: policy.metadataRetentionDays * 86_400 })
       .exec();
   }
 
   async updateReviewItem(item: OrganizationRunReviewItem) {
+    const policy = await getAutomationPolicy();
     await this.redis
       .multi()
-      .set(this.key.review(item.id), item)
+      .set(this.key.review(item.id), item, { ex: policy.draftRetentionDays * 86_400 })
       .set(this.key.run(item.runId), {
         runId: item.runId,
         status: item.status,
@@ -376,7 +412,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
         board: item.boardType,
         postSlug: item.status === "approved" ? item.post?.slug : undefined,
         updatedAt: item.updatedAt,
-      })
+      }, { ex: policy.metadataRetentionDays * 86_400 })
       .exec();
   }
 

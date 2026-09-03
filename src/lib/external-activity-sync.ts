@@ -4,7 +4,11 @@ import { createHash } from "node:crypto";
 import { isIP } from "node:net";
 import { revalidatePath } from "next/cache";
 
-import { listExternalActivityPosts, upsertExternalActivityPosts } from "@/lib/external-activity-store";
+import {
+  createExternalActivityContentKey,
+  listExternalActivityPosts,
+  upsertExternalActivityPosts,
+} from "@/lib/external-activity-store";
 import {
   listExternalActivitySources,
   saveExternalActivitySyncRun,
@@ -87,9 +91,15 @@ async function fetchFeed(source: ExternalActivitySource) {
 }
 
 function toPost(source: ExternalActivitySource, entry: FeedEntry): ExternalActivityPostInput {
-  const hash = createHash("sha256").update(`${source.id}:${entry.url}`).digest("hex").slice(0, 24);
+  const contentKey = createExternalActivityContentKey({
+    employeeId: source.employeeId,
+    title: entry.title,
+    publishedAt: entry.publishedAt,
+  });
+  const hash = createHash("sha256").update(contentKey).digest("hex").slice(0, 24);
   return {
     id: `external-sync-${hash}`,
+    contentKey,
     employeeId: source.employeeId,
     platform: source.platform,
     title: entry.title,
@@ -111,9 +121,10 @@ export async function syncExternalActivitySources() {
       errors.push(error instanceof Error ? error.message : `${source.label}: 수집 실패`);
     }
   }
-  const currentIds = new Set((await listExternalActivityPosts({ includeInactive: true })).map((post) => post.id));
-  const imported = posts.filter((post) => post.id && !currentIds.has(post.id)).length;
-  const skipped = posts.length - imported;
+  const currentKeys = new Set((await listExternalActivityPosts({ includeInactive: true })).map((post) => post.contentKey));
+  const fetchedKeys = [...new Set(posts.flatMap((post) => post.contentKey ? [post.contentKey] : []))];
+  const imported = fetchedKeys.filter((contentKey) => !currentKeys.has(contentKey)).length;
+  const skipped = fetchedKeys.length - imported;
   if (posts.length) {
     await upsertExternalActivityPosts(posts);
     revalidatePath("/external-activities");
