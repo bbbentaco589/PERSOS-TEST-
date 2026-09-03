@@ -34,6 +34,7 @@ function formatFeedDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "short",
     day: "numeric",
+    timeZone: "Asia/Seoul",
   }).format(new Date(value));
 }
 
