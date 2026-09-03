@@ -10,11 +10,13 @@ export function SiteNavigation({
   ariaLabel,
   compact = false,
   className,
+  onNavigate,
 }: {
   items: { href: string; label: string }[];
   ariaLabel: string;
   compact?: boolean;
   className?: string;
+  onNavigate?: () => void;
 }) {
   const pathname = usePathname();
 
@@ -33,6 +35,7 @@ export function SiteNavigation({
             )}
             href={item.href}
             key={item.href + item.label}
+            onClick={onNavigate}
           >
             {item.label}
           </Link>

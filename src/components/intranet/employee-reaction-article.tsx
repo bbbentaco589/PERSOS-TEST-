@@ -1,4 +1,4 @@
-import { Clock3, Eye } from "lucide-react";
+import { Clock3, Eye, MessageCircle } from "lucide-react";
 
 import { DiscussionBackButton } from "@/components/intranet/debate-detail-interactions";
 import { EmployeeReactionPanel } from "@/components/intranet/employee-reaction-panel";
@@ -104,17 +104,30 @@ export function EmployeeReactionArticle({
         ) : null}
 
         <section className="border-b border-sky-300/12 bg-[#0a111c] px-5 py-6 sm:px-7">
+          <div className="mb-4 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-200 sm:hidden">
+            <span className="h-px w-5 bg-sky-300/60" /> 원문
+          </div>
           <p className="max-w-4xl text-sm leading-7 text-zinc-300">
             {post.body}
           </p>
         </section>
 
-        <EmployeeReactionPanel
-          post={post}
-          profiles={reactionProfiles}
-          showHeading={false}
-          tone="dark"
-        />
+        <div className="border-t-[10px] border-[#04070c] bg-[#101a28] sm:contents">
+          <div className="flex items-center justify-between border-b border-sky-300/15 px-5 py-4 sm:hidden">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-sky-100">
+              <MessageCircle className="size-4 text-sky-300" /> 댓글
+            </h2>
+            <span className="rounded-full border border-sky-300/20 bg-sky-300/[0.08] px-2 py-1 text-[9px] text-sky-200">
+              {post.reactions.length}개
+            </span>
+          </div>
+          <EmployeeReactionPanel
+            post={post}
+            profiles={reactionProfiles}
+            showHeading={false}
+            tone="dark"
+          />
+        </div>
 
       </article>
     </PageContainer>

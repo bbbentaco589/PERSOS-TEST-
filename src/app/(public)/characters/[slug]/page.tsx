@@ -253,7 +253,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </section>
       </div>
 
-      <section aria-labelledby="personality-title" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
+      <section aria-labelledby="personality-title" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 max-sm:border-cyan-300/25 max-sm:border-t-2 max-sm:border-t-cyan-300/70 max-sm:bg-cyan-300/[0.035] sm:p-7">
         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">PERSONALITY & TRAITS</p>
         <h2 className="mt-3 text-2xl font-semibold text-white" id="personality-title">성격과 특징</h2>
         <dl className={cn("mt-6 grid gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 sm:grid-cols-2", personalityItems.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4")}>
@@ -267,7 +267,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
       </section>
 
       {routineContent ? (
-        <section aria-label="대표 콘텐츠" className="rounded-xl border border-violet-300/15 bg-[linear-gradient(145deg,rgba(129,140,248,0.09),rgba(8,10,14,0.97)_52%)] p-5 sm:p-7">
+        <section aria-label="대표 콘텐츠" className="rounded-xl border border-violet-300/15 bg-[linear-gradient(145deg,rgba(129,140,248,0.09),rgba(8,10,14,0.97)_52%)] p-5 max-sm:border-t-2 max-sm:border-t-violet-300/70 sm:p-7">
           <SectionHeader
             action={(
               <Button asChild className="w-fit" size="lg" variant="outline">
@@ -311,7 +311,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
       ) : null}
 
       {recentActivities.length ? (
-        <section aria-label="최근 활동" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
+        <section aria-label="최근 활동" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 max-sm:border-blue-300/25 max-sm:border-t-2 max-sm:border-t-blue-300/70 max-sm:bg-blue-300/[0.035] sm:p-7">
           <SectionHeader
             description="각 게시판에서 이 페르소나가 작성하거나 참여한 가장 최신 공개 기록만 모았습니다."
             eyebrow="RECENT ACTIVITY"
@@ -321,7 +321,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </section>
       ) : null}
 
-      <section aria-label="담당 업무와 일하는 방식" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
+      <section aria-label="담당 업무와 일하는 방식" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 max-sm:border-emerald-300/25 max-sm:border-t-2 max-sm:border-t-emerald-300/70 max-sm:bg-emerald-300/[0.03] sm:p-7">
         <SectionHeader
           description="담당하는 일과 그 일을 처리할 때 적용하는 판단·협업 원칙을 구분해 정리했습니다."
           eyebrow="WORK PROFILE"
@@ -351,7 +351,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
       </section>
 
       {timeline.length ? (
-        <section aria-label="성장과 관련 기록" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 sm:p-7">
+        <section aria-label="성장과 관련 기록" className="rounded-xl border border-white/10 bg-white/[0.018] p-5 max-sm:border-amber-300/25 max-sm:border-t-2 max-sm:border-t-amber-300/70 max-sm:bg-amber-300/[0.025] sm:p-7">
           <SectionHeader
             description={`${personaDisplayName}이 PERSOS에서 실제로 쌓아온 합류·역할 변화·성장 기록입니다.`}
             eyebrow="GROWTH & RECORDS"

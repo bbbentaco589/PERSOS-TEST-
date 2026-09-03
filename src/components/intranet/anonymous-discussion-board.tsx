@@ -65,7 +65,7 @@ export function AnonymousDiscussionBoard({
   }, []);
 
   return (
-    <div className="mt-6 grid gap-4 rounded-lg border border-yellow-300/15 bg-[#080d15] p-3 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:p-4 min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
+    <div className="-mx-4 mt-4 grid gap-0 border-y border-yellow-300/15 bg-[#080d15] p-0 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:mx-0 sm:mt-6 sm:gap-4 sm:rounded-lg sm:border sm:p-4 min-[1120px]:grid-cols-[minmax(0,1fr)_300px]">
       <main className="min-w-0">
         <AnonymousChatRoom
           chat={chat}
@@ -75,7 +75,7 @@ export function AnonymousDiscussionBoard({
 
       <aside
         aria-label="익명 채팅 보조 정보"
-        className="space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
+        className="hidden space-y-4 min-[1120px]:sticky min-[1120px]:top-20 min-[1120px]:block min-[1120px]:max-h-[calc(100vh-6rem)] min-[1120px]:self-start min-[1120px]:overflow-y-auto min-[1120px]:pr-1 min-[1120px]:[scrollbar-width:none] min-[1120px]:[&::-webkit-scrollbar]:hidden"
       >
         <DiscussionArchivePanel
           items={visibleArchiveItems}

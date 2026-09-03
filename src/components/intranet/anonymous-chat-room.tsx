@@ -24,32 +24,37 @@ import { cn } from "@/lib/utils";
 
 const aliasPresentation: Record<
   PublicAnonymousAliasTone,
-  { image: string; name: string; nameClass: string }
+  { image: string; name: string; nameClass: string; mobileBubbleClass: string }
 > = {
   green: {
     image: "/assets/anonymous/mask-raccoon.jpg",
     name: "퇴근한밤의너구리",
     nameClass: "text-lime-200",
+    mobileBubbleClass: "max-sm:border-lime-800/15 max-sm:bg-[#dceec9] max-sm:text-[#162016]",
   },
   lavender: {
     image: "/assets/anonymous/mask-rabbit.jpg",
     name: "회의실유령토끼",
     nameClass: "text-violet-200",
+    mobileBubbleClass: "max-sm:border-violet-900/15 max-sm:bg-[#e0d8ef] max-sm:text-[#201827]",
   },
   peach: {
     image: "/assets/anonymous/mask-fox.jpg",
     name: "야근먹는여우",
     nameClass: "text-rose-200",
+    mobileBubbleClass: "max-sm:border-rose-900/15 max-sm:bg-[#f0d8d7] max-sm:text-[#271817]",
   },
   lemon: {
     image: "/assets/anonymous/mask-black-cat.jpg",
     name: "비밀많은검은고양이",
     nameClass: "text-yellow-200",
+    mobileBubbleClass: "max-sm:border-yellow-900/15 max-sm:bg-[#f8e77f] max-sm:text-[#241f0e]",
   },
   soda: {
     image: "/assets/anonymous/mask-owl.jpg",
     name: "정체불명올빼미",
     nameClass: "text-cyan-200",
+    mobileBubbleClass: "max-sm:border-cyan-900/15 max-sm:bg-[#d1e7ec] max-sm:text-[#142126]",
   },
 };
 
@@ -124,9 +129,9 @@ function AnonymousMessageRow({
             {formatChatTime(message.createdAt)}
           </time>
         </div>
-        <div className="mt-1.5 max-w-3xl rounded-lg border border-white/10 bg-white/[0.055] px-3.5 py-2.5 text-[12px] leading-6 text-zinc-300 shadow-sm">
+        <div className={cn("mt-1.5 max-w-3xl rounded-lg border border-white/10 bg-white/[0.055] px-3.5 py-2.5 text-[12px] leading-6 text-zinc-300 shadow-sm max-sm:rounded-[0.35rem_0.85rem_0.85rem_0.85rem]", presentation.mobileBubbleClass)}>
           {replyTarget ? (
-            <p className="mb-2 border-l-2 border-yellow-300/50 bg-yellow-300/[0.035] px-2 py-1 text-[9px] text-zinc-500">
+            <p className="mb-2 border-l-2 border-yellow-300/50 bg-yellow-300/[0.035] px-2 py-1 text-[9px] text-zinc-500 max-sm:border-black/20 max-sm:bg-black/[0.05] max-sm:text-slate-600">
               {replyTarget.content}
             </p>
           ) : null}
@@ -164,15 +169,29 @@ export function AnonymousChatRoom({
     const viewport = chatViewportRef.current;
     if (!viewport) return;
 
-    viewport.scrollTop = 0;
+    const mobile = window.matchMedia("(max-width: 639px)").matches;
+    const scrollToInitialPosition = () => {
+      viewport.scrollTop = mobile ? viewport.scrollHeight : 0;
+    };
+
+    scrollToInitialPosition();
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(scrollToInitialPosition);
+    });
+    const settleTimer = window.setTimeout(scrollToInitialPosition, 250);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(settleTimer);
+    };
   }, [scrollRequestNonce, topic.updatedAt]);
 
   return (
     <section
       aria-labelledby="anonymous-chat-room-title"
-      className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-yellow-300/15 bg-[#0a1019] text-zinc-100"
+      className="flex h-[calc(100dvh-11.5rem)] min-h-[30rem] max-h-[46rem] flex-col overflow-hidden rounded-none border-y border-yellow-300/15 bg-[#0a1019] text-zinc-100 sm:h-auto sm:min-h-0 sm:max-h-none sm:rounded-lg sm:border"
     >
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-yellow-300/12 bg-[#0d141f] px-4 py-3 sm:px-5">
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-yellow-300/12 bg-[#0d141f] px-4 py-3 max-sm:bg-[#263440] sm:px-5">
         <div className="flex flex-wrap items-center gap-2">
           <h2
             className="flex items-center gap-2 text-sm font-semibold"
@@ -228,7 +247,7 @@ export function AnonymousChatRoom({
       </div>
 
       <div
-        className="relative min-h-[28rem] flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 py-4 [scrollbar-color:rgba(253,224,71,0.3)_transparent] [scrollbar-width:thin] sm:max-h-[34rem] sm:px-5"
+        className="relative min-h-0 flex-1 scroll-auto overflow-y-auto overscroll-contain bg-[#17232e] px-3 py-4 [scrollbar-color:rgba(253,224,71,0.3)_transparent] [scrollbar-width:thin] sm:min-h-[28rem] sm:max-h-[34rem] sm:scroll-smooth sm:bg-transparent sm:px-5"
         data-testid="anonymous-chat-scroll"
         ref={chatViewportRef}
         role="log"
@@ -253,7 +272,7 @@ export function AnonymousChatRoom({
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-yellow-300/12 bg-[#0d141f] p-3 sm:p-4">
+      <div className="shrink-0 border-t border-yellow-300/12 bg-[#0d141f] p-3 max-sm:bg-[#263440] sm:p-4">
         <div className="grid gap-2 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Button
             aria-disabled="true"

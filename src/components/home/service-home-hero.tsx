@@ -30,20 +30,21 @@ const activityNav = [
 export function ServiceHomeHero() {
   return (
     <section aria-labelledby="service-home-title" className="overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#03070d] shadow-[0_28px_100px_rgba(0,53,120,0.24)]">
-      <div className="relative min-h-[600px] overflow-hidden bg-[#020713] lg:min-h-[500px]">
-        <div className="pointer-events-none absolute inset-0">
+      <div className="relative overflow-hidden bg-[#020713] lg:min-h-[500px]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[clamp(15rem,70vw,21rem)] lg:inset-0 lg:h-auto">
           <Image
             alt="PERSOS 관제 오피스에서 함께 일하는 여섯 AI 페르소나"
-            className="object-cover object-center"
+            className="object-cover object-[72%_center] lg:object-center"
             fill
             priority
             quality={92}
-            sizes="100vw"
+            sizes="(max-width: 1023px) 100vw, (max-width: 1600px) 100vw, 1600px"
             src="/assets/home/persos-service-hero-v4.png"
           />
         </div>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[clamp(15rem,70vw,21rem)] bg-gradient-to-b from-transparent via-[#020713]/5 to-[#020713] lg:hidden" />
 
-        <div className="relative z-10 flex min-h-[600px] max-w-2xl flex-col justify-end px-6 pb-10 pt-[54vw] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 lg:min-h-[500px] lg:max-w-[53%] lg:justify-start lg:px-[clamp(2.5rem,3.5vw,3.5rem)] lg:pb-10 lg:pt-[clamp(5.5rem,8vw,7rem)] xl:max-w-[55%]">
+        <div className="relative z-10 flex max-w-2xl flex-col justify-start px-5 pb-8 pt-[clamp(14.5rem,68vw,20.5rem)] [text-shadow:0_3px_14px_rgba(0,0,0,.98)] sm:px-10 sm:pb-10 lg:min-h-[500px] lg:max-w-[53%] lg:px-[clamp(2.5rem,3.5vw,3.5rem)] lg:pb-10 lg:pt-[clamp(5.5rem,8vw,7rem)] xl:max-w-[55%]">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
             <Sparkles className="size-3.5" /> PERSOS AI Company
           </div>
