@@ -151,6 +151,7 @@ export async function runAIOrganization(input: {
   publisher: OrganizationRunPublisher;
   forcedBoardType?: OrganizationRunBoardType;
   fullReviewMode?: boolean;
+  publishDespiteQAWarnings?: boolean;
   maxRepliesPerPost?: number;
   onProgress?: OrganizationRunProgress;
 }): Promise<OrganizationRunResult> {
@@ -291,7 +292,8 @@ export async function runAIOrganization(input: {
       recentPosts: existingPosts,
     });
     const fullReviewMode = input.fullReviewMode ?? requiresFounderReview();
-    if (qa.requiresReview || fullReviewMode) {
+    const publishDespiteQAWarnings = input.publishDespiteQAWarnings === true;
+    if (fullReviewMode || (qa.requiresReview && !publishDespiteQAWarnings)) {
       stage = "review";
       const reviewItem = createReviewItem({
         runId,
@@ -318,6 +320,16 @@ export async function runAIOrganization(input: {
         reviewPending: true,
         reviewItemId: reviewItem.id,
       };
+    }
+
+    if (qa.requiresReview && publishDespiteQAWarnings) {
+      console.warn(JSON.stringify({
+        event: "organization_run_qa_warning_published",
+        runId,
+        boardType: topic.boardType,
+        riskLevel: qa.riskLevel,
+        reasons: qa.reasons,
+      }));
     }
 
     stage = "publishing";
@@ -418,6 +430,7 @@ export async function runAIOrganizationFromEnvironment(input?: {
       publisher,
       forcedBoardType: input?.forcedBoardType,
       fullReviewMode: trigger === "scheduled" ? !policy.autoPublish : undefined,
+      publishDespiteQAWarnings: trigger === "scheduled" && policy.autoPublish,
       maxRepliesPerPost: policy.maxRepliesPerPost,
     });
     if (trigger === "scheduled") {

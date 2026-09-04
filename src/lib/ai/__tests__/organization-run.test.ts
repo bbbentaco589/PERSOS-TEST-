@@ -353,6 +353,29 @@ test("고위험 콘텐츠는 자동 발행하지 않고 예외 검수 큐로 보
   assert.equal(publisher.published, 1);
 });
 
+test("예약 자동 발행 ON은 QA 경고가 있어도 즉시 발행한다", async () => {
+  const publisher = new MemoryPublisher();
+  const highRiskTopic: OrganizationRunTopic = {
+    ...validTopic,
+    title: "AI 직원 채용 계약과 급여 조건을 확정해 외부에 공식 발표합니다",
+    body:
+      "PERSOS의 AI 직원 근로 계약을 체결하고 급여 조건을 확정하며 외부에 공식 입장을 발표하는 실행 안건입니다. 계약 책임과 채용·노무 권한 행사가 발생합니다.",
+    topicSummary: "채용 계약 체결과 급여 확정, 대외 발표 실행을 다룹니다.",
+    sourceUrls: ["https://example.com/high-risk-authority-action"],
+  };
+  const { generator } = createGenerator([highRiskTopic]);
+  const result = await runAIOrganization({
+    generator,
+    publisher,
+    publishDespiteQAWarnings: true,
+  });
+
+  assert.equal(result.published, true);
+  assert.equal(result.reviewPending, false);
+  assert.equal(publisher.published, 1);
+  assert.equal(publisher.reviews.length, 0);
+});
+
 test("선택적 전건 검수 모드는 QA 통과 건도 자동 발행하지 않는다", async () => {
   const publisher = new MemoryPublisher();
   const { generator } = createGenerator([validTopic]);

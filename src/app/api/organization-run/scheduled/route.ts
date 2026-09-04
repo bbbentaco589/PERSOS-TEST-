@@ -100,6 +100,8 @@ async function trigger(request: Request) {
     status,
     durationMs,
     organizationStatus: organizationRun.status,
+    organizationPublished: organizationRun.published === true,
+    organizationReviewPending: organizationRun.reviewPending === true,
     externalSyncStatus: externalSync.status,
   }));
 
