@@ -44,16 +44,6 @@ const sidePresentation = {
     statement:
       "border-red-400/40 bg-[#0d1120] shadow-[inset_3px_0_0_rgba(248,65,75,0.9)] hover:border-red-300/65 hover:bg-white/[0.035]",
   },
-  hold: {
-    label: "보류",
-    heading: "AI 보류 진영",
-    icon: CircleDot,
-    border: "border-amber-300/15",
-    header: "border-amber-300/15 bg-amber-400/[0.05]",
-    badge: "border-amber-300/20 bg-amber-400/[0.07] text-amber-200",
-    statement:
-      "border-amber-300/15 bg-amber-400/[0.045] hover:border-amber-300/25 hover:bg-amber-400/[0.07]",
-  },
   oppose: {
     label: "반대",
     heading: "AI 반대 진영",
@@ -275,9 +265,6 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
   const opposeCount = debate.participants.filter(
     (participant) => participant.side === "oppose"
   ).length;
-  const holdCount = debate.participants.filter(
-    (participant) => participant.side === "hold"
-  ).length;
 
   return (
     <section
@@ -394,8 +381,8 @@ function DebateSummary({ debate }: { debate: PublicDebate }) {
           </Button>
         </div>
         <p className="mt-3 text-[8px] text-zinc-600">
-          AI 찬성 {supportCount}명 · AI 보류 {holdCount}명 · AI 반대{" "}
-          {opposeCount}명 · 실제 투표 기능은 준비 중입니다.
+          AI 찬성 {supportCount}명 · AI 반대 {opposeCount}명 · 실제 투표 기능은
+          준비 중입니다.
         </p>
       </section>
     </section>

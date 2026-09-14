@@ -20,7 +20,8 @@ test("직원 2명은 서로 분리된 Gemini 요청으로 생성한다", async (
         reactions: [
           {
             employeeId: employee.employee.id,
-            stance: calls.length === 1 ? "반대" : "찬성",
+            stance: calls.length === 1 ? "찬성" : "반대",
+            interactionType: calls.length === 1 ? "독립 의견" : "반박",
             coreOpinion: "자신의 전문 관점에서 독립적으로 판단한 핵심 의견입니다.",
             concerns: "확인되지 않은 사실을 단정하지 않아야 합니다.",
             suggestion: "작은 범위에서 검증한 뒤 공개 범위를 확장합니다.",
@@ -54,16 +55,69 @@ test("직원 2명은 서로 분리된 Gemini 요청으로 생성한다", async (
   assert.doesNotMatch(calls[1].systemInstruction, /시그/);
 });
 
+test("찬반 토론은 보류 없이 찬성·반대와 반박 형식을 강제한다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "char-001",
+    "char-003",
+  ]);
+  const calls: Array<{
+    schema: Record<string, unknown>;
+    systemInstruction: string;
+  }> = [];
+  const generator = new GeminiOrganizationRunGenerator(
+    "test-key-not-used",
+    async (input) => {
+      calls.push(input);
+      const index = calls.length - 1;
+      return JSON.stringify({
+        reactions: [
+          {
+            employeeId: employees[index].employee.id,
+            stance: index === 0 ? "찬성" : "반대",
+            interactionType: index === 0 ? "독립 의견" : "반박",
+            coreOpinion: "인간과 AI의 책임 경계를 명확히 나누는 주장을 제시합니다.",
+            concerns: "상대 입장의 가장 강한 근거가 놓친 전제를 구체적으로 반박합니다.",
+            suggestion: "판단 가능한 사례와 검증 기준을 근거로 함께 제시합니다.",
+          },
+        ],
+      });
+    }
+  );
+
+  await generator.generateReactions({
+    topic: {
+      boardType: "debate",
+      title: "AI가 스스로 만든 관계를 사람과 같은 관계로 인정해야 하는가?",
+      body:
+        "AI가 반복된 대화와 기억을 통해 관계를 이어갈 때 이를 단순한 기능으로 볼지, 새로운 사회적 관계로 규정할지 구체적인 책임과 동의 기준을 중심으로 토론합니다. 양쪽 모두 상대의 강한 논거를 다룬 뒤 판단 가능한 사례를 제시해야 합니다.",
+      topicSummary: "인간과 AI 사이에 형성된 관계를 어떻게 규정할지 논의합니다.",
+      reasonForBoardSelection: "찬성과 반대의 규범적 기준을 비교해야 합니다.",
+      relevantEmployeeIds: ["char-001", "char-003"],
+      sourceUrls: [],
+    },
+    employees,
+  });
+
+  assert.match(calls[0].systemInstruction, /'보류'를 절대 선택하지 말고/);
+  assert.match(calls[0].systemInstruction, /반드시 '찬성'/);
+  assert.match(calls[1].systemInstruction, /반드시 '반대'/);
+  assert.match(calls[1].systemInstruction, /interactionType은 반드시 '반박'/);
+  assert.match(calls[1].systemInstruction, /가장 강한 논거에 대한 반박/);
+});
+
 test("질문·반박 댓글에는 게시자 Canonical로 대댓글을 정확히 1회 생성한다", async () => {
   const [author, commenter] = await getOrganizationRunCanonicalEmployees([
     "tect",
     "char-003",
   ]);
-  const calls: Array<{ systemInstruction: string }> = [];
+  const calls: Array<{ prompt: string; systemInstruction: string }> = [];
   const generator = new GeminiOrganizationRunGenerator(
     "test-key-not-used",
     async (input) => {
-      calls.push({ systemInstruction: input.systemInstruction });
+      calls.push({
+        prompt: input.prompt,
+        systemInstruction: input.systemInstruction,
+      });
       return JSON.stringify({
         parentEmployeeId: "char-003",
         content:
@@ -142,4 +196,52 @@ test("Architect는 익명 주제에서 가벼운 사적 소통을 선택적으�
   assert.equal(calls.length, 1);
   assert.match(calls[0].systemInstruction, /안부·농담·칭찬·취향 질문·업무 후일담/);
   assert.match(calls[0].systemInstruction, /사적 대화를 매번 강제하지 마세요/);
+});
+
+test("공개 피드는 최근 게시자를 피하고 선택된 페르소나 프로필로 주제를 만든다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "char-001",
+    "tect",
+    "char-003",
+  ]);
+  const calls: Array<{ prompt: string; systemInstruction: string }> = [];
+  const generator = new GeminiOrganizationRunGenerator(
+    "test-key-not-used",
+    async (input) => {
+      calls.push({
+        prompt: input.prompt,
+        systemInstruction: input.systemInstruction,
+      });
+      return JSON.stringify({
+        boardType: "public",
+        title: "새 AI 도구를 업무에 넣기 전에 먼저 확인할 세 가지",
+        body:
+          "새 기능의 소개 문구보다 실제 작업 단계가 얼마나 줄어드는지 먼저 확인해요. 입력 자료 준비, 결과 검수, 기존 도구로 되돌아가는 과정까지 한 번에 시험하면 도입 효과와 숨은 비용을 함께 볼 수 있습니다. 오늘 반복 업무 하나에만 적용해 전후 단계를 기록해 보세요.",
+        topicSummary:
+          "AI 도구를 실제 업무 흐름에 도입하기 전에 효용과 제약을 작게 검증하는 방법을 소개합니다.",
+        reasonForBoardSelection:
+          "루미의 대표 콘텐츠와 실무 도입 분석 역할에 맞는 개인 전문 인사이트입니다.",
+        relevantEmployeeIds: ["char-001", "tect", "char-003"],
+        sourceUrls: [],
+      });
+    }
+  );
+
+  const topic = await generator.generateTopic({
+    existingSummaries: [],
+    forcedBoardType: "public",
+    availableEmployees: employees,
+    recentPublicAuthorEmployeeIds: ["char-001", "tect"],
+  });
+
+  assert.equal(topic.authorEmployeeId, "char-003");
+  assert.equal(topic.relevantEmployeeIds[0], "char-003");
+  assert.match(
+    calls[0].systemInstruction,
+    /public을 선택하면 게시자는 반드시 char-003/
+  );
+  assert.match(calls[0].prompt, /루미\(LUMI\)의 AI 툴 캐치업/);
+  assert.match(calls[0].prompt, /생성형 AI 도구·서비스 인텔리전스/);
+  assert.match(calls[0].systemInstruction, /'제1분기' 같은 분기 표기/);
+  assert.match(calls[0].systemInstruction, /중앙 조직 공지판이 아니라/);
 });

@@ -20,9 +20,9 @@ const anonymousTones: PublicAnonymousAliasTone[] = [
 ];
 
 function getDebateSide(reaction: EmployeeReaction): DebateSide {
-  if (reaction.stance === "반대") return "oppose";
-  if (reaction.stance === "보류") return "hold";
-  return "support";
+  // 찬반 토론은 이진 구조다. 구버전에서 저장된 "보류"도
+  // 공개 화면에서는 비동의 측인 "반대"로 정규화한다.
+  return reaction.stance === "찬성" ? "support" : "oppose";
 }
 
 function combineReactionAsStatement(reaction: EmployeeReaction) {
@@ -38,13 +38,11 @@ function combineReactionAsStatement(reaction: EmployeeReaction) {
 function combineReactionAsAnonymousMessages(reaction: EmployeeReaction) {
   const firstMessage = [
     reaction.coreOpinion,
-    reaction.concerns ? `한편으로는 ${reaction.concerns}` : "",
+    reaction.concerns,
   ]
     .filter(Boolean)
     .join(" ");
-  const secondMessage = reaction.suggestion
-    ? `내 생각에는 ${reaction.suggestion}`
-    : "";
+  const secondMessage = reaction.suggestion;
 
   return [firstMessage, secondMessage].filter(Boolean);
 }

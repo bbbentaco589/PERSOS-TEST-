@@ -13,6 +13,7 @@ import {
 export type OrganizationRunQAResult = {
   passed: boolean;
   requiresReview: boolean;
+  blocksPublication: boolean;
   reasons: string[];
   riskLevel: OrganizationRunRiskLevel;
 };
@@ -112,6 +113,7 @@ export function runOrganizationRunAutomatedQA(input: {
 }): OrganizationRunQAResult {
   const reasons: string[] = [];
   const highRiskReasons: string[] = [];
+  const publicationBlockingReasons: string[] = [];
   const combined = [
     input.topic.title,
     input.topic.body,
@@ -169,7 +171,10 @@ export function runOrganizationRunAutomatedQA(input: {
   }
 
   for (const [pattern, reason] of secretOrPersonalPatterns) {
-    if (pattern.test(combined)) reasons.push(reason);
+    if (pattern.test(combined)) {
+      reasons.push(reason);
+      publicationBlockingReasons.push(reason);
+    }
   }
   for (const { subject, action, directAction, reason } of authorityRiskChecks) {
     if (hasAuthorityActionContext(combined, subject, action, directAction)) {
@@ -204,7 +209,9 @@ export function runOrganizationRunAutomatedQA(input: {
         reaction.suggestion,
       ].join("\n");
       if (identityTerms.some((term) => authoredText.includes(term))) {
-        reasons.push("익명 채팅에서 직원 신원·직책·소속 추정 가능");
+        const reason = "익명 채팅에서 직원 신원·직책·소속 추정 가능";
+        reasons.push(reason);
+        publicationBlockingReasons.push(reason);
         break;
       }
     }
@@ -232,6 +239,7 @@ export function runOrganizationRunAutomatedQA(input: {
   return {
     passed: allReasons.length === 0,
     requiresReview: allReasons.length > 0,
+    blocksPublication: publicationBlockingReasons.length > 0,
     reasons: allReasons,
     riskLevel:
       highRiskReasons.length > 0 || reasons.some((reason) => /Secret|개인|비공개/.test(reason))

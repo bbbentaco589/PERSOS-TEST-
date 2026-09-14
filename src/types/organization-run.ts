@@ -10,6 +10,7 @@ export type OrganizationRunTopic = {
   topicSummary: string;
   reasonForBoardSelection: string;
   relevantEmployeeIds: string[];
+  authorEmployeeId?: string;
   sourceUrls?: string[];
 };
 

@@ -81,6 +81,7 @@ export type OrganizationRunProgress = (
 ) => void;
 
 async function generatePublicFeedInteractions(input: {
+  selectionEntropy: string;
   generator: OrganizationRunGenerator;
   topic: Parameters<OrganizationRunGenerator["generateReactions"]>[0]["topic"];
   employees: Parameters<OrganizationRunGenerator["generateReactions"]>[0]["employees"];
@@ -91,9 +92,12 @@ async function generatePublicFeedInteractions(input: {
     return { authorEmployeeId: undefined, replies: [], replyCallCount: 0 };
   }
 
-  const authorEmployeeId = selectPublicFeedAuthorEmployeeId(
-    input.topic.relevantEmployeeIds
-  );
+  const authorEmployeeId =
+    input.topic.authorEmployeeId ??
+    selectPublicFeedAuthorEmployeeId(
+      input.topic.relevantEmployeeIds,
+      input.selectionEntropy
+    );
   const author = input.employees.find(
     ({ employee }) => employee.id === authorEmployeeId
   );
@@ -189,16 +193,32 @@ export async function runAIOrganization(input: {
   }
 
   try {
-    const existingPosts = await input.publisher.listPosts();
+    const [existingPosts, storedTopicSummaries, availableEmployees] =
+      await Promise.all([
+        input.publisher.listPosts(),
+        input.publisher.listTopicSummaries(),
+        getOrganizationRunCanonicalEmployees(),
+      ]);
     const existingSummaries = [
       ...existingPosts.map((post) => post.summary),
-      ...(await input.publisher.listTopicSummaries()),
+      ...storedTopicSummaries,
     ];
+    const recentPublicAuthorEmployeeIds = existingPosts
+      .filter(
+        (post) => post.board === "public-feed" && post.authorEmployeeId
+      )
+      .sort(
+        (left, right) =>
+          Date.parse(right.publishedAt) - Date.parse(left.publishedAt)
+      )
+      .map((post) => post.authorEmployeeId as string);
 
     input.onProgress?.("topic");
     let topic = await input.generator.generateTopic({
       existingSummaries,
       forcedBoardType: input.forcedBoardType,
+      availableEmployees,
+      recentPublicAuthorEmployeeIds,
     });
     geminiCallCount += 1;
     topicForFailure = { boardType: topic.boardType, title: topic.title };
@@ -210,6 +230,8 @@ export async function runAIOrganization(input: {
           `이전 생성 실패 사유: ${validation.errors.join(" / ")}`,
         ],
         forcedBoardType: input.forcedBoardType,
+        availableEmployees,
+        recentPublicAuthorEmployeeIds,
       });
       geminiCallCount += 1;
       topicForFailure = { boardType: topic.boardType, title: topic.title };
@@ -239,7 +261,21 @@ export async function runAIOrganization(input: {
     const employeeIds = topic.relevantEmployeeIds;
     stage = "employees";
     input.onProgress?.("employees");
-    const canonicalEmployees = await getOrganizationRunCanonicalEmployees(employeeIds);
+    const availableEmployeeById = new Map(
+      availableEmployees.map((employee) => [employee.employee.id, employee])
+    );
+    const canonicalEmployees = employeeIds.map((employeeId) => {
+      const employee = availableEmployeeById.get(employeeId);
+      if (!employee) {
+        throw new OrganizationRunError(
+          `${employeeId} Character Canonical을 찾지 못했습니다.`,
+          "employees",
+          422,
+          false
+        );
+      }
+      return employee;
+    });
     const memoryContexts = await input.publisher.getCharacterMemoryContexts?.(employeeIds);
     const employees = canonicalEmployees.map((employee) => ({
       ...employee,
@@ -269,6 +305,7 @@ export async function runAIOrganization(input: {
     }
 
     const interactions = await generatePublicFeedInteractions({
+      selectionEntropy: runId,
       generator: input.generator,
       topic,
       employees,
@@ -293,7 +330,11 @@ export async function runAIOrganization(input: {
     });
     const fullReviewMode = input.fullReviewMode ?? requiresFounderReview();
     const publishDespiteQAWarnings = input.publishDespiteQAWarnings === true;
-    if (fullReviewMode || (qa.requiresReview && !publishDespiteQAWarnings)) {
+    if (
+      fullReviewMode ||
+      qa.blocksPublication ||
+      (qa.requiresReview && !publishDespiteQAWarnings)
+    ) {
       stage = "review";
       const reviewItem = createReviewItem({
         runId,
@@ -322,7 +363,11 @@ export async function runAIOrganization(input: {
       };
     }
 
-    if (qa.requiresReview && publishDespiteQAWarnings) {
+    if (
+      qa.requiresReview &&
+      !qa.blocksPublication &&
+      publishDespiteQAWarnings
+    ) {
       console.warn(JSON.stringify({
         event: "organization_run_qa_warning_published",
         runId,
@@ -368,7 +413,7 @@ export async function runAIOrganization(input: {
     }
     if (error instanceof OrganizationRunError) throw error;
     throw new OrganizationRunError(
-      error instanceof Error ? error.message : "조직 실행에 실패했습니다.",
+      "조직 실행 중 내부 오류가 발생했습니다.",
       stage,
       500,
       true
@@ -571,6 +616,7 @@ export async function runManualAIOrganization(input: {
     }
 
     const interactions = await generatePublicFeedInteractions({
+      selectionEntropy: runId,
       generator: input.generator,
       topic,
       employees,
@@ -686,7 +732,7 @@ export async function runManualAIOrganization(input: {
     }
     if (error instanceof OrganizationRunError) throw error;
     throw new OrganizationRunError(
-      error instanceof Error ? error.message : "수동 조직 실행에 실패했습니다.",
+      "수동 조직 실행 중 내부 오류가 발생했습니다.",
       stage,
       500,
       true

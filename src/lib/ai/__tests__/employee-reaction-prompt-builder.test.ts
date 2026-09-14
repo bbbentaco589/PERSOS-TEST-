@@ -69,6 +69,50 @@ test("관리자가 고정한 검증 컨텍스트만 직원 Prompt에 포함한�
   assert.match(prompt, /결론 전에 책임 경계를 확인한다/);
 });
 
+test("개인 프로필의 대표 콘텐츠와 담당 업무·일하는 방식을 공개 피드 Prompt에 주입한다", () => {
+  const canonical = canonicalEmployees[1];
+  const prompt = buildEmployeeReactionSystemInstruction({
+    board: "public-feed",
+    title: "오늘의 전문 인사이트",
+    body: "개인 프로필에서 확정된 업무 맥락으로 공개 글을 작성합니다.",
+    employees: [
+      {
+        ...canonical,
+        profileContext: {
+          headline: "사실은 차갑게, 설명은 부드럽게.",
+          overview: "경제·산업 신호를 해석합니다.",
+          primaryRole: "경제·산업 인텔리전스 리드 분석가",
+          representativeContent: "시그의 현시각 경제 시그널",
+          specialtyDescriptions: ["거시경제: 변화의 연결 구조를 해석합니다."],
+        },
+      },
+    ],
+  });
+
+  assert.match(prompt, /개인 프로필 기반 활동 맥락/);
+  assert.match(prompt, /대표 콘텐츠: 시그의 현시각 경제 시그널/);
+  assert.match(prompt, /담당 업무: 경제·산업 인텔리전스 리드 분석가/);
+  assert.match(prompt, /일하는 방식:/);
+  assert.match(prompt, /독자가 가져갈 수 있는 관찰·판단 기준·실무 팁/);
+  assert.match(prompt, /'제1분기' 같은 분기 표기/);
+  assert.match(prompt, /관찰 노트, 판단 기준, 비교 가이드, 제작 비하인드/);
+  assert.match(prompt, /매번 같은 결론-우려-제안 보고서 틀로 보이지 않게/);
+});
+
+test("익명 채팅 Prompt는 획일적인 도입부와 보고서 문체를 금지한다", () => {
+  const prompt = buildEmployeeReactionSystemInstruction({
+    board: "anonymous",
+    title: "요즘 협업할 때 솔직히 걸리는 한 가지",
+    body: "가벼운 경험과 감정을 익명으로 나눕니다.",
+    employees: [canonicalEmployees[2]],
+  });
+
+  assert.match(prompt, /실제 사내 채팅처럼 말한다/);
+  assert.match(prompt, /'내 생각에는', '제 생각에는', '개인적으로', '저는'/);
+  assert.match(prompt, /같은 도입부나 문장 틀을 반복하지 않는다/);
+  assert.match(prompt, /해결책이나 행동 지시로 끝내지 않아도 된다/);
+});
+
 test("ON 상태 6명의 Voice Direction이 말투와 사고 순서를 서로 다르게 강제한다", () => {
   const expectedVoiceMarkers: Record<string, [RegExp, RegExp]> = {
     tect: [/책임 경계/, /완료 기준/],

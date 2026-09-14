@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { presentEmployeeReactionsAsAnonymousChat } from "@/lib/employee-reactions/presenters";
+import {
+  presentEmployeeReactionsAsAnonymousChat,
+  presentEmployeeReactionsAsDebate,
+} from "@/lib/employee-reactions/presenters";
 import { getOrganizationRunCanonicalEmployees } from "@/lib/organization-run/canonical-employees";
 import { runOrganizationRunAutomatedQA } from "@/lib/organization-run/automated-qa";
 import { buildOrganizationRunPost } from "@/lib/organization-run/post-builder";
@@ -17,6 +20,41 @@ const anonymousTopic: OrganizationRunTopic = {
   relevantEmployeeIds: ["char-001", "char-003"],
   sourceUrls: [],
 };
+
+test("기존 토론 게시물의 보류 입장은 공개 화면에서 반대로 표시한다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees(["tect"]);
+  const post = buildOrganizationRunPost({
+    runId: "legacy-debate-hold",
+    topic: {
+      ...anonymousTopic,
+      boardType: "debate",
+      relevantEmployeeIds: ["tect"],
+    },
+    reactions: [
+      {
+        employeeId: "tect",
+        stance: "찬성",
+        coreOpinion: "현재 조건에서는 안건에 동의하기 어렵습니다.",
+        concerns: "책임 경계가 명확하지 않습니다.",
+        suggestion: "중단 기준을 먼저 정해야 합니다.",
+      },
+    ],
+  });
+  const view = {
+    ...post,
+    reactions: post.reactions.map((reaction) => ({
+      ...reaction,
+      stance: "보류" as const,
+      employee: employees[0].employee,
+    })),
+    replies: [],
+  };
+  const debate = presentEmployeeReactionsAsDebate(view, []);
+
+  assert.equal(debate.participants[0]?.side, "oppose");
+  assert.equal(debate.statements[0]?.side, "oppose");
+  assert.doesNotMatch(JSON.stringify(debate), /hold|보류/);
+});
 
 test("익명 채팅 QA와 Presenter가 실제 직원 신원을 공개하지 않는다", async () => {
   const employees = await getOrganizationRunCanonicalEmployees([
@@ -50,10 +88,12 @@ test("익명 채팅 QA와 Presenter가 실제 직원 신원을 공개하지 않�
     recentPosts: [],
   });
   assert.equal(qa.requiresReview, false);
+  assert.equal(qa.blocksPublication, false);
 
   const chat = presentEmployeeReactionsAsAnonymousChat(post);
   const publicText = JSON.stringify(chat);
   assert.doesNotMatch(publicText, /시그|SIG|루미|LUMI|CCGG/);
+  assert.doesNotMatch(publicText, /내 생각에는|한편으로는/);
   assert.match(publicText, /익명/);
 
   const leaked = {
@@ -71,6 +111,7 @@ test("익명 채팅 QA와 Presenter가 실제 직원 신원을 공개하지 않�
     recentPosts: [],
   });
   assert.equal(leakedQA.requiresReview, true);
+  assert.equal(leakedQA.blocksPublication, true);
   assert.match(leakedQA.reasons.join(" "), /신원/);
 });
 
@@ -161,6 +202,7 @@ test("실제 채용·해고·임금·인사평가·노동조건 변경 실행은
 
   assert.equal(qa.requiresReview, true);
   assert.equal(qa.riskLevel, "high");
+  assert.equal(qa.blocksPublication, false);
   assert.match(qa.reasons.join(" "), /채용·노무 권한 행사 가능성이 있는 내용/);
 });
 

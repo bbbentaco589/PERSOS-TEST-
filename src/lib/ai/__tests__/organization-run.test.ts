@@ -23,6 +23,7 @@ import { ORGANIZATION_RUN_EMPLOYEE_IDS } from "@/lib/organization-run/canonical-
 import { validateOrganizationRunTopic } from "@/lib/organization-run/topic-validation";
 import {
   normalizePublicFeedAuthorship,
+  selectPublicFeedAuthorEmployeeId,
   shouldGenerateAuthorReply,
 } from "@/lib/organization-run/public-feed-interactions";
 
@@ -90,12 +91,26 @@ function createGenerator(topics: OrganizationRunTopic[]) {
       topicCalls += 1;
       return topic;
     },
-    async generateReactions({ employees }) {
+    async generateReactions({ topic, employees }) {
       return employees.map(({ employee }, index) => ({
         employeeId:
           employee.id as (typeof ORGANIZATION_RUN_EMPLOYEE_IDS)[number],
-        stance: index === 0 ? "보류" : index === 1 ? "찬성" : "반대",
-        interactionType: index === 1 ? "질문" as const : "독립 의견" as const,
+        stance:
+          topic.boardType === "debate"
+            ? index % 2 === 0
+              ? "찬성" as const
+              : "반대" as const
+            : index === 0
+              ? "보류" as const
+              : index === 1
+                ? "찬성" as const
+                : "반대" as const,
+        interactionType:
+          topic.boardType === "debate" && index > 0
+            ? "반박" as const
+            : index === 1
+              ? "질문" as const
+              : "독립 의견" as const,
         coreOpinion: `${employee.nameKo}의 핵심 의견입니다.`,
         concerns: `${employee.nameKo}의 우려 사항입니다.`,
         suggestion:
@@ -188,6 +203,68 @@ test("public boardType은 공개 피드 저장 값으로 정규화한다", () =>
   assert.equal(post.board, "public-feed");
 });
 
+test("공개 피드의 분기 실적·전사 공지형 주제를 거부한다", () => {
+  const invalidTopic: OrganizationRunTopic = {
+    ...validTopic,
+    boardType: "public",
+    title: "제3분기 가상 오피스 인프라 고도화 성과와 운영 로드맵 공유",
+    topicSummary:
+      "분기별 가상 오피스 인프라 고도화 성과와 다음 운영 계획을 전사에 공유합니다.",
+  };
+
+  const validation = validateOrganizationRunTopic(invalidTopic, []);
+
+  assert.equal(validation.valid, false);
+  assert.match(validation.errors.join(" "), /개인 전문 콘텐츠/);
+});
+
+test("자동 공개 피드는 주제 생성 단계에서 지정한 게시자를 유지한다", async () => {
+  const publisher = new MemoryPublisher();
+  const publicTopic: OrganizationRunTopic = {
+    ...validTopic,
+    boardType: "public",
+    title: "새 도구를 업무에 넣기 전에 되돌아갈 경로부터 확인하는 이유",
+    body:
+      "새로운 AI 도구를 도입할 때 기능 목록만 비교하면 실제 업무 흐름에서 생기는 마찰을 놓치기 쉽습니다. 입력 준비와 결과 검수, 기존 방식으로 되돌아가는 단계까지 짧게 시험해 보면 반복 사용 가능한 도구인지 더 정확히 판단할 수 있습니다.",
+    topicSummary:
+      "AI 도구 도입 전 실제 작업 흐름과 복구 경로를 함께 시험하는 판단 기준을 소개합니다.",
+    reasonForBoardSelection:
+      "루미의 대표 콘텐츠와 실무 도입 분석 역할을 바탕으로 한 공개 피드입니다.",
+    authorEmployeeId: "char-003",
+  };
+  const { generator } = createGenerator([publicTopic]);
+
+  const result = await runAIOrganization({ generator, publisher });
+
+  assert.equal(result.post.authorEmployeeId, "char-003");
+  assert.equal(result.post.authorPosition?.employeeId, "char-003");
+  assert.equal(
+    result.post.reactions.some(
+      (reaction) => reaction.employeeId === "char-003"
+    ),
+    false
+  );
+});
+
+test("찬반 토론은 저장 직전 기존 보류 입장을 반대로 정규화한다", () => {
+  const post = buildOrganizationRunPost({
+    runId: "debate-binary-stance",
+    topic: validTopic,
+    reactions: [
+      {
+        employeeId: "tect",
+        stance: "보류",
+        coreOpinion: "조건이 충족되기 전에는 안건에 동의할 수 없습니다.",
+        concerns: "책임과 중단 기준이 아직 불명확합니다.",
+        suggestion: "검증 기준을 먼저 합의해야 합니다.",
+      },
+    ],
+  });
+
+  assert.equal(post.reactions[0]?.stance, "반대");
+  assert.doesNotMatch(JSON.stringify(post), /보류/);
+});
+
 test("기존 공개 글은 게시자를 댓글에서 제거하고 질문·반박에만 1회 답글 대상으로 분류한다", () => {
   const legacyPost = buildOrganizationRunPost({
     runId: "legacy-public-author",
@@ -214,10 +291,15 @@ test("기존 공개 글은 게시자를 댓글에서 제거하고 질문·반박
     board: "public-feed",
   });
 
-  assert.equal(normalized.authorEmployeeId, "tect");
+  assert.equal(
+    normalized.authorEmployeeId,
+    selectPublicFeedAuthorEmployeeId(["tect", "char-003"], legacyPost.id)
+  );
   assert.deepEqual(
     normalized.reactions.map((reaction) => reaction.employeeId),
-    ["char-003"]
+    ["tect", "char-003"].filter(
+      (employeeId) => employeeId !== normalized.authorEmployeeId
+    )
   );
   assert.equal(
     shouldGenerateAuthorReply({
@@ -256,6 +338,22 @@ test("ON 상태인 6명을 반응 후보군에 포함하고 TECT 없이도 2명 
   assert.equal(validation.valid, true);
 });
 
+test("공개 피드 게시자는 실행별 entropy로 후보 페르소나 사이에서 분산된다", () => {
+  const candidates = ["tect", "char-001", "char-003"];
+  const selected = new Set(
+    Array.from({ length: 24 }, (_, index) =>
+      selectPublicFeedAuthorEmployeeId(candidates, `run-${index}`)
+    )
+  );
+
+  assert.ok(selected.size > 1);
+  assert.ok(
+    [...selected].every(
+      (employeeId) => employeeId && candidates.includes(employeeId)
+    )
+  );
+});
+
 const manualInput: ManualOrganizationRunInput = {
   boardType: "public",
   title: "AI 직원 외부 협업 제안을 운영자가 수동으로 검토하는 절차",
@@ -275,16 +373,20 @@ test("수동 실행은 주제를 생성하지 않고 반응과 검증만 수행�
   });
 
   assert.equal(getTopicCalls(), 0);
-  assert.equal(result.geminiCallCount, 3);
+  assert.ok(result.geminiCallCount >= 2 && result.geminiCallCount <= 3);
   assert.equal(result.published, false);
   assert.equal(result.publicUrl, undefined);
-  assert.equal(result.post.authorEmployeeId, "tect");
+  assert.ok(manualInput.employeeIds.includes(result.post.authorEmployeeId ?? ""));
   assert.equal(result.post.reactions.length, 1);
-  assert.equal(result.post.reactions[0].employeeId, "char-003");
-  assert.equal(result.post.replies?.length, 1);
-  assert.equal(
-    result.post.replies?.[0].parentReactionId,
-    result.post.reactions[0].id
+  assert.notEqual(result.post.reactions[0].employeeId, result.post.authorEmployeeId);
+  assert.match(result.post.body, /핵심 의견/);
+  assert.ok((result.post.replies?.length ?? 0) <= 1);
+  assert.ok(
+    (result.post.replies ?? []).every((reply) =>
+      result.post.reactions.some(
+        (reaction) => reaction.id === reply.parentReactionId
+      )
+    )
   );
   assert.equal(publisher.published, 0);
   assert.equal(result.reviewPending, true);
@@ -308,14 +410,20 @@ test("수동 발행 선택 시 ON 상태인 6명의 반응과 이미지·게시�
   });
 
   assert.equal(result.published, true);
-  assert.equal(result.geminiCallCount, 7);
-  assert.equal(result.post.authorEmployeeId, "tect");
+  assert.ok(result.geminiCallCount >= 6 && result.geminiCallCount <= 8);
+  assert.ok(
+    ORGANIZATION_RUN_EMPLOYEE_IDS.includes(
+      result.post.authorEmployeeId as (typeof ORGANIZATION_RUN_EMPLOYEE_IDS)[number]
+    )
+  );
   assert.equal(result.post.reactions.length, 5);
   assert.equal(
-    result.post.reactions.some((reaction) => reaction.employeeId === "tect"),
+    result.post.reactions.some(
+      (reaction) => reaction.employeeId === result.post.authorEmployeeId
+    ),
     false
   );
-  assert.equal(result.post.replies?.length, 1);
+  assert.ok((result.post.replies?.length ?? 0) <= 2);
   assert.match(result.publicUrl ?? "", /^\/discussion\//);
   assert.equal(publisher.published, 1);
   assert.equal(
@@ -374,6 +482,28 @@ test("예약 자동 발행 ON은 QA 경고가 있어도 즉시 발행한다", as
   assert.equal(result.reviewPending, false);
   assert.equal(publisher.published, 1);
   assert.equal(publisher.reviews.length, 0);
+});
+
+test("예약 자동 발행 ON이어도 Secret 또는 개인정보 노출은 공개하지 않는다", async () => {
+  const publisher = new MemoryPublisher();
+  const sensitiveTopic: OrganizationRunTopic = {
+    ...validTopic,
+    title: "운영 환경 설정 점검 결과를 공유합니다",
+    body:
+      "운영 환경 점검 중 OPENAI_API_KEY=do-not-publish 형식의 인증정보가 발견되어 공개 여부를 확인합니다. 민감정보를 포함한 결과는 외부에 노출하지 않아야 합니다.",
+    topicSummary: "운영 환경의 민감정보 노출 여부를 점검합니다.",
+  };
+  const { generator } = createGenerator([sensitiveTopic]);
+  const result = await runAIOrganization({
+    generator,
+    publisher,
+    publishDespiteQAWarnings: true,
+  });
+
+  assert.equal(result.published, false);
+  assert.equal(result.reviewPending, true);
+  assert.equal(publisher.published, 0);
+  assert.match(publisher.reviews[0].reasons.join(" "), /Secret|인증정보/);
 });
 
 test("선택적 전건 검수 모드는 QA 통과 건도 자동 발행하지 않는다", async () => {

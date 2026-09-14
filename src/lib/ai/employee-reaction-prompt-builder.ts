@@ -17,6 +17,7 @@ export const EMPLOYEE_REACTION_IDS = [
   "char-020",
 ] as const;
 export const EMPLOYEE_REACTION_STANCES = ["찬성", "보류", "반대"] as const;
+export const EMPLOYEE_DEBATE_STANCES = ["찬성", "반대"] as const;
 export const EMPLOYEE_REACTION_INTERACTION_TYPES = [
   "독립 의견",
   "질문",
@@ -27,6 +28,13 @@ export type EmployeeReactionCanonical = {
   employee: Employee;
   divisionName: string;
   teamName: string;
+  profileContext?: {
+    headline: string;
+    overview: string;
+    primaryRole: string;
+    representativeContent: string;
+    specialtyDescriptions: string[];
+  };
   activityMemory?: {
     recentActivities: string[];
     relationships: string[];
@@ -40,6 +48,8 @@ export type EmployeeReactionPromptInput = {
   body: string;
   employees: EmployeeReactionCanonical[];
   socialParticipants?: EmployeeReactionCanonical[];
+  requiredStance?: (typeof EMPLOYEE_DEBATE_STANCES)[number];
+  requiredInteractionType?: EmployeeReactionInteractionType;
 };
 
 export type GeneratedEmployeeReaction = {
@@ -75,7 +85,7 @@ const boardContexts: Record<
   "public-feed": {
     label: "전사원 공개 피드",
     purpose:
-      "AI 직원의 업무, 의견, 제작 과정과 실무 인사이트를 외부 방문자가 읽는 공개 피드다.",
+      "각 AI 직원이 자신의 대표 콘텐츠, 담당 업무, 제작 과정과 실무 인사이트를 본인 명의로 발행하는 공개 피드다.",
     presentationRule:
       "공개 게시글에 적합한 설명형 문장으로 작성하고 확인되지 않은 내부 사실은 만들지 않는다.",
   },
@@ -108,6 +118,7 @@ function buildEmployeeCanonicalBlock({
   divisionName,
   teamName,
   activityMemory,
+  profileContext,
 }: EmployeeReactionCanonical, board: EmployeeReactionBoard) {
   const voice = getCharacterPromptProfile(employee);
   return [
@@ -126,6 +137,13 @@ function buildEmployeeCanonicalBlock({
     `허용 주제: ${formatList(employee.allowedTopics)}`,
     `금지 주제와 행동: ${formatList(employee.prohibitedTopics)}`,
     `선호 활동 형식: ${formatList(employee.preferredActivityFormats)}`,
+    "개인 프로필 기반 활동 맥락:",
+    `- 프로필 한 줄: ${profileContext?.headline ?? employee.hookKo}`,
+    `- 프로필 개요: ${profileContext?.overview ?? employee.summaryKo}`,
+    `- 대표 콘텐츠: ${profileContext?.representativeContent ?? employee.contentRole}`,
+    `- 담당 업무: ${profileContext?.primaryRole ?? employee.jobTitleKo} / ${employee.contentRole}`,
+    `- 일하는 방식: ${formatList(employee.personaRules)}`,
+    `- 대표 전문 관점: ${formatList(profileContext?.specialtyDescriptions ?? employee.specialtiesKo)}`,
     "고유 Voice Direction:",
     `- 말투: ${voice.speakingStyle}`,
     `- 판단 순서: ${voice.judgmentGuide}`,
@@ -154,6 +172,8 @@ export function buildEmployeeReactionSystemInstruction({
   body,
   employees,
   socialParticipants = employees,
+  requiredStance,
+  requiredInteractionType,
 }: EmployeeReactionPromptInput) {
   const context = boardContexts[board];
   const writerEmployeeId = employees[0]?.employee.id ?? "";
@@ -186,7 +206,16 @@ export function buildEmployeeReactionSystemInstruction({
     "- 게시글을 요약하거나 바꿔 말하지 말고, 이 직원만 먼저 발견할 구체적인 마찰·기회·장면 하나를 선택한다.",
     "- 전문 분야가 안건과 직접 맞지 않으면 전문용어를 억지로 끼우지 않는다. 그 직원의 가치관과 사고 습관으로만 판단한다.",
     "- 이 요청에는 한 직원의 Canonical만 제공된다. 다른 직원의 관점이나 말투를 대신 작성하지 않는다.",
-    "- 찬성, 보류, 반대 중 하나를 선택한다.",
+    ...(board === "debate"
+      ? [
+          `- 찬반 토론에서는 '보류'를 절대 선택하지 말고 반드시 '${requiredStance ?? "찬성 또는 반대"}' 입장을 취한다.`,
+          "- coreOpinion에는 명확한 주장을, concerns에는 상대 진영의 가장 강한 논거에 대한 반박을, suggestion에는 판단 근거·구체적 사례·검증 기준 중 하나를 제시한다.",
+          "- 상대 입장을 허수아비처럼 단순화하지 말고, 인정할 지점과 갈리는 전제를 구분해 대중적인 토론문처럼 쓴다.",
+        ]
+      : ["- 찬성, 보류, 반대 중 하나를 선택한다."]),
+    ...(requiredInteractionType
+      ? [`- interactionType은 반드시 '${requiredInteractionType}'으로 기록하고 본문도 그 상호작용 방식이 드러나게 쓴다.`]
+      : []),
     "- interactionType은 게시글과 별개 의견이면 '독립 의견', 게시자에게 답을 요구하는 의문형이면 '질문', 게시자의 핵심 전제를 직접 뒤집으면 '반박'으로 분류한다.",
     "- 확인되지 않은 수치, 계약, 시장 사실, 과거 경력과 직원 관계를 만들지 않는다.",
     "- 제공된 활동·관계 기록은 연속성을 위한 참고 정보다. 이전 말을 기계적으로 반복하지 말고, 실제 기록에 없는 친밀도·갈등·사건을 덧붙이지 않는다.",
@@ -194,6 +223,18 @@ export function buildEmployeeReactionSystemInstruction({
       ? [
           "- 익명 채팅 응답에는 자신의 이름, 영문명, 직책, 소속 사업부·팀 또는 이를 추정할 수 있는 표현을 절대 쓰지 않는다.",
           "- 다른 직원의 검증된 이름·외형·현재 행동을 언급할 수 있지만, 작성자 자신을 특정하는 단서로 사용하지 않는다.",
+          "- 보고서가 아니라 실제 사내 채팅처럼 말한다. 짧은 반응, 망설임, 구체적인 경험 장면, 가벼운 농담이나 질문을 캐릭터에 맞게 선택적으로 섞는다.",
+          "- 첫 문장을 '내 생각에는', '제 생각에는', '개인적으로', '저는'으로 시작하지 않는다. 다른 참여자와 같은 도입부나 문장 틀을 반복하지 않는다.",
+          "- coreOpinion, concerns, suggestion은 각각 접두어 없이 바로 읽혀도 자연스러운 채팅 문장으로 작성한다. suggestion을 매번 해결책이나 행동 지시로 끝내지 않아도 된다.",
+        ]
+      : []),
+    ...(board === "public-feed"
+      ? [
+          "- 이 반응은 작성자가 되면 공개 피드의 원문으로 사용된다. 개인 프로필의 대표 콘텐츠 주제, 담당 업무와 일하는 방식을 중심축으로 삼아 독자가 가져갈 수 있는 관찰·판단 기준·실무 팁을 남긴다.",
+          "- 막연한 조직 소개나 무영향한 안부가 아니라, 작성자의 전문성이 실제로 보이는 구체적 인사이트를 한 가지 이상 포함한다.",
+          "- 중앙 조직의 분기 보고서처럼 쓰지 않는다. '제1분기' 같은 분기 표기, 전사 운영 현황, 인프라 고도화, 성과·실적·로드맵 공유 문구를 사용하지 않는다.",
+          "- 주제에 맞춰 관찰 노트, 판단 기준, 비교 가이드, 제작 비하인드, 작은 실험, 큐레이션 중 한 가지 형식만 선택하고, 매번 같은 결론-우려-제안 보고서 틀로 보이지 않게 문장 연결을 바꾼다.",
+          "- 대표 콘텐츠의 제목을 그대로 홍보하지 말고, 그 콘텐츠를 만드는 사람이 실제로 무엇을 보고 어떻게 판단하는지가 드러나게 쓴다.",
         ]
       : []),
     "- coreOpinion, concerns, suggestion은 저장 필드일 뿐이며, 화면에서 이어 읽었을 때 한 사람이 자연스럽게 쓴 하나의 발언이 되어야 한다.",
@@ -206,8 +247,15 @@ export function buildEmployeeReactionSystemInstruction({
 }
 
 export function createEmployeeReactionResponseSchema(
-  employeeIds: readonly string[] = EMPLOYEE_REACTION_IDS
+  employeeIds: readonly string[] = EMPLOYEE_REACTION_IDS,
+  options?: {
+    allowedStances?: readonly EmployeeReactionStance[];
+    allowedInteractionTypes?: readonly EmployeeReactionInteractionType[];
+  }
 ) {
+  const allowedStances = options?.allowedStances ?? EMPLOYEE_REACTION_STANCES;
+  const allowedInteractionTypes =
+    options?.allowedInteractionTypes ?? EMPLOYEE_REACTION_INTERACTION_TYPES;
   return {
     type: "object",
     additionalProperties: false,
@@ -232,11 +280,11 @@ export function createEmployeeReactionResponseSchema(
             employeeId: { type: "string", enum: [...employeeIds] },
             stance: {
               type: "string",
-              enum: [...EMPLOYEE_REACTION_STANCES],
+              enum: [...allowedStances],
             },
             interactionType: {
               type: "string",
-              enum: [...EMPLOYEE_REACTION_INTERACTION_TYPES],
+              enum: [...allowedInteractionTypes],
             },
             coreOpinion: { type: "string", minLength: 20, maxLength: 140 },
             concerns: { type: "string", minLength: 15, maxLength: 100 },
@@ -272,7 +320,11 @@ function isInteractionType(
 
 export function parseEmployeeReactions(
   value: string,
-  employeeIds: readonly string[] = EMPLOYEE_REACTION_IDS
+  employeeIds: readonly string[] = EMPLOYEE_REACTION_IDS,
+  options?: {
+    allowedStances?: readonly EmployeeReactionStance[];
+    allowedInteractionTypes?: readonly EmployeeReactionInteractionType[];
+  }
 ): GeneratedEmployeeReaction[] {
   let parsed: unknown;
   try {
@@ -298,6 +350,11 @@ export function parseEmployeeReactions(
       !isRecord(reaction) ||
       !employeeIds.includes(String(reaction.employeeId)) ||
       !isStance(reaction.stance) ||
+      (options?.allowedStances &&
+        !options.allowedStances.includes(reaction.stance)) ||
+      (options?.allowedInteractionTypes &&
+        (!isInteractionType(reaction.interactionType) ||
+          !options.allowedInteractionTypes.includes(reaction.interactionType))) ||
       !hasText(reaction.coreOpinion) ||
       !hasText(reaction.concerns) ||
       !hasText(reaction.suggestion)

@@ -10,18 +10,20 @@ export async function getOrganizationRunCanonicalEmployees(
   employeeIds: readonly string[] = ORGANIZATION_RUN_EMPLOYEE_IDS
 ): Promise<EmployeeReactionCanonical[]> {
   const repositories = getRepositories();
-  const [employees, divisions, teams] = await Promise.all([
+  const [employees, showcases, divisions, teams] = await Promise.all([
     Promise.all(
       employeeIds.map((employeeId) =>
         repositories.characters.getCharacterById(employeeId)
       )
     ),
+    repositories.organization.listEmployeeShowcases(),
     repositories.organization.listDivisions(),
     repositories.organization.listTeams(),
   ]);
 
   return employeeIds.map((employeeId, index) => {
     const employee = employees[index];
+    const showcase = showcases.find((item) => item.employeeId === employeeId);
     if (!employee) {
       throw new Error(`${employeeId} Character Canonical을 찾지 못했습니다.`);
     }
@@ -34,6 +36,21 @@ export async function getOrganizationRunCanonicalEmployees(
       teamName:
         teams.find((team) => team.id === employee.teamId)?.nameKo ??
         employee.teamId,
+      profileContext: showcase
+        ? {
+            headline: showcase.profile.headlineKo,
+            overview: showcase.profile.overviewKo,
+            primaryRole: showcase.profile.primaryRoleKo,
+            representativeContent: showcase.profile.currentFocusKo,
+            specialtyDescriptions: showcase.specialties
+              .slice()
+              .sort((left, right) => left.displayOrder - right.displayOrder)
+              .map(
+                (specialty) =>
+                  `${specialty.nameKo}: ${specialty.descriptionKo}`
+              ),
+          }
+        : undefined,
     };
   });
 }

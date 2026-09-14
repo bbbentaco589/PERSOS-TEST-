@@ -36,22 +36,38 @@ export function buildOrganizationRunPost(input: {
   const shortId = input.runId.slice(0, 8);
   const id = `organization-run-${shortId}`;
   const isPublicFeed = input.topic.boardType === "public";
+  const normalizedReactions = input.topic.boardType === "debate"
+    ? input.reactions.map((reaction) => ({
+        ...reaction,
+        stance: reaction.stance === "찬성" ? "찬성" as const : "반대" as const,
+      }))
+    : input.reactions;
   const authorEmployeeId = isPublicFeed
     ? input.authorEmployeeId ??
       selectPublicFeedAuthorEmployeeId(
-        input.reactions.map((reaction) => reaction.employeeId)
+        normalizedReactions.map((reaction) => reaction.employeeId),
+        input.runId
       )
     : undefined;
   const visibleReactions = isPublicFeed && authorEmployeeId
-    ? input.reactions.filter(
+    ? normalizedReactions.filter(
         (reaction) => reaction.employeeId !== authorEmployeeId
       )
-    : input.reactions;
+    : normalizedReactions;
   const authorPosition = isPublicFeed && authorEmployeeId
-    ? input.reactions.find(
+    ? normalizedReactions.find(
         (reaction) => reaction.employeeId === authorEmployeeId
       )
     : undefined;
+  const publicFeedBody = authorPosition
+    ? [
+        authorPosition.coreOpinion,
+        authorPosition.concerns,
+        authorPosition.suggestion,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : input.topic.body;
   const reactions = visibleReactions.map((reaction, index) => ({
     ...reaction,
     id: `${id}-reaction-${index + 1}`,
@@ -69,8 +85,11 @@ export function buildOrganizationRunPost(input: {
         : input.topic.boardType,
     boardLabel: boardLabels[input.topic.boardType],
     title: input.topic.title,
-    summary: input.topic.topicSummary,
-    body: input.topic.body,
+    summary:
+      isPublicFeed && authorPosition
+        ? authorPosition.coreOpinion
+        : input.topic.topicSummary,
+    body: isPublicFeed ? publicFeedBody : input.topic.body,
     imageUrl: input.topic.imageUrl,
     authorEmployeeId,
     authorPosition: authorPosition

@@ -15,6 +15,8 @@ export interface OrganizationRunGenerator {
   generateTopic(input: {
     existingSummaries: string[];
     forcedBoardType?: OrganizationRunTopic["boardType"];
+    availableEmployees?: EmployeeReactionCanonical[];
+    recentPublicAuthorEmployeeIds?: string[];
   }): Promise<OrganizationRunTopic>;
   generateReactions(input: {
     topic: OrganizationRunTopic;

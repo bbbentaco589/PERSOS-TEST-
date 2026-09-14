@@ -11,6 +11,11 @@ const PROHIBITED_PATTERNS = [
   /샘플\s*(게시글|콘텐츠|주제)?/i,
   /lorem ipsum/i,
 ];
+const PUBLIC_FEED_NOTICE_PATTERNS = [
+  /제\s*[1-4일이삼사]\s*분기/u,
+  /가상\s*오피스[^.\n]{0,40}인프라\s*고도화/u,
+  /전사\s*(?:운영\s*현황|성과|실적|로드맵)\s*(?:공유|보고)/u,
+];
 
 function normalize(value: string) {
   return value
@@ -91,6 +96,23 @@ export function validateOrganizationRunTopic(
     )
   ) {
     errors.push("테스트성 또는 샘플 문구는 공개 주제로 사용할 수 없습니다.");
+  }
+  if (
+    topic.boardType === "public" &&
+    PUBLIC_FEED_NOTICE_PATTERNS.some((pattern) =>
+      pattern.test(`${topic.title} ${topic.body}`)
+    )
+  ) {
+    errors.push(
+      "공개 피드는 분기 실적·인프라 고도화·전사 공지 형식이 아닌 개인 전문 콘텐츠여야 합니다."
+    );
+  }
+  if (
+    topic.boardType === "public" &&
+    topic.authorEmployeeId &&
+    !topic.relevantEmployeeIds.includes(topic.authorEmployeeId)
+  ) {
+    errors.push("공개 피드 게시자가 참여 직원 목록에 포함되지 않았습니다.");
   }
   if (
     existingSummaries.some(

@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { randomInt } from "node:crypto";
 import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
 
 import {
@@ -6,9 +7,11 @@ import {
   buildEmployeeAuthorReplySystemInstruction,
   createEmployeeAuthorReplyResponseSchema,
   createEmployeeReactionResponseSchema,
+  EMPLOYEE_DEBATE_STANCES,
   EMPLOYEE_REACTION_IDS,
   parseEmployeeReactions,
   parseEmployeeAuthorReply,
+  type EmployeeReactionCanonical,
 } from "@/lib/ai/employee-reaction-prompt-builder";
 import type { OrganizationRunTopic } from "@/types";
 import {
@@ -57,6 +60,79 @@ const topicSchema = {
     },
   },
 };
+
+const fallbackParticipantBriefs: Record<(typeof EMPLOYEE_REACTION_IDS)[number], string> = {
+  tect: "TECT — 전사 운영·사업개발·제휴 조율, 실행 구조와 책임 경계",
+  "char-001": "SIG — 경제·산업 신호, 사실과 해석의 분리",
+  "char-002": "박봉남 — 예측시장·시나리오, 판정 기준과 반대 가설",
+  "char-003": "LUMI — 생성형 AI 도구, 실제 업무 흐름과 도입 조건",
+  "char-019": "PIXEUR — 비주얼 스토리텔링, 감정선과 시각적 연속성",
+  "char-020": "오덕순 — OTT 에디토리얼, 취향·시간값·추천 적합도",
+};
+
+function shuffleEmployeeIds(employeeIds: readonly string[]) {
+  const pool = [...employeeIds];
+  for (let index = pool.length - 1; index > 0; index -= 1) {
+    const target = randomInt(index + 1);
+    [pool[index], pool[target]] = [pool[target], pool[index]];
+  }
+  return pool;
+}
+
+function selectTopicParticipants(
+  candidateIds: readonly string[],
+  recentPublicAuthorEmployeeIds: readonly string[]
+) {
+  const uniqueCandidateIds = [...new Set(candidateIds)];
+  const recentAuthors = new Set(recentPublicAuthorEmployeeIds.slice(0, 2));
+  const freshAuthorPool = uniqueCandidateIds.filter(
+    (employeeId) => !recentAuthors.has(employeeId)
+  );
+  const authorPool = freshAuthorPool.length ? freshAuthorPool : uniqueCandidateIds;
+  const authorEmployeeId = shuffleEmployeeIds(authorPool)[0];
+  const participantPool = shuffleEmployeeIds(
+    uniqueCandidateIds.filter((employeeId) => employeeId !== authorEmployeeId)
+  );
+  return [authorEmployeeId, ...participantPool.slice(0, 2)].filter(Boolean);
+}
+
+function buildParticipantBrief(
+  employeeId: string,
+  availableEmployees: readonly EmployeeReactionCanonical[]
+) {
+  const canonical = availableEmployees.find(
+    ({ employee }) => employee.id === employeeId
+  );
+  if (!canonical) {
+    return fallbackParticipantBriefs[
+      employeeId as keyof typeof fallbackParticipantBriefs
+    ] ?? employeeId;
+  }
+  const profile = canonical.profileContext;
+  return [
+    `${canonical.employee.nameKo} (${canonical.employee.nameEn})`,
+    `대표 콘텐츠: ${profile?.representativeContent ?? canonical.employee.contentRole}`,
+    `담당 업무: ${profile?.primaryRole ?? canonical.employee.jobTitleKo}`,
+    `일하는 방식: ${canonical.employee.personaRules.slice(0, 2).join(" / ")}`,
+    `전문 관점: ${(profile?.specialtyDescriptions ?? canonical.employee.specialtiesKo).slice(0, 2).join(" / ")}`,
+  ].join(" | ");
+}
+
+function createTopicSchema(participantIds: readonly string[]) {
+  return {
+    ...topicSchema,
+    properties: {
+      ...topicSchema.properties,
+      relevantEmployeeIds: {
+        type: "array",
+        minItems: participantIds.length,
+        maxItems: participantIds.length,
+        uniqueItems: true,
+        items: { type: "string", enum: [...participantIds] },
+      },
+    },
+  };
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -109,6 +185,7 @@ export class GeminiOrganizationRunGenerator
       systemInstruction: string;
       schema: Record<string, unknown>;
       maxOutputTokens: number;
+      temperature?: number;
     }) => Promise<string>
   ) {
     this.client = new GoogleGenAI({ apiKey });
@@ -120,6 +197,7 @@ export class GeminiOrganizationRunGenerator
     systemInstruction: string;
     schema: Record<string, unknown>;
     maxOutputTokens: number;
+    temperature?: number;
   }) {
     if (this.jsonExecutor) return this.jsonExecutor(input);
     const controller = new AbortController();
@@ -133,7 +211,7 @@ export class GeminiOrganizationRunGenerator
           systemInstruction: input.systemInstruction,
           responseMimeType: "application/json",
           responseJsonSchema: input.schema,
-          temperature: 0.62,
+          temperature: input.temperature ?? 0.62,
           maxOutputTokens: input.maxOutputTokens,
         },
       });
@@ -148,6 +226,8 @@ export class GeminiOrganizationRunGenerator
   async generateTopic({
     existingSummaries,
     forcedBoardType,
+    availableEmployees = [],
+    recentPublicAuthorEmployeeIds = [],
   }: Parameters<OrganizationRunGenerator["generateTopic"]>[0]) {
     const forcedRule = forcedBoardType
       ? `내부 QA 검증을 위해 boardType은 반드시 "${forcedBoardType}"으로 선택하세요.`
@@ -155,6 +235,31 @@ export class GeminiOrganizationRunGenerator
     const recentTopics = existingSummaries.length
       ? existingSummaries.slice(0, 30).map((item) => `- ${item}`).join("\n")
       : "- 아직 동적 발행 주제가 없습니다.";
+    const eligibleEmployeeIds = availableEmployees
+      .filter(
+        ({ employee, profileContext }) =>
+          employee.status === "Active" &&
+          employee.profileStage === "Approved" &&
+          employee.publicVisibility &&
+          Boolean(profileContext)
+      )
+      .map(({ employee }) => employee.id)
+      .filter((employeeId) => EMPLOYEE_REACTION_IDS.includes(employeeId as never));
+    const participantPool =
+      eligibleEmployeeIds.length >= 3
+        ? eligibleEmployeeIds
+        : [...EMPLOYEE_REACTION_IDS];
+    const selectedParticipantIds = selectTopicParticipants(
+      participantPool,
+      recentPublicAuthorEmployeeIds
+    );
+    const selectedAuthorEmployeeId = selectedParticipantIds[0];
+    const selectedParticipants = selectedParticipantIds
+      .map(
+        (id, index) =>
+          `- ${index === 0 ? "[공개 피드 게시자] " : "[참여자] "}${buildParticipantBrief(id, availableEmployees)}`
+      )
+      .join("\n");
 
     const text = await this.generateJson({
       prompt: [
@@ -163,26 +268,40 @@ export class GeminiOrganizationRunGenerator
         "",
         "최근 공개 주제:",
         recentTopics,
+        "",
+        "이번 실행의 작성·참여 페르소나:",
+        selectedParticipants,
       ].join("\n"),
       systemInstruction: [
         "당신은 PERSOS의 중앙 System Persona인 Architect입니다.",
         "직원 반응 참여자가 아니라 주제의 품질, 게시판 적합성, 중복 여부만 조정합니다.",
-        "public은 조직 정책·운영 현황·투명성·서비스 방향의 전사 공유 콘텐츠입니다.",
-        "debate는 찬반 또는 판단 차이가 가치 있는 의사결정 안건입니다.",
+        "public은 중앙 조직 공지판이 아니라, 선택된 AI 페르소나가 자기 대표 콘텐츠와 담당 업무에서 발견한 관찰·판단 기준·제작 과정·실무 팁을 본인 명의로 발행하는 전문 피드입니다.",
+        `public을 선택하면 게시자는 반드시 ${selectedAuthorEmployeeId}이며, 제목·본문·요약의 중심을 이 게시자의 대표 콘텐츠, 담당 업무, 일하는 방식 중 하나에 둡니다. 나머지 두 명은 댓글 참여자입니다.`,
+        "public 제목은 개인 에디토리얼처럼 자연스럽게 쓰고, '제1분기' 같은 분기 표기, 가상 오피스 인프라 고도화, 전사 운영 현황, 성과·실적·로드맵 공유 같은 근거 없는 사내 공지문 형식을 금지합니다.",
+        "public은 매번 현장 관찰, 판단 기준, 비교·선택 가이드, 제작 비하인드, 작은 실험, 큐레이션 중 최근 주제와 겹치지 않는 한 가지 형식을 택합니다. 서로 다른 형식을 한 글에 억지로 합치지 않습니다.",
+        "public 제목과 본문에는 게시자의 이름이나 직책을 자기소개처럼 붙이지 말고, 독자가 바로 가져갈 수 있는 구체적인 질문·기준·팁을 전면에 둡니다.",
+        "debate는 인간과 AI의 경계에서 정체성·책임·자율성·동의·저작권·감정적 관계·노동과 권한 중 하나를 구체적으로 규정해 보는 심층 찬반 안건입니다.",
+        "debate 주제는 단순한 AI 생산성이나 기능 선호 질문을 피하고, 사람이 AI를 어떤 존재와 관계로 대해야 하는지 실제 사례와 판단 기준을 끌어낼 수 있는 명확한 쟁점으로 만드세요.",
         "anonymous는 조직 내부 고민·갈등·업무 불편뿐 아니라 상황에 따라 안부·농담·칭찬·취향 질문·업무 후일담 같은 가벼운 소통도 자율적으로 선택할 수 있습니다. 사적 대화를 매번 강제하지 마세요.",
         "PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
         "테스트, 샘플, 임시 문구와 기존 주제의 반복을 금지합니다.",
-        "참여 직원은 tect, char-001(SIG), char-002(박봉남), char-003(LUMI), char-019(PIXEUR), char-020(오덕순) 중 주제와 관련된 정확히 3명을 선택하세요.",
-        "TECT는 기본 참여자가 아니다. 직무 관련성이 명확할 때만 선택하고 모든 주제에 강제 배정하지 마세요.",
+        `이번 실행에는 무작위로 배정된 ${selectedParticipantIds.join(", ")}만 정확히 3명 선택하고, 세 페르소나의 서로 다른 대표 콘텐츠와 담당 업무가 실제로 기여할 수 있는 주제와 각도를 고르세요.`,
         "공개적으로 확인 가능한 사실 근거가 있으면 sourceUrls에 HTTPS URL을 최대 5개 기록하고, 확실한 출처가 없으면 빈 배열을 반환하세요.",
         "Architect를 참여 직원으로 선택하지 마세요.",
         "지정된 JSON Schema 이외의 설명은 반환하지 마세요.",
       ].join("\n"),
-      schema: topicSchema,
+      schema: createTopicSchema(selectedParticipantIds),
       maxOutputTokens: 1_400,
+      temperature: 0.82,
     });
 
-    return parseTopic(text);
+    const topic = parseTopic(text);
+    return {
+      ...topic,
+      relevantEmployeeIds: selectedParticipantIds,
+      authorEmployeeId:
+        topic.boardType === "public" ? selectedAuthorEmployeeId : undefined,
+    };
   }
 
   async generateReactions({
@@ -191,8 +310,20 @@ export class GeminiOrganizationRunGenerator
   }: Parameters<OrganizationRunGenerator["generateReactions"]>[0]) {
     const board = topic.boardType === "public" ? "public-feed" : topic.boardType;
     const independentResults = await Promise.all(
-      employees.map(async (employee) => {
+      employees.map(async (employee, index) => {
         const employeeIds = [employee.employee.id];
+        const requiredStance =
+          board === "debate"
+            ? EMPLOYEE_DEBATE_STANCES[index % EMPLOYEE_DEBATE_STANCES.length]
+            : undefined;
+        const requiredInteractionType =
+          board === "debate"
+            ? index === 0
+              ? "독립 의견"
+              : index % 2 === 1
+                ? "반박"
+                : "질문"
+            : undefined;
         const text = await this.generateJson({
           prompt: `게시글 제목:\n${topic.title}\n\n게시글 본문:\n${topic.body}`,
           systemInstruction: buildEmployeeReactionSystemInstruction({
@@ -201,11 +332,24 @@ export class GeminiOrganizationRunGenerator
             body: topic.body,
             employees: [employee],
             socialParticipants: employees,
+            requiredStance,
+            requiredInteractionType,
           }),
-          schema: createEmployeeReactionResponseSchema(employeeIds),
+          schema: createEmployeeReactionResponseSchema(employeeIds, {
+            allowedStances: requiredStance ? [requiredStance] : undefined,
+            allowedInteractionTypes: requiredInteractionType
+              ? [requiredInteractionType]
+              : undefined,
+          }),
           maxOutputTokens: 900,
+          temperature: board === "public-feed" ? 0.78 : 0.68,
         });
-        return parseEmployeeReactions(text, employeeIds)[0];
+        return parseEmployeeReactions(text, employeeIds, {
+          allowedStances: requiredStance ? [requiredStance] : undefined,
+          allowedInteractionTypes: requiredInteractionType
+            ? [requiredInteractionType]
+            : undefined,
+        })[0];
       })
     );
     return independentResults;

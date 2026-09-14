@@ -7,9 +7,16 @@ import type {
 const QUESTION_ENDING = /(?:\?|까요|나요|습니까|인가요|일까요)(?:[.!…\s]|$)/u;
 
 export function selectPublicFeedAuthorEmployeeId(
-  employeeIds: readonly string[]
+  employeeIds: readonly string[],
+  entropy = employeeIds.join("|")
 ) {
-  return employeeIds.includes("tect") ? "tect" : employeeIds[0];
+  if (employeeIds.length === 0) return undefined;
+  let hash = 2166136261;
+  for (const character of entropy) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return employeeIds[(hash >>> 0) % employeeIds.length];
 }
 
 function areOpposingStances(
@@ -46,7 +53,8 @@ export function normalizePublicFeedAuthorship(
   const authorEmployeeId =
     post.authorEmployeeId ??
     selectPublicFeedAuthorEmployeeId(
-      post.reactions.map((reaction) => reaction.employeeId)
+      post.reactions.map((reaction) => reaction.employeeId),
+      post.id
     );
   if (!authorEmployeeId) return { ...post, replies: post.replies ?? [] };
 
