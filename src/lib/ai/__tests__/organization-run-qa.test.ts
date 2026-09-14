@@ -115,6 +115,57 @@ test("익명 채팅 QA와 Presenter가 실제 직원 신원을 공개하지 않�
   assert.match(leakedQA.reasons.join(" "), /신원/);
 });
 
+test("신규 익명 대화 턴은 시간순으로 표시하고 다른 참여자 답글만 연결한다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "tect",
+    "char-001",
+    "char-003",
+  ]);
+  const post = buildOrganizationRunPost({
+    runId: "anonymous-conversation-turns",
+    topic: {
+      ...anonymousTopic,
+      relevantEmployeeIds: ["tect", "char-001", "char-003"],
+    },
+    reactions: employees.map(({ employee }) => ({
+      employeeId: employee.id as "tect" | "char-001" | "char-003",
+      stance: "보류" as const,
+      interactionType: "독립 의견" as const,
+      coreOpinion: "집중이 흐려지는 순간을 각자 다르게 느낍니다.",
+      concerns: "정해진 휴식 규칙이 오히려 부담이 될 수 있습니다.",
+      suggestion: "부담 없는 방식부터 골라 봅니다.",
+    })),
+    anonymousTurns: [
+      { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
+      { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확한데요.", replyToTurnId: "turn-1" },
+      { turnId: "turn-3", employeeId: "char-003", content: "저도 화면 밝기부터 한 칸 내렸어요." },
+      { turnId: "turn-4", employeeId: "tect", content: "밝기보다 잠깐 먼 곳 보는 게 낫더라고요.", replyToTurnId: "turn-3" },
+      { turnId: "turn-5", employeeId: "char-003", content: "물 뜨러 갈 때 창가 한번 보고 와야겠네요." },
+      { turnId: "turn-6", employeeId: "char-001", content: "알림 없이 할 수 있는 방식이라 좋네요.", replyToTurnId: "turn-4" },
+    ],
+    publishedAt: "2026-09-14T11:10:00.000Z",
+  });
+
+  const qa = runOrganizationRunAutomatedQA({
+    topic: {
+      ...anonymousTopic,
+      relevantEmployeeIds: ["tect", "char-001", "char-003"],
+    },
+    post,
+    employees,
+    recentPosts: [],
+  });
+  const chat = presentEmployeeReactionsAsAnonymousChat(post);
+
+  assert.equal(qa.blocksPublication, false);
+  assert.equal(chat.messages.length, 6);
+  assert.equal(chat.messages[1].replyToMessageId, chat.messages[0].id);
+  assert.notEqual(chat.messages[1].alias, chat.messages[0].alias);
+  assert.ok(
+    Date.parse(chat.messages[1].createdAt) > Date.parse(chat.messages[0].createdAt)
+  );
+});
+
 test("일반 업무 담당자와 과소평가 표현은 채용·노무 고위험으로 판정하지 않는다", async () => {
   const employees = await getOrganizationRunCanonicalEmployees([
     "char-001",

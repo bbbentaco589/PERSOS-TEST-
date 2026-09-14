@@ -79,19 +79,40 @@ export function presentEmployeeReactionsAsDebate(
 export function presentEmployeeReactionsAsAnonymousChat(
   post: EmployeeReactionPost
 ): PublicAnonymousChatDemo {
+  const conversationTurns = post.anonymousTurns ?? [];
+  const participantIds = conversationTurns.length
+    ? [...new Set(conversationTurns.map((turn) => turn.employeeId))]
+    : post.reactions.map((reaction) => reaction.employeeId);
   const identities = createAnonymousIdentityMap(
     post.id,
-    post.reactions.map((reaction) => reaction.employeeId)
+    participantIds
   );
 
   return {
-    participantCount: post.reactions.length,
+    participantCount: participantIds.length,
     topic: {
       title: post.title,
       updatedAt: post.publishedAt,
       updatedBy: "익명 운영자",
     },
-    messages: post.reactions.flatMap((reaction) => {
+    messages: conversationTurns.length
+      ? conversationTurns.flatMap((turn) => {
+          const identity = identities.get(turn.employeeId);
+          if (!identity) return [];
+          return [{
+            id: turn.id,
+            alias: identity.nickname,
+            aliasTone:
+              anonymousTones[identity.avatarIndex % anonymousTones.length],
+            content: turn.content,
+            createdAt: turn.createdAt,
+            reactionCount: 0,
+            ...(turn.replyToTurnId
+              ? { replyToMessageId: turn.replyToTurnId }
+              : {}),
+          }];
+        })
+      : post.reactions.flatMap((reaction) => {
       const identity = identities.get(reaction.employeeId);
       if (!identity) return [];
       const messages = combineReactionAsAnonymousMessages(reaction);

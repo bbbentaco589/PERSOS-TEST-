@@ -30,6 +30,15 @@ export type EmployeeReactionReply = {
   createdAt: string;
 };
 
+export type EmployeeReactionAnonymousTurn = {
+  id: string;
+  postId: string;
+  employeeId: CharacterId;
+  content: string;
+  replyToTurnId?: string;
+  createdAt: string;
+};
+
 export type EmployeeReactionAuthorPosition = Pick<
   EmployeeReaction,
   | "employeeId"
@@ -53,6 +62,7 @@ export type EmployeeReactionPost = {
   publishedAt: string;
   reactions: EmployeeReaction[];
   replies?: EmployeeReactionReply[];
+  anonymousTurns?: EmployeeReactionAnonymousTurn[];
 };
 
 export type EmployeeReactionView = EmployeeReaction & {

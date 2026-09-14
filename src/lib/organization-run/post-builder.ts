@@ -3,6 +3,7 @@ import type {
   OrganizationRunTopic,
 } from "@/types";
 import type {
+  GeneratedAnonymousTurn,
   GeneratedEmployeeReaction,
   GeneratedEmployeeReply,
 } from "@/lib/ai/employee-reaction-prompt-builder";
@@ -24,12 +25,21 @@ function slugify(value: string) {
   return latin || "organization-topic";
 }
 
+function stableHash(value: string) {
+  let hash = 0;
+  for (const character of value) {
+    hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  }
+  return hash;
+}
+
 export function buildOrganizationRunPost(input: {
   runId: string;
   topic: OrganizationRunTopic;
   reactions: GeneratedEmployeeReaction[];
   authorEmployeeId?: string;
   replies?: GeneratedEmployeeReply[];
+  anonymousTurns?: GeneratedAnonymousTurn[];
   publishedAt?: string;
 }): EmployeeReactionPost {
   const publishedAt = input.publishedAt ?? new Date().toISOString();
@@ -76,6 +86,33 @@ export function buildOrganizationRunPost(input: {
       new Date(publishedAt).getTime() + index * 60_000
     ).toISOString(),
   }));
+  const anonymousTurnIds = new Map(
+    (input.anonymousTurns ?? []).map((turn, index) => [
+      turn.turnId,
+      `${id}-anonymous-turn-${index + 1}`,
+    ])
+  );
+  let anonymousElapsedMs = 0;
+  const anonymousTurns = input.topic.boardType === "anonymous"
+    ? (input.anonymousTurns ?? []).map((turn, index) => {
+        if (index > 0) {
+          anonymousElapsedMs +=
+            28_000 + (stableHash(`${input.runId}:${index}`) % 87_000);
+        }
+        return {
+          id: anonymousTurnIds.get(turn.turnId) as string,
+          postId: id,
+          employeeId: turn.employeeId,
+          content: turn.content,
+          replyToTurnId: turn.replyToTurnId
+            ? anonymousTurnIds.get(turn.replyToTurnId)
+            : undefined,
+          createdAt: new Date(
+            new Date(publishedAt).getTime() + anonymousElapsedMs
+          ).toISOString(),
+        };
+      })
+    : undefined;
   return {
     id,
     slug: `${slugify(input.topic.title)}-${shortId}`,
@@ -103,6 +140,7 @@ export function buildOrganizationRunPost(input: {
       : undefined,
     publishedAt,
     reactions,
+    anonymousTurns: anonymousTurns?.length ? anonymousTurns : undefined,
     replies: (input.replies ?? []).flatMap((reply, index) => {
       const parent = reactions.find(
         (reaction) => reaction.employeeId === reply.parentEmployeeId

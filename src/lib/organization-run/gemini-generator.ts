@@ -3,12 +3,15 @@ import { randomInt } from "node:crypto";
 import { DEFAULT_GEMINI_MODEL } from "@/lib/ai/config";
 
 import {
+  buildAnonymousConversationSystemInstruction,
   buildEmployeeReactionSystemInstruction,
   buildEmployeeAuthorReplySystemInstruction,
+  createAnonymousConversationResponseSchema,
   createEmployeeAuthorReplyResponseSchema,
   createEmployeeReactionResponseSchema,
   EMPLOYEE_DEBATE_STANCES,
   EMPLOYEE_REACTION_IDS,
+  parseAnonymousConversation,
   parseEmployeeReactions,
   parseEmployeeAuthorReply,
   type EmployeeReactionCanonical,
@@ -353,6 +356,33 @@ export class GeminiOrganizationRunGenerator
       })
     );
     return independentResults;
+  }
+
+  async generateAnonymousConversation({
+    topic,
+    employees,
+    draftReactions,
+  }: Parameters<
+    NonNullable<OrganizationRunGenerator["generateAnonymousConversation"]>
+  >[0]) {
+    const employeeIds = employees.map(({ employee }) => employee.id);
+    const text = await this.generateJson({
+      prompt: [
+        `채팅 주제: ${topic.title}`,
+        `채팅 안내: ${topic.body}`,
+        "직원별 독립 초안을 실제 대화 흐름으로 편집하세요.",
+      ].join("\n"),
+      systemInstruction: buildAnonymousConversationSystemInstruction({
+        title: topic.title,
+        body: topic.body,
+        employees,
+        draftReactions,
+      }),
+      schema: createAnonymousConversationResponseSchema(employeeIds),
+      maxOutputTokens: 1_500,
+      temperature: 0.92,
+    });
+    return parseAnonymousConversation(text, employeeIds);
   }
 
   async generateAuthorReplies({

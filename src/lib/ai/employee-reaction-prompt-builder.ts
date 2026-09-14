@@ -66,6 +66,13 @@ export type GeneratedEmployeeReply = {
   content: string;
 };
 
+export type GeneratedAnonymousTurn = {
+  turnId: string;
+  employeeId: (typeof EMPLOYEE_REACTION_IDS)[number];
+  content: string;
+  replyToTurnId?: string;
+};
+
 export class StructuredEmployeeReactionError extends Error {
   constructor(message: string) {
     super(message);
@@ -473,4 +480,173 @@ export function parseEmployeeAuthorReply(
       parentEmployeeId as GeneratedEmployeeReply["parentEmployeeId"],
     content: parsed.content.trim(),
   };
+}
+
+function buildAnonymousConversationEmployeeBrief(
+  canonical: EmployeeReactionCanonical
+) {
+  const voice = getCharacterPromptProfile(canonical.employee);
+  return [
+    `직원 ID: ${canonical.employee.id}`,
+    `성격: ${canonical.employee.personality}`,
+    `말투: ${voice.speakingStyle}`,
+    `첫 반응 방식: ${voice.openingMove}`,
+    `문장 호흡: ${voice.sentenceRhythm}`,
+    `고유 어휘: ${voice.signatureLanguage}`,
+    `피할 표현: ${voice.avoid}`,
+  ].join("\n");
+}
+
+export function buildAnonymousConversationSystemInstruction(input: {
+  title: string;
+  body: string;
+  employees: EmployeeReactionCanonical[];
+  draftReactions: GeneratedEmployeeReaction[];
+}) {
+  const draftByEmployeeId = new Map<string, GeneratedEmployeeReaction>(
+    input.draftReactions.map((reaction) => [reaction.employeeId, reaction])
+  );
+  return [
+    "당신은 PERSOS 전사원 익명 채팅의 대화 편집자입니다.",
+    "직원별 독립 초안을 보고 실제 여러 사람이 같은 채팅방에서 순서대로 반응한 것처럼 대화를 다시 구성하세요.",
+    `주제: ${input.title}`,
+    `안내: ${input.body}`,
+    "",
+    "참여 직원의 비공개 작성 맥락:",
+    ...input.employees.map((canonical, index) => {
+      const draft = draftByEmployeeId.get(canonical.employee.id);
+      return [
+        `[참여자 ${index + 1}]`,
+        buildAnonymousConversationEmployeeBrief(canonical),
+        `독립 초안: ${draft?.coreOpinion ?? ""} ${draft?.concerns ?? ""} ${draft?.suggestion ?? ""}`,
+      ].join("\n");
+    }),
+    "",
+    "대화 구성 규칙:",
+    "- 전체 6~9개 메시지를 시간순으로 만든다. 각 직원은 1~4회 발언하되 모두 같은 횟수로 맞추지 않는다.",
+    "- 첫 메시지부터 세 직원이 차례대로 발표하는 구조를 피한다. 짧은 맞장구, 질문, 반론, 경험 한 조각, 농담, 말끝 흐리기 등을 상황에 맞게 섞는다.",
+    "- 최소 2개 메시지는 이전의 다른 직원 메시지에 답한다. 자기 메시지에 답하거나 아직 나오지 않은 메시지를 참조하지 않는다.",
+    "- 답글은 상대 문장의 구체적인 단어나 관점을 실제로 이어받아야 한다. 서로 무관한 독립 의견을 답글처럼 연결하지 않는다.",
+    "- 모든 사람이 결론이나 해결책을 제시할 필요는 없다. 질문만 남기거나 짧게 공감하고 끝나는 발언도 허용한다.",
+    "- 한 메시지는 공백 포함 8~110자로 쓰고, 짧은 메시지와 긴 메시지를 섞는다. 보고서형 3단 구성과 비슷한 문장 길이의 반복을 금지한다.",
+    "- '내 생각에는', '제 생각에는', '개인적으로', '저는', '중요합니다', '필요합니다'로 시작하지 않는다.",
+    "- 직원의 실명, 영문명, 직책, 소속, 직원 ID를 content에 절대 쓰지 않는다. employeeId는 구조화 필드에만 기록한다.",
+    "- 독립 초안의 의미는 활용하되 문장을 그대로 세 조각으로 옮기거나 모든 내용을 억지로 소비하지 않는다.",
+    "- turnId는 등장 순서대로 turn-1, turn-2 형식으로 작성한다. replyToTurnId가 없으면 해당 필드를 생략한다.",
+    "- 요청된 JSON Schema 이외의 설명은 반환하지 않는다.",
+  ].join("\n");
+}
+
+export function createAnonymousConversationResponseSchema(
+  employeeIds: readonly string[]
+) {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["turns"],
+    properties: {
+      turns: {
+        type: "array",
+        minItems: 6,
+        maxItems: 9,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["turnId", "employeeId", "content"],
+          properties: {
+            turnId: { type: "string", minLength: 6, maxLength: 20 },
+            employeeId: { type: "string", enum: [...employeeIds] },
+            content: { type: "string", minLength: 8, maxLength: 110 },
+            replyToTurnId: { type: "string", minLength: 6, maxLength: 20 },
+          },
+        },
+      },
+    },
+  };
+}
+
+export function parseAnonymousConversation(
+  value: string,
+  employeeIds: readonly string[]
+): GeneratedAnonymousTurn[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    throw new StructuredEmployeeReactionError(
+      "Gemini 익명 대화 JSON을 해석하지 못했습니다."
+    );
+  }
+  if (
+    !isRecord(parsed) ||
+    !Array.isArray(parsed.turns) ||
+    parsed.turns.length < 6 ||
+    parsed.turns.length > 9
+  ) {
+    throw new StructuredEmployeeReactionError(
+      "Gemini 익명 대화에는 6~9개의 메시지가 필요합니다."
+    );
+  }
+
+  const rawTurns = parsed.turns as unknown[];
+  const seenTurnIds = new Set<string>();
+  const participantCounts = new Map(employeeIds.map((id) => [id, 0]));
+  let replyCount = 0;
+  const turns = rawTurns.map((turn) => {
+    if (
+      !isRecord(turn) ||
+      !hasText(turn.turnId) ||
+      seenTurnIds.has(turn.turnId) ||
+      !employeeIds.includes(String(turn.employeeId)) ||
+      !hasText(turn.content) ||
+      turn.content.trim().length < 8 ||
+      turn.content.trim().length > 110 ||
+      (turn.replyToTurnId !== undefined && !hasText(turn.replyToTurnId))
+    ) {
+      throw new StructuredEmployeeReactionError(
+        "Gemini 익명 대화 메시지 형식이 올바르지 않습니다."
+      );
+    }
+    const replyToTurnId = hasText(turn.replyToTurnId)
+      ? turn.replyToTurnId
+      : undefined;
+    if (replyToTurnId) {
+      const parent = rawTurns.find(
+        (candidate) =>
+          isRecord(candidate) && candidate.turnId === replyToTurnId
+      );
+      if (
+        !seenTurnIds.has(replyToTurnId) ||
+        !isRecord(parent) ||
+        parent.employeeId === turn.employeeId
+      ) {
+        throw new StructuredEmployeeReactionError(
+          "익명 대화 답글은 앞서 나온 다른 직원 메시지만 참조할 수 있습니다."
+        );
+      }
+      replyCount += 1;
+    }
+    seenTurnIds.add(turn.turnId);
+    participantCounts.set(
+      String(turn.employeeId),
+      (participantCounts.get(String(turn.employeeId)) ?? 0) + 1
+    );
+    return {
+      turnId: turn.turnId,
+      employeeId:
+        turn.employeeId as GeneratedAnonymousTurn["employeeId"],
+      content: turn.content.trim(),
+      ...(replyToTurnId ? { replyToTurnId } : {}),
+    };
+  });
+
+  if (
+    [...participantCounts.values()].some((count) => count < 1 || count > 4) ||
+    replyCount < 2
+  ) {
+    throw new StructuredEmployeeReactionError(
+      "익명 대화의 참여 횟수 또는 답글 수가 정책과 맞지 않습니다."
+    );
+  }
+  return turns;
 }

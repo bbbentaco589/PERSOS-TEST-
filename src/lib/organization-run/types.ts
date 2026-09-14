@@ -6,6 +6,7 @@ import type {
   OrganizationRunTopic,
 } from "@/types";
 import type {
+  GeneratedAnonymousTurn,
   EmployeeReactionCanonical,
   GeneratedEmployeeReply,
   GeneratedEmployeeReaction,
@@ -22,6 +23,11 @@ export interface OrganizationRunGenerator {
     topic: OrganizationRunTopic;
     employees: EmployeeReactionCanonical[];
   }): Promise<GeneratedEmployeeReaction[]>;
+  generateAnonymousConversation?(input: {
+    topic: OrganizationRunTopic;
+    employees: EmployeeReactionCanonical[];
+    draftReactions: GeneratedEmployeeReaction[];
+  }): Promise<GeneratedAnonymousTurn[]>;
   generateAuthorReplies?(input: {
     topic: OrganizationRunTopic;
     author: EmployeeReactionCanonical;

@@ -22,6 +22,10 @@ import {
 } from "./public-feed-interactions";
 import { validateOrganizationRunTopic } from "./topic-validation";
 import type {
+  GeneratedAnonymousTurn,
+  GeneratedEmployeeReaction,
+} from "@/lib/ai/employee-reaction-prompt-builder";
+import type {
   OrganizationRunGenerator,
   OrganizationRunPublisher,
 } from "./types";
@@ -79,6 +83,45 @@ export class OrganizationRunError extends Error {
 export type OrganizationRunProgress = (
   stage: Exclude<OrganizationRunStage, "idle" | "completed" | "failed">
 ) => void;
+
+function createFallbackAnonymousConversation(
+  reactions: GeneratedEmployeeReaction[],
+  entropy: string
+): GeneratedAnonymousTurn[] {
+  if (!reactions.length) return [];
+  const offset = [...entropy].reduce(
+    (sum, character) => sum + character.charCodeAt(0),
+    0
+  ) % reactions.length;
+  const ordered = [
+    ...reactions.slice(offset),
+    ...reactions.slice(0, offset),
+  ];
+  const targetCount = Math.min(9, Math.max(6, ordered.length * 2));
+  const turns: GeneratedAnonymousTurn[] = ordered.map((reaction, index) => ({
+    turnId: `turn-${index + 1}`,
+    employeeId: reaction.employeeId,
+    content: reaction.coreOpinion,
+  }));
+
+  while (turns.length < targetCount) {
+    const sequenceIndex = turns.length - ordered.length;
+    const reaction = ordered[(sequenceIndex + 1) % ordered.length];
+    const parent = [...turns]
+      .reverse()
+      .find((turn) => turn.employeeId !== reaction.employeeId);
+    turns.push({
+      turnId: `turn-${turns.length + 1}`,
+      employeeId: reaction.employeeId,
+      content:
+        sequenceIndex % 2 === 0
+          ? reaction.concerns
+          : reaction.suggestion,
+      ...(parent ? { replyToTurnId: parent.turnId } : {}),
+    });
+  }
+  return turns;
+}
 
 async function generatePublicFeedInteractions(input: {
   selectionEntropy: string;
@@ -304,6 +347,27 @@ export async function runAIOrganization(input: {
       );
     }
 
+    let anonymousTurns: GeneratedAnonymousTurn[] | undefined;
+    if (topic.boardType === "anonymous") {
+      if (input.generator.generateAnonymousConversation) {
+        geminiCallCount += 1;
+        try {
+          anonymousTurns = await input.generator.generateAnonymousConversation({
+            topic,
+            employees,
+            draftReactions: reactions,
+          });
+        } catch (error) {
+          console.warn(JSON.stringify({
+            event: "anonymous_conversation_fallback",
+            runId,
+            reason: error instanceof Error ? error.message : "unknown_error",
+          }));
+        }
+      }
+      anonymousTurns ??= createFallbackAnonymousConversation(reactions, runId);
+    }
+
     const interactions = await generatePublicFeedInteractions({
       selectionEntropy: runId,
       generator: input.generator,
@@ -320,6 +384,7 @@ export async function runAIOrganization(input: {
       reactions,
       authorEmployeeId: interactions.authorEmployeeId,
       replies: interactions.replies,
+      anonymousTurns,
     });
     postForFailure = post;
     const qa = runOrganizationRunAutomatedQA({
@@ -479,10 +544,11 @@ export async function runAIOrganizationFromEnvironment(input?: {
       maxRepliesPerPost: policy.maxRepliesPerPost,
     });
     if (trigger === "scheduled") {
-      const activityCount = 1
-        + (result.post.authorPosition ? 1 : 0)
-        + result.post.reactions.length
-        + (result.post.replies?.length ?? 0);
+      const visibleInteractionCount = result.post.anonymousTurns?.length ??
+        ((result.post.authorPosition ? 1 : 0) +
+          result.post.reactions.length +
+          (result.post.replies?.length ?? 0));
+      const activityCount = 1 + visibleInteractionCount;
       await settleAutomationBudget({ reservedCalls, actualCalls: result.geminiCallCount, activities: activityCount });
       budgetSettled = true;
       try {
@@ -615,6 +681,28 @@ export async function runManualAIOrganization(input: {
       );
     }
 
+    let anonymousTurns: GeneratedAnonymousTurn[] | undefined;
+    let anonymousCallCount = 0;
+    if (topic.boardType === "anonymous") {
+      if (input.generator.generateAnonymousConversation) {
+        anonymousCallCount = 1;
+        try {
+          anonymousTurns = await input.generator.generateAnonymousConversation({
+            topic,
+            employees,
+            draftReactions: reactions,
+          });
+        } catch (error) {
+          console.warn(JSON.stringify({
+            event: "anonymous_conversation_fallback",
+            runId,
+            reason: error instanceof Error ? error.message : "unknown_error",
+          }));
+        }
+      }
+      anonymousTurns ??= createFallbackAnonymousConversation(reactions, runId);
+    }
+
     const interactions = await generatePublicFeedInteractions({
       selectionEntropy: runId,
       generator: input.generator,
@@ -630,6 +718,7 @@ export async function runManualAIOrganization(input: {
       reactions,
       authorEmployeeId: interactions.authorEmployeeId,
       replies: interactions.replies,
+      anonymousTurns,
     });
     postForFailure = post;
     const qa = runOrganizationRunAutomatedQA({
@@ -660,7 +749,8 @@ export async function runManualAIOrganization(input: {
         boardType: topic.boardType,
         title: topic.title,
         participantIds: topic.relevantEmployeeIds,
-        geminiCallCount: employees.length + interactions.replyCallCount,
+        geminiCallCount:
+          employees.length + interactions.replyCallCount + anonymousCallCount,
         post,
         published: false,
         reviewPending: true,
@@ -690,7 +780,8 @@ export async function runManualAIOrganization(input: {
         boardType: topic.boardType,
         title: topic.title,
         participantIds: topic.relevantEmployeeIds,
-        geminiCallCount: employees.length + interactions.replyCallCount,
+        geminiCallCount:
+          employees.length + interactions.replyCallCount + anonymousCallCount,
         post,
         published: false,
         reviewPending: true,
@@ -708,7 +799,8 @@ export async function runManualAIOrganization(input: {
       publicUrl: input.manualInput.publish
         ? `/discussion/${post.slug}`
         : undefined,
-      geminiCallCount: employees.length + interactions.replyCallCount,
+      geminiCallCount:
+        employees.length + interactions.replyCallCount + anonymousCallCount,
       post,
       published: input.manualInput.publish,
       reviewPending: false,

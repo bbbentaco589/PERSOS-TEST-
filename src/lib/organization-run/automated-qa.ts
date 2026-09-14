@@ -122,6 +122,7 @@ export function runOrganizationRunAutomatedQA(input: {
       reaction.concerns,
       reaction.suggestion,
     ]),
+    ...(input.post.anonymousTurns ?? []).map((turn) => turn.content),
     ...(input.post.replies ?? []).map((reply) => reply.content),
     ...(input.post.authorPosition
       ? [
@@ -191,8 +192,48 @@ export function runOrganizationRunAutomatedQA(input: {
     const employeeById = new Map(
       input.employees.map((canonical) => [canonical.employee.id, canonical])
     );
-    for (const reaction of input.post.reactions) {
-      const canonical = employeeById.get(reaction.employeeId);
+    const turns = input.post.anonymousTurns ?? [];
+    if (turns.length) {
+      const priorTurns = new Map<string, string>();
+      const representedEmployees = new Set<string>();
+      let invalidConversationLink = false;
+      for (const turn of turns) {
+        const parentEmployeeId = turn.replyToTurnId
+          ? priorTurns.get(turn.replyToTurnId)
+          : undefined;
+        if (
+          priorTurns.has(turn.id) ||
+          !employeeById.has(turn.employeeId) ||
+          (turn.replyToTurnId &&
+            (!parentEmployeeId || parentEmployeeId === turn.employeeId))
+        ) {
+          invalidConversationLink = true;
+        }
+        priorTurns.set(turn.id, turn.employeeId);
+        representedEmployees.add(turn.employeeId);
+      }
+      if (
+        invalidConversationLink ||
+        representedEmployees.size !== employeeById.size
+      ) {
+        reasons.push("익명 대화의 참여자 또는 답글 연결이 올바르지 않음");
+      }
+    }
+    const authoredEntries = turns.length
+      ? turns.map((turn) => ({
+          employeeId: turn.employeeId,
+          text: turn.content,
+        }))
+      : input.post.reactions.map((reaction) => ({
+          employeeId: reaction.employeeId,
+          text: [
+            reaction.coreOpinion,
+            reaction.concerns,
+            reaction.suggestion,
+          ].join("\n"),
+        }));
+    for (const entry of authoredEntries) {
+      const canonical = employeeById.get(entry.employeeId);
       if (!canonical) continue;
       const { employee, divisionName, teamName } = canonical;
       const identityTerms = [
@@ -203,12 +244,7 @@ export function runOrganizationRunAutomatedQA(input: {
         teamName,
         ...getEmployeeSocialSelfIdentifyingTerms(employee.id),
       ].filter((term) => term.trim().length >= 2);
-      const authoredText = [
-        reaction.coreOpinion,
-        reaction.concerns,
-        reaction.suggestion,
-      ].join("\n");
-      if (identityTerms.some((term) => authoredText.includes(term))) {
+      if (identityTerms.some((term) => entry.text.includes(term))) {
         const reason = "익명 채팅에서 직원 신원·직책·소속 추정 가능";
         reasons.push(reason);
         publicationBlockingReasons.push(reason);

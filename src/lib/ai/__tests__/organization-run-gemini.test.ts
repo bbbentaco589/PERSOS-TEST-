@@ -198,6 +198,64 @@ test("Architect는 익명 주제에서 가벼운 사적 소통을 선택적으�
   assert.match(calls[0].systemInstruction, /사적 대화를 매번 강제하지 마세요/);
 });
 
+test("익명 반응 초안을 한 번의 가변 대화 턴으로 재구성한다", async () => {
+  const employees = await getOrganizationRunCanonicalEmployees([
+    "tect",
+    "char-001",
+    "char-003",
+  ]);
+  const calls: Array<{
+    schema: Record<string, unknown>;
+    systemInstruction: string;
+    temperature?: number;
+  }> = [];
+  const generator = new GeminiOrganizationRunGenerator(
+    "test-key-not-used",
+    async (input) => {
+      calls.push(input);
+      return JSON.stringify({
+        turns: [
+          { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
+          { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확한데요.", replyToTurnId: "turn-1" },
+          { turnId: "turn-3", employeeId: "char-003", content: "저도 화면 밝기부터 한 칸 내렸어요." },
+          { turnId: "turn-4", employeeId: "tect", content: "잠깐 먼 곳을 보는 편이 더 낫더라고요.", replyToTurnId: "turn-3" },
+          { turnId: "turn-5", employeeId: "char-003", content: "물 뜨러 갈 때 창가 한번 보고 와야겠네요." },
+          { turnId: "turn-6", employeeId: "char-001", content: "알림 없이 할 수 있는 방식이라 마음에 듭니다.", replyToTurnId: "turn-4" },
+        ],
+      });
+    }
+  );
+  const draftReactions = employees.map(({ employee }, index) => ({
+    employeeId: employee.id as "tect" | "char-001" | "char-003",
+    stance: index === 0 ? "찬성" as const : "보류" as const,
+    interactionType: "독립 의견" as const,
+    coreOpinion: "모니터를 오래 보면 눈이 먼저 피곤해집니다.",
+    concerns: "휴식 알림이 업무처럼 느껴질 때가 있습니다.",
+    suggestion: "잠깐 먼 곳을 바라보는 방법을 시험합니다.",
+  }));
+  const topic: OrganizationRunTopic = {
+    boardType: "anonymous",
+    title: "집중이 흐려질 때 각자 잠깐 쉬는 방식",
+    body: "업무 중 자연스럽게 쉬는 습관을 익명으로 나눕니다.",
+    topicSummary: "집중과 휴식에 관한 익명 대화입니다.",
+    reasonForBoardSelection: "직원들의 솔직한 경험을 나누기 적합합니다.",
+    relevantEmployeeIds: ["tect", "char-001", "char-003"],
+    sourceUrls: [],
+  };
+
+  const turns = await generator.generateAnonymousConversation({
+    topic,
+    employees,
+    draftReactions,
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(turns.length, 6);
+  assert.equal(calls[0].temperature, 0.92);
+  assert.match(calls[0].systemInstruction, /실제 여러 사람이 같은 채팅방/);
+  assert.match(calls[0].systemInstruction, /최소 2개 메시지/);
+});
+
 test("공개 피드는 최근 게시자를 피하고 선택된 페르소나 프로필로 주제를 만든다", async () => {
   const employees = await getOrganizationRunCanonicalEmployees([
     "char-001",

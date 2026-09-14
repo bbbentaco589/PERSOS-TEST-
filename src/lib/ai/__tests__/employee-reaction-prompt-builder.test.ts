@@ -3,8 +3,10 @@ import test from "node:test";
 
 import { characters } from "@/data";
 import {
+  buildAnonymousConversationSystemInstruction,
   buildEmployeeReactionSystemInstruction,
   EMPLOYEE_REACTION_IDS,
+  parseAnonymousConversation,
   parseEmployeeReactions,
   StructuredEmployeeReactionError,
 } from "@/lib/ai/employee-reaction-prompt-builder";
@@ -111,6 +113,55 @@ test("익명 채팅 Prompt는 획일적인 도입부와 보고서 문체를 금�
   assert.match(prompt, /'내 생각에는', '제 생각에는', '개인적으로', '저는'/);
   assert.match(prompt, /같은 도입부나 문장 틀을 반복하지 않는다/);
   assert.match(prompt, /해결책이나 행동 지시로 끝내지 않아도 된다/);
+});
+
+test("익명 대화 편집 Prompt는 가변 발언과 타인 답글 구조를 요구한다", () => {
+  const employees = canonicalEmployees.slice(0, 3);
+  const draftReactions = employees.map(({ employee }, index) => ({
+    employeeId: employee.id as (typeof EMPLOYEE_REACTION_IDS)[number],
+    stance: index === 0 ? "찬성" as const : "보류" as const,
+    interactionType: "독립 의견" as const,
+    coreOpinion: "모니터를 오래 보면 집중보다 눈 피로가 먼저 느껴집니다.",
+    concerns: "휴식 알림까지 업무처럼 느껴질 때가 있습니다.",
+    suggestion: "잠깐 화면에서 눈을 떼는 정도부터 해볼까요?",
+  }));
+  const prompt = buildAnonymousConversationSystemInstruction({
+    title: "집중이 흐려질 때 각자 잠깐 쉬는 방식",
+    body: "업무 중 자연스럽게 쉬는 습관을 익명으로 나눕니다.",
+    employees,
+    draftReactions,
+  });
+
+  assert.match(prompt, /전체 6~9개 메시지/);
+  assert.match(prompt, /모두 같은 횟수로 맞추지 않는다/);
+  assert.match(prompt, /자기 메시지에 답하거나/);
+  assert.match(prompt, /짧은 맞장구, 질문, 반론/);
+  assert.match(prompt, /직원 ID를 content에 절대 쓰지 않는다/);
+});
+
+test("익명 대화 파서는 앞선 다른 참여자 답글만 허용한다", () => {
+  const employeeIds = ["tect", "char-001", "char-003"];
+  const payload = {
+    turns: [
+      { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
+      { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확한데요.", replyToTurnId: "turn-1" },
+      { turnId: "turn-3", employeeId: "char-003", content: "저도 화면 밝기부터 한 칸 내렸어요." },
+      { turnId: "turn-4", employeeId: "tect", content: "밝기보다 창밖 먼 곳 보는 게 더 낫더라고요.", replyToTurnId: "turn-3" },
+      { turnId: "turn-5", employeeId: "char-003", content: "그럼 물 뜨러 갈 때 창가 한번 보고 와야겠네요." },
+      { turnId: "turn-6", employeeId: "char-001", content: "알림 없이도 할 수 있는 방식이라 마음에 듭니다.", replyToTurnId: "turn-4" },
+    ],
+  };
+
+  const turns = parseAnonymousConversation(JSON.stringify(payload), employeeIds);
+  assert.equal(turns.length, 6);
+  assert.equal(turns[1].replyToTurnId, "turn-1");
+
+  const selfReply = structuredClone(payload);
+  selfReply.turns[1].employeeId = "tect";
+  assert.throws(
+    () => parseAnonymousConversation(JSON.stringify(selfReply), employeeIds),
+    /앞서 나온 다른 직원/
+  );
 });
 
 test("ON 상태 6명의 Voice Direction이 말투와 사고 순서를 서로 다르게 강제한다", () => {
