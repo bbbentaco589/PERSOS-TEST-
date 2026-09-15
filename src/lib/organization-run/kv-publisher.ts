@@ -18,6 +18,8 @@ import { listCharacterContextRecords } from "@/lib/character-context-store";
 
 import type { OrganizationRunPublisher } from "./types";
 import { normalizePublicFeedAuthorship } from "./public-feed-interactions";
+import { koreaDate } from "./anonymous-schedule";
+import { releaseReactionStage, splitInitialReactions, type PendingReactions } from "./staged-reactions";
 
 type PublishedBoard = Exclude<EmployeeReactionBoard, "investor-demo">;
 
@@ -67,6 +69,8 @@ function createKeys(prefix: string) {
     memories: `${prefix}:automation:memory:all`,
     employeeMemories: (employeeId: string) => `${prefix}:automation:memory:employee:${employeeId}`,
     relationships: `${prefix}:automation:relationships:all`,
+    pendingReactions: `${prefix}:automation:pending-reactions:all`,
+    pendingReaction: (slug: string) => `${prefix}:automation:pending-reactions:${slug}`,
   } as const;
 }
 
@@ -211,6 +215,54 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     await this.recordCharacterContinuity(post);
   }
 
+  async publishStaged(post: EmployeeReactionPost, runId: string) {
+    const { initial, pending } = splitInitialReactions(post);
+    if (!pending) return this.publish(post, runId);
+    const slugs = (await this.redis.get<string[]>(this.key.pendingReactions)) ?? [];
+    await this.redis.multi()
+      .set(this.key.pendingReaction(post.slug), pending, { ex: 172800 })
+      .set(this.key.pendingReactions, [post.slug, ...slugs.filter((slug) => slug !== post.slug)].slice(0, 200))
+      .exec();
+    await this.publish(initial, runId);
+  }
+
+  async releaseStagedReactions(stage: 1 | 2) {
+    const slugs = (await this.redis.get<string[]>(this.key.pendingReactions)) ?? [];
+    let released = 0;
+    const remainingSlugs: string[] = [];
+    for (const slug of slugs) {
+      const pending = await this.redis.get<PendingReactions>(this.key.pendingReaction(slug));
+      if (!pending) continue;
+      if (koreaDate(new Date(pending.publishedAt)) !== koreaDate()) {
+        remainingSlugs.push(slug);
+        continue;
+      }
+      const post = await this.getPost(slug);
+      if (!post) continue;
+      const next = releaseReactionStage(post, pending, stage, new Date().toISOString());
+      if (next.post === post) {
+        remainingSlugs.push(slug);
+        continue;
+      }
+      released += next.post.reactions.length - post.reactions.length + (next.post.replies?.length ?? 0) - (post.replies?.length ?? 0);
+      await this.redis.set(this.key.post(slug), next.post);
+      const previousParticipants = new Set([
+        ...(post.authorEmployeeId ? [post.authorEmployeeId] : []),
+        ...post.reactions.map((reaction) => reaction.employeeId),
+        ...(post.replies ?? []).map((reply) => reply.employeeId),
+      ]);
+      await this.recordCharacterContinuity(next.post, previousParticipants);
+      if (next.pending) {
+        await this.redis.set(this.key.pendingReaction(slug), next.pending, { ex: 172800 });
+        remainingSlugs.push(slug);
+      } else {
+        await this.redis.del(this.key.pendingReaction(slug));
+      }
+    }
+    await this.redis.set(this.key.pendingReactions, remainingSlugs);
+    return released;
+  }
+
   async listPostsByEmployeeId(employeeId: string) {
     const indexedSlugs = await this.redis.get<string[]>(this.key.employeePosts(employeeId));
     if (!indexedSlugs) {
@@ -225,7 +277,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     return posts.filter((post): post is EmployeeReactionPost => Boolean(post));
   }
 
-  private async recordCharacterContinuity(post: EmployeeReactionPost) {
+  private async recordCharacterContinuity(post: EmployeeReactionPost, previousParticipants = new Set<string>()) {
     const policy = await getAutomationPolicy();
     const boardType: CharacterActivityMemory["boardType"] = post.board === "public-feed" ? "public" : post.board;
     const participantIds = [...new Set([
@@ -264,6 +316,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     for (const employeeId of participantIds) {
       for (const counterpartEmployeeId of participantIds) {
         if (employeeId === counterpartEmployeeId) continue;
+        if (previousParticipants.has(employeeId) && previousParticipants.has(counterpartEmployeeId)) continue;
         const relationKey = `${employeeId}:${counterpartEmployeeId}`;
         const current = relationshipMap.get(relationKey);
         relationshipMap.set(relationKey, {

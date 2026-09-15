@@ -200,6 +200,7 @@ export async function runAIOrganization(input: {
   fullReviewMode?: boolean;
   publishDespiteQAWarnings?: boolean;
   maxRepliesPerPost?: number;
+  stageComments?: boolean;
   onProgress?: OrganizationRunProgress;
 }): Promise<OrganizationRunResult> {
   const runId = randomUUID();
@@ -444,7 +445,11 @@ export async function runAIOrganization(input: {
 
     stage = "publishing";
     input.onProgress?.("publishing");
-    await input.publisher.publish(post, runId);
+    if (input.stageComments && input.publisher.publishStaged) {
+      await input.publisher.publishStaged(post, runId);
+    } else {
+      await input.publisher.publish(post, runId);
+    }
 
     return {
       runId,
@@ -491,6 +496,7 @@ export async function runAIOrganization(input: {
 export async function runAIOrganizationFromEnvironment(input?: {
   forcedBoardType?: OrganizationRunBoardType;
   trigger?: "scheduled" | "manual";
+  scheduledSlot?: number;
 }) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
@@ -522,7 +528,10 @@ export async function runAIOrganizationFromEnvironment(input?: {
       await saveAutomationRun({ trigger, boardType: input?.forcedBoardType, status: "skipped", geminiCallCount: 0, activityCount: 0, message: "Gemini 무료 프로젝트 확인 가드가 설정되지 않았습니다." });
       throw new OrganizationRunError("AI_AUTOMATION_FREE_TIER_CONFIRMED=true 확인 전에는 예약 AI 호출을 실행하지 않습니다.", "topic", 412, false);
     }
-    const reservation = await reserveAutomationBudget({ policy, expectedCalls: reservedCalls, boardType: input?.forcedBoardType });
+    const reservationKey = input?.forcedBoardType === "anonymous" && input.scheduledSlot
+      ? `anonymous:${input.scheduledSlot}`
+      : undefined;
+    const reservation = await reserveAutomationBudget({ policy, expectedCalls: reservedCalls, boardType: input?.forcedBoardType, reservationKey });
     if (!reservation.allowed) {
       const message = reservation.reason === "daily_run_limit"
         ? "일일 자동 실행 상한에 도달했습니다."
@@ -542,13 +551,13 @@ export async function runAIOrganizationFromEnvironment(input?: {
       fullReviewMode: trigger === "scheduled" ? !policy.autoPublish : undefined,
       publishDespiteQAWarnings: trigger === "scheduled" && policy.autoPublish,
       maxRepliesPerPost: policy.maxRepliesPerPost,
+      stageComments: trigger === "scheduled",
     });
     if (trigger === "scheduled") {
       const visibleInteractionCount = result.post.anonymousTurns?.length ??
         ((result.post.authorPosition ? 1 : 0) +
-          result.post.reactions.length +
-          (result.post.replies?.length ?? 0));
-      const activityCount = 1 + visibleInteractionCount;
+          (result.post.board === "anonymous" ? result.post.reactions.length : Math.min(1, result.post.reactions.length)));
+      const activityCount = result.published ? 1 + visibleInteractionCount : 0;
       await settleAutomationBudget({ reservedCalls, actualCalls: result.geminiCallCount, activities: activityCount });
       budgetSettled = true;
       try {

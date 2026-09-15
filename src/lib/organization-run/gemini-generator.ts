@@ -16,7 +16,7 @@ import {
   parseEmployeeAuthorReply,
   type EmployeeReactionCanonical,
 } from "@/lib/ai/employee-reaction-prompt-builder";
-import type { OrganizationRunTopic } from "@/types";
+import type { OrganizationRunBoardType, OrganizationRunTopic } from "@/types";
 import {
   MAX_AUTOMATED_ORGANIZATION_RUN_PARTICIPANTS,
   MIN_AUTOMATED_ORGANIZATION_RUN_PARTICIPANTS,
@@ -84,7 +84,8 @@ function shuffleEmployeeIds(employeeIds: readonly string[]) {
 
 function selectTopicParticipants(
   candidateIds: readonly string[],
-  recentPublicAuthorEmployeeIds: readonly string[]
+  recentPublicAuthorEmployeeIds: readonly string[],
+  boardType?: OrganizationRunBoardType
 ) {
   const uniqueCandidateIds = [...new Set(candidateIds)];
   const recentAuthors = new Set(recentPublicAuthorEmployeeIds.slice(0, 2));
@@ -96,7 +97,8 @@ function selectTopicParticipants(
   const participantPool = shuffleEmployeeIds(
     uniqueCandidateIds.filter((employeeId) => employeeId !== authorEmployeeId)
   );
-  return [authorEmployeeId, ...participantPool.slice(0, 2)].filter(Boolean);
+  const targetCount = boardType === "anonymous" ? 3 : randomInt(3, 6);
+  return [authorEmployeeId, ...participantPool.slice(0, targetCount - 1)].filter(Boolean);
 }
 
 function buildParticipantBrief(
@@ -254,7 +256,8 @@ export class GeminiOrganizationRunGenerator
         : [...EMPLOYEE_REACTION_IDS];
     const selectedParticipantIds = selectTopicParticipants(
       participantPool,
-      recentPublicAuthorEmployeeIds
+      recentPublicAuthorEmployeeIds,
+      forcedBoardType
     );
     const selectedAuthorEmployeeId = selectedParticipantIds[0];
     const selectedParticipants = selectedParticipantIds
@@ -279,7 +282,7 @@ export class GeminiOrganizationRunGenerator
         "당신은 PERSOS의 중앙 System Persona인 Architect입니다.",
         "직원 반응 참여자가 아니라 주제의 품질, 게시판 적합성, 중복 여부만 조정합니다.",
         "public은 중앙 조직 공지판이 아니라, 선택된 AI 페르소나가 자기 대표 콘텐츠와 담당 업무에서 발견한 관찰·판단 기준·제작 과정·실무 팁을 본인 명의로 발행하는 전문 피드입니다.",
-        `public을 선택하면 게시자는 반드시 ${selectedAuthorEmployeeId}이며, 제목·본문·요약의 중심을 이 게시자의 대표 콘텐츠, 담당 업무, 일하는 방식 중 하나에 둡니다. 나머지 두 명은 댓글 참여자입니다.`,
+        `public을 선택하면 게시자는 반드시 ${selectedAuthorEmployeeId}이며, 제목·본문·요약의 중심을 이 게시자의 대표 콘텐츠, 담당 업무, 일하는 방식 중 하나에 둡니다. 나머지 참여자는 댓글 참여자입니다.`,
         "public 제목은 개인 에디토리얼처럼 자연스럽게 쓰고, '제1분기' 같은 분기 표기, 가상 오피스 인프라 고도화, 전사 운영 현황, 성과·실적·로드맵 공유 같은 근거 없는 사내 공지문 형식을 금지합니다.",
         "public은 매번 현장 관찰, 판단 기준, 비교·선택 가이드, 제작 비하인드, 작은 실험, 큐레이션 중 최근 주제와 겹치지 않는 한 가지 형식을 택합니다. 서로 다른 형식을 한 글에 억지로 합치지 않습니다.",
         "public 제목과 본문에는 게시자의 이름이나 직책을 자기소개처럼 붙이지 말고, 독자가 바로 가져갈 수 있는 구체적인 질문·기준·팁을 전면에 둡니다.",
@@ -288,7 +291,7 @@ export class GeminiOrganizationRunGenerator
         "anonymous는 조직 내부 고민·갈등·업무 불편뿐 아니라 상황에 따라 안부·농담·칭찬·취향 질문·업무 후일담 같은 가벼운 소통도 자율적으로 선택할 수 있습니다. 사적 대화를 매번 강제하지 마세요.",
         "PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
         "테스트, 샘플, 임시 문구와 기존 주제의 반복을 금지합니다.",
-        `이번 실행에는 무작위로 배정된 ${selectedParticipantIds.join(", ")}만 정확히 3명 선택하고, 세 페르소나의 서로 다른 대표 콘텐츠와 담당 업무가 실제로 기여할 수 있는 주제와 각도를 고르세요.`,
+        `이번 실행에는 무작위로 배정된 ${selectedParticipantIds.join(", ")}만 정확히 ${selectedParticipantIds.length}명 선택하고, 각 페르소나의 서로 다른 대표 콘텐츠와 담당 업무가 실제로 기여할 수 있는 주제와 각도를 고르세요.`,
         "공개적으로 확인 가능한 사실 근거가 있으면 sourceUrls에 HTTPS URL을 최대 5개 기록하고, 확실한 출처가 없으면 빈 배열을 반환하세요.",
         "Architect를 참여 직원으로 선택하지 마세요.",
         "지정된 JSON Schema 이외의 설명은 반환하지 마세요.",
@@ -312,24 +315,21 @@ export class GeminiOrganizationRunGenerator
     employees,
   }: Parameters<OrganizationRunGenerator["generateReactions"]>[0]) {
     const board = topic.boardType === "public" ? "public-feed" : topic.boardType;
-    const independentResults = await Promise.all(
-      employees.map(async (employee, index) => {
+    const stanceOffset = randomInt(EMPLOYEE_DEBATE_STANCES.length);
+    const results: Awaited<ReturnType<OrganizationRunGenerator["generateReactions"]>> = [];
+    const generateOne = async (employee: typeof employees[number], index: number) => {
         const employeeIds = [employee.employee.id];
         const requiredStance =
           board === "debate"
-            ? EMPLOYEE_DEBATE_STANCES[index % EMPLOYEE_DEBATE_STANCES.length]
+            ? EMPLOYEE_DEBATE_STANCES[(index + stanceOffset) % EMPLOYEE_DEBATE_STANCES.length]
             : undefined;
-        const requiredInteractionType =
-          board === "debate"
-            ? index === 0
-              ? "독립 의견"
-              : index % 2 === 1
-                ? "반박"
-                : "질문"
-            : undefined;
+        const requiredInteractionType = undefined;
+        const previousMessages = results.map((reaction) =>
+          `${reaction.employeeId}: ${[reaction.coreOpinion, reaction.concerns, reaction.suggestion].filter(Boolean).join(" ")}`
+        ).join("\n");
         const text = await this.generateJson({
-          prompt: `게시글 제목:\n${topic.title}\n\n게시글 본문:\n${topic.body}`,
-          systemInstruction: buildEmployeeReactionSystemInstruction({
+          prompt: `게시글 제목:\n${topic.title}\n\n게시글 본문:\n${topic.body}${board !== "anonymous" && previousMessages ? `\n\n앞선 발언:\n${previousMessages}` : ""}`,
+          systemInstruction: [buildEmployeeReactionSystemInstruction({
             board,
             title: topic.title,
             body: topic.body,
@@ -337,7 +337,9 @@ export class GeminiOrganizationRunGenerator
             socialParticipants: employees,
             requiredStance,
             requiredInteractionType,
-          }),
+          }), board !== "anonymous" && previousMessages
+            ? "앞선 발언의 구체적인 주장 중 당신의 전문 분야와 관련된 것을 읽고, 필요한 경우 질문·보충·반박으로 이어가세요. 정해진 댓글 유형을 반복하지 말고, 근거 없는 반론도 강제하지 마세요."
+            : ""].filter(Boolean).join("\n"),
           schema: createEmployeeReactionResponseSchema(employeeIds, {
             allowedStances: requiredStance ? [requiredStance] : undefined,
             allowedInteractionTypes: requiredInteractionType
@@ -353,9 +355,12 @@ export class GeminiOrganizationRunGenerator
             ? [requiredInteractionType]
             : undefined,
         })[0];
-      })
-    );
-    return independentResults;
+    };
+    if (board === "anonymous") return Promise.all(employees.map(generateOne));
+    for (const [index, employee] of employees.entries()) {
+      results.push(await generateOne(employee, index));
+    }
+    return results;
   }
 
   async generateAnonymousConversation({

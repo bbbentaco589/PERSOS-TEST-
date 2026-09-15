@@ -47,6 +47,7 @@ export interface OrganizationRunPublisher {
   getPost(slug: string): Promise<EmployeeReactionPost | undefined>;
   listTopicSummaries(): Promise<string[]>;
   publish(post: EmployeeReactionPost, runId: string): Promise<void>;
+  publishStaged?(post: EmployeeReactionPost, runId: string): Promise<void>;
   listReviewItems(
     status?: OrganizationRunReviewStatus
   ): Promise<OrganizationRunReviewItem[]>;

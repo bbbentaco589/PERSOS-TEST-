@@ -20,7 +20,7 @@ test("직원 2명은 서로 분리된 Gemini 요청으로 생성한다", async (
         reactions: [
           {
             employeeId: employee.employee.id,
-            stance: calls.length === 1 ? "찬성" : "반대",
+            stance: input.systemInstruction.includes("반드시 '찬성'") ? "찬성" : "반대",
             interactionType: calls.length === 1 ? "독립 의견" : "반박",
             coreOpinion: "자신의 전문 관점에서 독립적으로 판단한 핵심 의견입니다.",
             concerns: "확인되지 않은 사실을 단정하지 않아야 합니다.",
@@ -55,7 +55,7 @@ test("직원 2명은 서로 분리된 Gemini 요청으로 생성한다", async (
   assert.doesNotMatch(calls[1].systemInstruction, /시그/);
 });
 
-test("찬반 토론은 보류 없이 찬성·반대와 반박 형식을 강제한다", async () => {
+test("찬반 토론은 보류 없이 양쪽 입장을 유지하고 댓글 유형을 고정하지 않는다", async () => {
   const employees = await getOrganizationRunCanonicalEmployees([
     "char-001",
     "char-003",
@@ -73,7 +73,7 @@ test("찬반 토론은 보류 없이 찬성·반대와 반박 형식을 강제�
         reactions: [
           {
             employeeId: employees[index].employee.id,
-            stance: index === 0 ? "찬성" : "반대",
+            stance: input.systemInstruction.includes("반드시 '찬성'") ? "찬성" : "반대",
             interactionType: index === 0 ? "독립 의견" : "반박",
             coreOpinion: "인간과 AI의 책임 경계를 명확히 나누는 주장을 제시합니다.",
             concerns: "상대 입장의 가장 강한 근거가 놓친 전제를 구체적으로 반박합니다.",
@@ -99,9 +99,9 @@ test("찬반 토론은 보류 없이 찬성·반대와 반박 형식을 강제�
   });
 
   assert.match(calls[0].systemInstruction, /'보류'를 절대 선택하지 말고/);
-  assert.match(calls[0].systemInstruction, /반드시 '찬성'/);
-  assert.match(calls[1].systemInstruction, /반드시 '반대'/);
-  assert.match(calls[1].systemInstruction, /interactionType은 반드시 '반박'/);
+  assert.ok(calls.some((call) => call.systemInstruction.includes("반드시 '찬성'")));
+  assert.ok(calls.some((call) => call.systemInstruction.includes("반드시 '반대'")));
+  assert.ok(calls.every((call) => !call.systemInstruction.includes("interactionType은 반드시")));
   assert.match(calls[1].systemInstruction, /가장 강한 논거에 대한 반박/);
 });
 

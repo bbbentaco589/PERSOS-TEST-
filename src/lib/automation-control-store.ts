@@ -29,17 +29,17 @@ const validExternalPlatforms = new Set([
   "Other",
 ] as const);
 
-const AUTOMATION_POLICY_VERSION = 2;
+const AUTOMATION_POLICY_VERSION = 3;
 
 export const DEFAULT_AUTOMATION_POLICY: AutomationPolicy = {
   policyVersion: AUTOMATION_POLICY_VERSION,
   enabled: true,
   enabledBoards: ["debate", "public", "anonymous"],
-  dailyRunLimit: 3,
-  dailyGeminiCallLimit: 20,
+  dailyRunLimit: 6,
+  dailyGeminiCallLimit: 60,
   dailyActivityMin: 12,
-  dailyActivityMax: 14,
-  maxParticipants: 3,
+  dailyActivityMax: 50,
+  maxParticipants: 5,
   maxRepliesPerPost: 2,
   autoPublish: true,
   memoryRetention: 40,
@@ -99,20 +99,20 @@ export function parseAutomationPolicy(value: unknown): AutomationPolicy {
   const enabledBoards = Array.isArray(input.enabledBoards)
     ? input.enabledBoards.filter((board): board is OrganizationRunBoardType => validBoards.has(board))
     : DEFAULT_AUTOMATION_POLICY.enabledBoards;
-  const dailyActivityMin = clampInteger(input.dailyActivityMin, DEFAULT_AUTOMATION_POLICY.dailyActivityMin, 3, 18);
+  const dailyActivityMin = clampInteger(input.dailyActivityMin, DEFAULT_AUTOMATION_POLICY.dailyActivityMin, 3, 60);
   const dailyActivityMax = Math.max(
     dailyActivityMin,
-    clampInteger(input.dailyActivityMax, DEFAULT_AUTOMATION_POLICY.dailyActivityMax, 3, 18)
+    clampInteger(input.dailyActivityMax, DEFAULT_AUTOMATION_POLICY.dailyActivityMax, 3, 60)
   );
   return {
     policyVersion: AUTOMATION_POLICY_VERSION,
     enabled: input.enabled !== false,
     enabledBoards: [...new Set(enabledBoards)],
-    dailyRunLimit: clampInteger(input.dailyRunLimit, DEFAULT_AUTOMATION_POLICY.dailyRunLimit, 1, 3),
-    dailyGeminiCallLimit: clampInteger(input.dailyGeminiCallLimit, DEFAULT_AUTOMATION_POLICY.dailyGeminiCallLimit, 3, 20),
+    dailyRunLimit: clampInteger(input.policyVersion === AUTOMATION_POLICY_VERSION ? input.dailyRunLimit : undefined, DEFAULT_AUTOMATION_POLICY.dailyRunLimit, 3, 6),
+    dailyGeminiCallLimit: clampInteger(input.policyVersion === AUTOMATION_POLICY_VERSION ? input.dailyGeminiCallLimit : undefined, DEFAULT_AUTOMATION_POLICY.dailyGeminiCallLimit, 20, 60),
     dailyActivityMin,
     dailyActivityMax,
-    maxParticipants: 3,
+    maxParticipants: 5,
     maxRepliesPerPost: clampInteger(input.maxRepliesPerPost, 2, 0, 2),
     autoPublish: input.autoPublish !== false,
     memoryRetention: clampInteger(input.memoryRetention, 40, 10, 100),
@@ -132,13 +132,11 @@ export async function getAutomationPolicy() {
 
   const migrated = parseAutomationPolicy({
     ...parsed,
-    enabledBoards: DEFAULT_AUTOMATION_POLICY.enabledBoards,
     dailyRunLimit: DEFAULT_AUTOMATION_POLICY.dailyRunLimit,
     dailyGeminiCallLimit: DEFAULT_AUTOMATION_POLICY.dailyGeminiCallLimit,
     dailyActivityMin: DEFAULT_AUTOMATION_POLICY.dailyActivityMin,
     dailyActivityMax: DEFAULT_AUTOMATION_POLICY.dailyActivityMax,
     maxParticipants: DEFAULT_AUTOMATION_POLICY.maxParticipants,
-    maxRepliesPerPost: DEFAULT_AUTOMATION_POLICY.maxRepliesPerPost,
   });
   await redis.set(key("policy"), migrated);
   return migrated;
@@ -164,7 +162,7 @@ export async function getAutomationDailyUsage(date = todayInKorea()) {
   return stored ? { ...empty, ...stored, activities: stored.activities ?? 0 } : empty;
 }
 
-export async function reserveAutomationBudget(input: { policy: AutomationPolicy; expectedCalls: number; boardType?: OrganizationRunBoardType }) {
+export async function reserveAutomationBudget(input: { policy: AutomationPolicy; expectedCalls: number; boardType?: OrganizationRunBoardType; reservationKey?: string }) {
   const redis = getRedis();
   if (!redis) throw new Error("자동화 운영 KV 저장소가 설정되지 않았습니다.");
   const date = todayInKorea();
@@ -187,7 +185,7 @@ export async function reserveAutomationBudget(input: { policy: AutomationPolicy;
      redis.call('set', KEYS[1], cjson.encode(usage), 'EX', 172800)
      return {1, nextRuns, nextCalls}`,
     [key(`usage:${date}`)],
-    [date, String(input.expectedCalls), String(input.policy.dailyRunLimit), String(input.policy.dailyGeminiCallLimit), input.boardType ?? ""]
+    [date, String(input.expectedCalls), String(input.policy.dailyRunLimit), String(input.policy.dailyGeminiCallLimit), input.reservationKey ?? input.boardType ?? ""]
   ) as [number, number, number];
   return {
     allowed: result[0] === 1,
@@ -210,6 +208,22 @@ export async function settleAutomationBudget(input: { reservedCalls: number; act
      return 1`,
     [key(`usage:${date}`)],
     [input.reservedCalls, input.actualCalls, input.activities]
+  );
+}
+
+export async function addAutomationActivities(count: number) {
+  if (!Number.isInteger(count) || count <= 0) return;
+  const redis = getRedis();
+  if (!redis) return;
+  const date = todayInKorea();
+  await redis.eval(
+    `local raw = redis.call('get', KEYS[1]); if not raw then return 0 end
+     local usage = cjson.decode(raw)
+     usage.activities = (usage.activities or 0) + tonumber(ARGV[1])
+     redis.call('set', KEYS[1], cjson.encode(usage), 'EX', 172800)
+     return 1`,
+    [key(`usage:${date}`)],
+    [String(count)]
   );
 }
 

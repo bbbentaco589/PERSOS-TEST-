@@ -9,6 +9,7 @@ import { verifyScheduledTriggerSecret } from "@/lib/organization-run/security";
 import type { OrganizationRunBoardType } from "@/types";
 import { getAutomationPolicy, getScheduledBoard } from "@/lib/automation-control-store";
 import { syncExternalActivitySources } from "@/lib/external-activity-sync";
+import { anonymousSlotEnabled, koreaDate } from "@/lib/organization-run/anonymous-schedule";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,11 +49,20 @@ async function trigger(request: Request) {
   const forcedBoardType = boards.has(requestedBoard as OrganizationRunBoardType)
     ? (requestedBoard as OrganizationRunBoardType)
     : getScheduledBoard(policy);
+  const scheduledSlot = forcedBoardType === "anonymous"
+    ? Number(searchParams.get("slot") ?? "1")
+    : undefined;
+  if (forcedBoardType === "anonymous") {
+    const secret = process.env.CRON_SECRET?.trim() || process.env.DEMO_TRIGGER_SECRET?.trim();
+    if (!secret || !anonymousSlotEnabled(koreaDate(), secret, scheduledSlot ?? 0)) {
+      return NextResponse.json({ status: "skipped", reason: "오늘 선택되지 않은 익명 채팅 시간대입니다." }, { headers: { "Cache-Control": "no-store" } });
+    }
+  }
 
   let organizationRun: Record<string, unknown> = { status: "skipped", reason: "활성 게시판이 없습니다." };
   if (forcedBoardType) {
     try {
-      const result = await runAIOrganizationFromEnvironment({ forcedBoardType, trigger: "scheduled" });
+      const result = await runAIOrganizationFromEnvironment({ forcedBoardType, trigger: "scheduled", scheduledSlot });
       organizationRun = {
         status: result.status,
         runId: result.runId,
