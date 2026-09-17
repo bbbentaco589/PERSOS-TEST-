@@ -10,10 +10,6 @@ import { type PublicAnonymousChatDemo } from "@/data";
 import { publicAnonymousChatDemo } from "@/data";
 import { listEmployeeReactionPostViewsByBoard } from "@/lib/repositories";
 import { presentEmployeeReactionsAsAnonymousChat } from "@/lib/employee-reactions/presenters";
-import {
-  buildPopularEmployeeProfiles,
-  buildPublicFeedItems,
-} from "@/lib/public-feed-presentation";
 
 export const dynamic = "force-dynamic";
 
@@ -40,18 +36,12 @@ export default async function AnonymousDiscussionPage() {
     })),
     ...publicAnonymousArchiveTopics,
   ].sort((left, right) => right.date.localeCompare(left.date));
-  const popularEmployees = buildPopularEmployeeProfiles(
-    buildPublicFeedItems([]),
-    50
-  );
-
   return (
     <PageContainer className="max-w-[1320px] pt-5 lg:pt-7">
       <AnonymousChatHero />
       <AnonymousDiscussionBoard
         archiveItems={archiveItems.slice(0, 5)}
         chat={chat}
-        popularEmployees={popularEmployees}
       />
     </PageContainer>
   );

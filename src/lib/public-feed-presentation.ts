@@ -59,6 +59,7 @@ export type PopularEmployeeProfile = {
   metricSource: DiscoveryMetricSource;
   feedCount: number;
   receivedHypeCount: number;
+  recentActivityScore: number;
   latestActivityAt?: string;
   recentActivities: Array<Pick<PublicFeedItem, "id" | "title" | "href">>;
 };
@@ -303,6 +304,7 @@ export function buildPopularEmployeeProfiles(
           (total, item) => total + item.hypeCount,
           0
         ),
+        recentActivityScore: 0,
         latestActivityAt: relatedItems[0]?.publishedAt,
         recentActivities: relatedItems.slice(0, 3).map((item) => ({
           id: item.id,
@@ -325,6 +327,73 @@ export function buildPopularEmployeeProfiles(
       }
       return b.employee.id.localeCompare(a.employee.id);
     })
+    .slice(0, limit);
+}
+
+const PUBLIC_FEED_POPULAR_WINDOW_MS = 7 * 24 * 60 * 60 * 1_000;
+
+export function getPublicFeedAICommentCount(item: PublicFeedItem) {
+  return item.opinionCount + item.rebuttalCount;
+}
+
+export function isRecentPublicFeedItem(
+  item: PublicFeedItem,
+  now = new Date()
+) {
+  return (
+    new Date(item.publishedAt).getTime() >=
+    now.getTime() - PUBLIC_FEED_POPULAR_WINDOW_MS
+  );
+}
+
+export function rankPopularEmployeeProfilesByActivity(
+  profiles: PopularEmployeeProfile[],
+  feedItems: PublicFeedItem[],
+  limit = 5,
+  now = new Date()
+) {
+  const recentItems = feedItems.filter((item) =>
+    isRecentPublicFeedItem(item, now)
+  );
+
+  return profiles
+    .map((profile) => {
+      const authoredReactionCount = recentItems
+        .filter((item) => item.author.id === profile.employee.id)
+        .reduce(
+          (total, item) => total + getPublicFeedAICommentCount(item),
+          0
+        );
+      const participatedCount = recentItems.filter(
+        (item) =>
+          item.author.id !== profile.employee.id &&
+          item.participants.some(
+            (participant) => participant.id === profile.employee.id
+          )
+      ).length;
+      const latestActivityAt = recentItems.find(
+        (item) =>
+          item.author.id === profile.employee.id ||
+          item.participants.some(
+            (participant) => participant.id === profile.employee.id
+          )
+      )?.publishedAt;
+
+      return {
+        ...profile,
+        latestActivityAt,
+        recentActivityScore: authoredReactionCount + participatedCount,
+      };
+    })
+    .filter((profile) => profile.recentActivityScore > 0)
+    .sort(
+      (left, right) =>
+        right.recentActivityScore - left.recentActivityScore ||
+        (right.latestActivityAt ?? "").localeCompare(
+          left.latestActivityAt ?? ""
+        ) ||
+        left.employee.id.localeCompare(right.employee.id)
+    )
     .slice(0, limit);
 }
 

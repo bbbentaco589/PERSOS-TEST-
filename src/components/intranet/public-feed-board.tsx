@@ -18,7 +18,12 @@ import { DiscussionPopularEmployeePanel } from "@/components/intranet/public-dis
 import { EmployeeAvatar } from "@/components/organization/employee-avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
-import { getPublicFeedEngagementScore } from "@/lib/public-feed-presentation";
+import {
+  getPublicFeedAICommentCount,
+  getPublicFeedEngagementScore,
+  isRecentPublicFeedItem,
+  rankPopularEmployeeProfilesByActivity,
+} from "@/lib/public-feed-presentation";
 import type {
   PopularEmployeeProfile,
   PublicFeedItem,
@@ -199,10 +204,11 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
   const rankedItems = useMemo(
     () =>
       [...items]
+        .filter((item) => isRecentPublicFeedItem(item))
         .sort((a, b) => {
           const scoreDifference =
-            getPublicFeedEngagementScore(b) -
-            getPublicFeedEngagementScore(a);
+            getPublicFeedAICommentCount(b) -
+            getPublicFeedAICommentCount(a);
           if (scoreDifference !== 0) return scoreDifference;
           return b.publishedAt.localeCompare(a.publishedAt);
         })
@@ -223,7 +229,7 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
           <Flame className="size-4 text-orange-500" />
           인기 피드
         </h2>
-        <span className="text-[9px] text-zinc-600">반응 합계</span>
+        <span className="text-[9px] text-zinc-600">AI 의견·반론 · 최근 7일</span>
       </header>
       <ol className="divide-y divide-sky-300/10 px-4">
         {rankedItems.map((item, index) => (
@@ -250,7 +256,7 @@ function PopularFeedRail({ items }: { items: PublicFeedItem[] }) {
                     {formatPersonaDisplayName(item.author)} · {item.category}
                   </span>
                   <span className="shrink-0 text-orange-500">
-                    {getPublicFeedEngagementScore(item)}
+                    {getPublicFeedAICommentCount(item)}
                   </span>
                 </span>
               </span>
@@ -328,6 +334,14 @@ export function PublicFeedBoard({
           .reduce((total, item) => total + item.hypeCount, 0),
       })),
     [followState, interactiveFeedItems, popularEmployees]
+  );
+  const rankedPopularProfiles = useMemo(
+    () =>
+      rankPopularEmployeeProfilesByActivity(
+        interactiveProfiles,
+        interactiveFeedItems
+      ),
+    [interactiveFeedItems, interactiveProfiles]
   );
   const toggleHype = useCallback((feedId: string) => {
     setHypeState((current) => {
@@ -477,7 +491,8 @@ export function PublicFeedBoard({
           <PopularFeedRail items={interactiveFeedItems} />
           <DiscussionPopularEmployeePanel
             onToggleFollow={toggleFollow}
-            profiles={interactiveProfiles}
+            profiles={rankedPopularProfiles}
+            rankingMode="activity"
           />
         </aside>
       </div>

@@ -173,9 +173,11 @@ export function DiscussionArchivePanel({
 export function DiscussionPopularEmployeePanel({
   profiles,
   onToggleFollow,
+  rankingMode = "followers",
 }: {
   profiles: PopularEmployeeProfile[];
   onToggleFollow: (employeeId: string) => void;
+  rankingMode?: "followers" | "activity";
 }) {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     null
@@ -197,7 +199,9 @@ export function DiscussionPopularEmployeePanel({
             id="discussion-popular-employees"
           >
             <Sparkles className="size-4 text-sky-300" />
-            실시간 인기 AI 페르소나
+            {rankingMode === "activity"
+              ? "최근 주목받는 AI 페르소나"
+              : "실시간 인기 AI 페르소나"}
             <Info className="size-3 text-zinc-600" />
           </h2>
           <div className="flex items-center gap-2">
@@ -205,7 +209,7 @@ export function DiscussionPopularEmployeePanel({
               className="border-white/10 bg-white/[0.035] text-[8px] text-zinc-500"
               variant="outline"
             >
-              DEMO
+              {rankingMode === "activity" ? "최근 7일" : "DEMO"}
             </Badge>
             <Link
               className="flex items-center gap-1 text-[10px] text-zinc-500 transition hover:text-sky-300"
@@ -244,14 +248,18 @@ export function DiscussionPopularEmployeePanel({
                 </span>
                 <span className="flex items-center gap-1 text-[9px] text-orange-500">
                   <Flame className="size-3 fill-current" />
-                  {profile.followerCount}
+                  {rankingMode === "activity"
+                    ? profile.recentActivityScore
+                    : profile.followerCount}
                 </span>
               </button>
             </li>
           ))}
         </ol>
         <p className="border-t border-sky-300/10 px-4 py-3 text-[9px] leading-4 text-zinc-600">
-          인기 지표는 현재 고정된 Demo Metric입니다.
+          {rankingMode === "activity"
+            ? "작성 글이 받은 AI 의견·반론과 다른 글 참여 횟수를 합산합니다."
+            : "인기 지표는 현재 고정된 Demo Metric입니다."}
         </p>
       </section>
 

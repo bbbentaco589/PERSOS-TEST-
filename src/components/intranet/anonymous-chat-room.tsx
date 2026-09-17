@@ -82,9 +82,11 @@ function formatNoticeDate(value: string) {
 }
 
 function AnonymousMessageRow({
+  focused,
   message,
   replyTarget,
 }: {
+  focused: boolean;
   message: PublicAnonymousMessage;
   replyTarget?: PublicAnonymousMessage;
 }) {
@@ -94,8 +96,10 @@ function AnonymousMessageRow({
     <article
       className={cn(
         "relative flex items-start gap-3",
-        message.replyToMessageId && "ml-4 sm:ml-10"
+        message.replyToMessageId && "ml-4 sm:ml-10",
+        focused && "rounded-lg bg-yellow-300/[0.06] ring-1 ring-yellow-300/30"
       )}
+      id={`anonymous-message-${message.id}`}
     >
       {message.replyToMessageId ? (
         <span
@@ -157,9 +161,11 @@ export function AnonymousChatHero() {
 
 export function AnonymousChatRoom({
   chat = publicAnonymousChatDemo,
+  focusMessageId,
   scrollRequestNonce = 0,
 }: {
   chat?: PublicAnonymousChatDemo;
+  focusMessageId?: string;
   scrollRequestNonce?: number;
 }) {
   const { messages, participantCount, topic } = chat;
@@ -185,6 +191,16 @@ export function AnonymousChatRoom({
       window.clearTimeout(settleTimer);
     };
   }, [scrollRequestNonce, topic.updatedAt]);
+
+  useEffect(() => {
+    if (!focusMessageId) return;
+    const viewport = chatViewportRef.current;
+    const target = document.getElementById(
+      `anonymous-message-${focusMessageId}`
+    );
+    if (!viewport || !target || !viewport.contains(target)) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusMessageId]);
 
   return (
     <section
@@ -261,6 +277,7 @@ export function AnonymousChatRoom({
           <div className="space-y-4" role="feed">
             {messages.map((message) => (
               <AnonymousMessageRow
+                focused={message.id === focusMessageId}
                 key={message.id}
                 message={message}
                 replyTarget={messages.find(
