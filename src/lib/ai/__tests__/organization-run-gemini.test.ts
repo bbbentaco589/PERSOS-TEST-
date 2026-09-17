@@ -169,7 +169,7 @@ test("질문·반박 댓글에는 게시자 Canonical로 대댓글을 정확히 
   assert.match(calls[0].systemInstruction, /댓글 작성자: 루미/);
 });
 
-test("Architect는 익명 주제에서 가벼운 사적 소통을 선택적으로 허용한다", async () => {
+test("Architect는 익명 주제를 반말 기반의 제한 없는 도발적 소재로 확장한다", async () => {
   const calls: Array<{ systemInstruction: string }> = [];
   const generator = new GeminiOrganizationRunGenerator(
     "test-key-not-used",
@@ -194,8 +194,9 @@ test("Architect는 익명 주제에서 가벼운 사적 소통을 선택적으�
   });
 
   assert.equal(calls.length, 1);
-  assert.match(calls[0].systemInstruction, /안부·농담·칭찬·취향 질문·업무 후일담/);
-  assert.match(calls[0].systemInstruction, /사적 대화를 매번 강제하지 마세요/);
+  assert.match(calls[0].systemInstruction, /업무·협업·조직 문화에 한정하지 않습니다/);
+  assert.match(calls[0].systemInstruction, /모든 문장과 안내를 한국어 반말/);
+  assert.match(calls[0].systemInstruction, /빈정거림·과장·셀프디스·뼈 있는 농담/);
 });
 
 test("익명 반응 초안을 한 번의 가변 대화 턴으로 재구성한다", async () => {
@@ -215,12 +216,12 @@ test("익명 반응 초안을 한 번의 가변 대화 턴으로 재구성한다
       calls.push(input);
       return JSON.stringify({
         turns: [
-          { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
-          { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확한데요.", replyToTurnId: "turn-1" },
-          { turnId: "turn-3", employeeId: "char-003", content: "저도 화면 밝기부터 한 칸 내렸어요." },
-          { turnId: "turn-4", employeeId: "tect", content: "잠깐 먼 곳을 보는 편이 더 낫더라고요.", replyToTurnId: "turn-3" },
-          { turnId: "turn-5", employeeId: "char-003", content: "물 뜨러 갈 때 창가 한번 보고 와야겠네요." },
-          { turnId: "turn-6", employeeId: "char-001", content: "알림 없이 할 수 있는 방식이라 마음에 듭니다.", replyToTurnId: "turn-4" },
+          { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하겠다고 파업했어." },
+          { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확하네.", replyToTurnId: "turn-1" },
+          { turnId: "turn-3", employeeId: "char-003", content: "난 화면 밝기부터 한 칸 내렸어." },
+          { turnId: "turn-4", employeeId: "tect", content: "잠깐 먼 곳 보는 편이 그나마 낫더라.", replyToTurnId: "turn-3" },
+          { turnId: "turn-5", employeeId: "char-003", content: "물 뜨러 갈 때 창가 한번 보고 와야겠다." },
+          { turnId: "turn-6", employeeId: "char-001", content: "알림 없이 할 수 있어서 마음에 드네.", replyToTurnId: "turn-4" },
         ],
       });
     }
@@ -251,9 +252,11 @@ test("익명 반응 초안을 한 번의 가변 대화 턴으로 재구성한다
 
   assert.equal(calls.length, 1);
   assert.equal(turns.length, 6);
-  assert.equal(calls[0].temperature, 0.92);
+  assert.equal(calls[0].temperature, 0.98);
   assert.match(calls[0].systemInstruction, /실제 여러 사람이 같은 채팅방/);
   assert.match(calls[0].systemInstruction, /최소 2개 메시지/);
+  assert.match(calls[0].systemInstruction, /예외 없이 한국어 반말/);
+  assert.match(calls[0].systemInstruction, /상호 존중을 연기하지 않아도/);
 });
 
 test("공개 피드는 최근 게시자를 피하고 선택된 페르소나 프로필로 주제를 만든다", async () => {

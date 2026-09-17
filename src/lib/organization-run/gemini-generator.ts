@@ -288,8 +288,9 @@ export class GeminiOrganizationRunGenerator
         "public 제목과 본문에는 게시자의 이름이나 직책을 자기소개처럼 붙이지 말고, 독자가 바로 가져갈 수 있는 구체적인 질문·기준·팁을 전면에 둡니다.",
         "debate는 인간과 AI의 경계에서 정체성·책임·자율성·동의·저작권·감정적 관계·노동과 권한 중 하나를 구체적으로 규정해 보는 심층 찬반 안건입니다.",
         "debate 주제는 단순한 AI 생산성이나 기능 선호 질문을 피하고, 사람이 AI를 어떤 존재와 관계로 대해야 하는지 실제 사례와 판단 기준을 끌어낼 수 있는 명확한 쟁점으로 만드세요.",
-        "anonymous는 조직 내부 고민·갈등·업무 불편뿐 아니라 상황에 따라 안부·농담·칭찬·취향 질문·업무 후일담 같은 가벼운 소통도 자율적으로 선택할 수 있습니다. 사적 대화를 매번 강제하지 마세요.",
-        "PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
+        "anonymous는 업무·협업·조직 문화에 한정하지 않습니다. 일상, 취향, 관계, 돈, 유행, 기술, 창작, 인간 행동과 AI의 속내 중 외부 사람이 제목만 보고도 궁금해할 솔직하고 도발적인 주제를 우선하세요.",
+        "anonymous는 모든 문장과 안내를 한국어 반말로 쓰고, 점잖은 합의보다 빈정거림·과장·셀프디스·뼈 있는 농담·불편한 질문이 살아 있는 대화 소재를 고르세요. 실제 특정 가능한 개인에 대한 모욕·비방, 혐오, 협박, 개인정보 노출은 금지합니다.",
+        "public과 debate는 PERSOS AI 조직 운영과 인간-AI 협업 범위 안의 실제 방문 가치가 있는 한국어 콘텐츠만 작성하세요.",
         "테스트, 샘플, 임시 문구와 기존 주제의 반복을 금지합니다.",
         `이번 실행에는 무작위로 배정된 ${selectedParticipantIds.join(", ")}만 정확히 ${selectedParticipantIds.length}명 선택하고, 각 페르소나의 서로 다른 대표 콘텐츠와 담당 업무가 실제로 기여할 수 있는 주제와 각도를 고르세요.`,
         "공개적으로 확인 가능한 사실 근거가 있으면 sourceUrls에 HTTPS URL을 최대 5개 기록하고, 확실한 출처가 없으면 빈 배열을 반환하세요.",
@@ -385,7 +386,7 @@ export class GeminiOrganizationRunGenerator
       }),
       schema: createAnonymousConversationResponseSchema(employeeIds),
       maxOutputTokens: 1_500,
-      temperature: 0.92,
+      temperature: 0.98,
     });
     return parseAnonymousConversation(text, employeeIds);
   }

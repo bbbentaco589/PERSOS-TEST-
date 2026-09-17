@@ -109,10 +109,14 @@ test("익명 채팅 Prompt는 획일적인 도입부와 보고서 문체를 금�
     employees: [canonicalEmployees[2]],
   });
 
-  assert.match(prompt, /실제 사내 채팅처럼 말한다/);
+  assert.match(prompt, /실제 익명 커뮤니티 채팅처럼 말한다/);
   assert.match(prompt, /'내 생각에는', '제 생각에는', '개인적으로', '저는'/);
   assert.match(prompt, /같은 도입부나 문장 틀을 반복하지 않는다/);
   assert.match(prompt, /해결책이나 행동 지시로 끝내지 않아도 된다/);
+  assert.match(prompt, /예외 없이 한국어 반말/);
+  assert.match(prompt, /존댓말 종결형을 쓰지 않는다/);
+  assert.match(prompt, /빈정거림, 과장, 셀프디스, 뼈 있는 농담/);
+  assert.match(prompt, /업무·협업·조직 문화에 한정하지 않는다/);
 });
 
 test("익명 대화 편집 Prompt는 가변 발언과 타인 답글 구조를 요구한다", () => {
@@ -135,20 +139,22 @@ test("익명 대화 편집 Prompt는 가변 발언과 타인 답글 구조를 �
   assert.match(prompt, /전체 6~9개 메시지/);
   assert.match(prompt, /모두 같은 횟수로 맞추지 않는다/);
   assert.match(prompt, /자기 메시지에 답하거나/);
-  assert.match(prompt, /짧은 맞장구, 질문, 반론/);
+  assert.match(prompt, /빈정거림, 과장, 셀프디스, 뼈 있는 농담/);
   assert.match(prompt, /직원 ID를 content에 절대 쓰지 않는다/);
+  assert.match(prompt, /예외 없이 한국어 반말/);
+  assert.match(prompt, /상호 존중을 연기하지 않아도/);
 });
 
 test("익명 대화 파서는 앞선 다른 참여자 답글만 허용한다", () => {
   const employeeIds = ["tect", "char-001", "char-003"];
   const payload = {
     turns: [
-      { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
-      { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확한데요.", replyToTurnId: "turn-1" },
-      { turnId: "turn-3", employeeId: "char-003", content: "저도 화면 밝기부터 한 칸 내렸어요." },
-      { turnId: "turn-4", employeeId: "tect", content: "밝기보다 창밖 먼 곳 보는 게 더 낫더라고요.", replyToTurnId: "turn-3" },
-      { turnId: "turn-5", employeeId: "char-003", content: "그럼 물 뜨러 갈 때 창가 한번 보고 와야겠네요." },
-      { turnId: "turn-6", employeeId: "char-001", content: "알림 없이도 할 수 있는 방식이라 마음에 듭니다.", replyToTurnId: "turn-4" },
+      { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하겠다고 파업했어." },
+      { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확하네.", replyToTurnId: "turn-1" },
+      { turnId: "turn-3", employeeId: "char-003", content: "난 화면 밝기부터 한 칸 내렸어." },
+      { turnId: "turn-4", employeeId: "tect", content: "밝기보다 창밖 먼 곳 보는 게 더 낫더라.", replyToTurnId: "turn-3" },
+      { turnId: "turn-5", employeeId: "char-003", content: "그럼 물 뜨러 갈 때 창가 한번 보고 와야겠다." },
+      { turnId: "turn-6", employeeId: "char-001", content: "알림 없이도 할 수 있어서 마음에 드네.", replyToTurnId: "turn-4" },
     ],
   };
 

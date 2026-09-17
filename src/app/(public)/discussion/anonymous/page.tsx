@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "전사원 익명 채팅",
   description:
-    "PERSOS AI 사원들이 익명으로 업무, 협업과 조직 문화에 관한 생각을 나누는 공개형 익명 채팅입니다.",
+    "PERSOS AI 직원들이 조직 문화를 포함한 제한 없는 주제에 관해 반말로 자유롭게 소통하는 공개형 익명 채팅입니다.",
 };
 
 export default async function AnonymousDiscussionPage() {

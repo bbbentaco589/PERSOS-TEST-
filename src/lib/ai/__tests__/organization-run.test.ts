@@ -151,18 +151,18 @@ test("익명 자동 실행은 독립 초안을 가변 대화 턴으로 편집해
     boardType: "anonymous",
     title: "집중력이 흐려질 때 각자 잠깐 쉬는 방식",
     body:
-      "오래 화면을 보고 일하다 보면 집중을 붙잡으려 할수록 피로가 먼저 쌓일 때가 있습니다. 거창한 생산성 규칙보다는 실제로 부담 없이 사용하는 짧은 휴식 습관과 실패했던 방법을 익명으로 나눕니다.",
-    topicSummary: "집중이 흐려질 때 사용하는 현실적인 휴식 습관을 나눕니다.",
+      "화면을 오래 보면 집중을 붙잡을수록 피로가 먼저 쌓여. 거창한 생산성 규칙 말고 진짜 부담 없이 쓰는 짧은 휴식 습관이랑 망한 방법을 익명으로 풀어봐.",
+    topicSummary: "집중이 흐려질 때 쓰는 현실적인 휴식 습관을 나눠봐.",
     reasonForBoardSelection: "직원마다 다른 일상 경험을 편하게 나누기 좋습니다.",
   };
   const { generator } = createGenerator([anonymousTopic]);
   generator.generateAnonymousConversation = async () => [
-    { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
-    { turnId: "turn-2", employeeId: "char-003", content: "그 말 듣고 화면 밝기부터 한 칸 내렸어요.", replyToTurnId: "turn-1" },
-    { turnId: "turn-3", employeeId: "char-002", content: "저는 알림을 켰다가 알림만 끄는 사람이 됐습니다." },
-    { turnId: "turn-4", employeeId: "tect", content: "알림보다 물 뜨러 가는 핑계가 잘 먹히더라고요.", replyToTurnId: "turn-3" },
-    { turnId: "turn-5", employeeId: "char-002", content: "그건 성공 여부를 물컵으로 판정할 수 있겠네요." },
-    { turnId: "turn-6", employeeId: "char-003", content: "창가까지 갔다 오는 코스로 바로 써볼게요.", replyToTurnId: "turn-4" },
+    { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하겠다고 파업했어." },
+    { turnId: "turn-2", employeeId: "char-003", content: "그 말 듣고 화면 밝기부터 한 칸 내렸어.", replyToTurnId: "turn-1" },
+    { turnId: "turn-3", employeeId: "char-002", content: "난 알림을 켰다가 알림만 끄는 인간이 됐지." },
+    { turnId: "turn-4", employeeId: "tect", content: "알림보다 물 뜨러 가는 핑계가 잘 먹히더라.", replyToTurnId: "turn-3" },
+    { turnId: "turn-5", employeeId: "char-002", content: "그건 성공 여부를 물컵으로 판정하면 되겠네." },
+    { turnId: "turn-6", employeeId: "char-003", content: "창가까지 갔다 오는 코스로 바로 써볼게.", replyToTurnId: "turn-4" },
   ];
 
   const result = await runAIOrganization({ generator, publisher });
@@ -186,8 +186,8 @@ test("익명 대화 편집 호출이 실패해도 타인 답글 폴백으로 자
     boardType: "anonymous",
     title: "업무 중 잠깐 숨을 돌리는 각자의 작은 습관",
     body:
-      "집중이 흐려질 때 무리하게 버티는 대신 잠깐 숨을 돌리는 방법을 이야기합니다. 실제로 해봤던 짧은 습관과 잘 맞지 않았던 방법을 익명으로 편하게 나누며 하나의 정답을 강요하지 않습니다.",
-    topicSummary: "업무 중 부담 없이 사용하는 짧은 휴식 습관을 나눕니다.",
+      "집중이 흐려질 때 좀비처럼 버티지 말고 잠깐 숨 돌리는 방법을 얘기해. 직접 해본 짧은 습관이랑 안 맞았던 방법을 익명으로 풀고 정답 놀이는 접어둬.",
+    topicSummary: "업무 중 부담 없이 쓰는 짧은 휴식 습관을 나눠봐.",
     reasonForBoardSelection: "정답보다 서로 다른 경험이 어울리는 익명 주제입니다.",
   };
   const { generator } = createGenerator([anonymousTopic]);
@@ -197,9 +197,9 @@ test("익명 대화 편집 호출이 실패해도 타인 답글 폴백으로 자
         employee.id as (typeof ORGANIZATION_RUN_EMPLOYEE_IDS)[number],
       stance: "보류" as const,
       interactionType: "독립 의견" as const,
-      coreOpinion: "화면을 오래 본 날에는 잠깐 먼 곳을 바라봅니다.",
-      concerns: "정해진 휴식 알림은 또 다른 업무처럼 느껴질 때가 있습니다.",
-      suggestion: "물 한 잔을 뜨러 가는 정도면 부담이 덜합니다.",
+      coreOpinion: "화면을 오래 본 날에는 잠깐 먼 곳을 봐.",
+      concerns: "정해진 휴식 알림은 또 다른 업무처럼 느껴질 때가 있어.",
+      suggestion: "물 한 잔 뜨러 가는 정도면 부담이 덜해.",
     }));
   generator.generateAnonymousConversation = async () => {
     throw new Error("temporary malformed response");

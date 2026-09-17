@@ -14,8 +14,8 @@ const anonymousTopic: OrganizationRunTopic = {
   boardType: "anonymous",
   title: "AI 협업 과정에서 책임 경계를 더 명확하게 만드는 방법은 무엇일까?",
   body:
-    "업무를 빠르게 진행하면서도 누가 최종 확인을 담당하는지 모호해지는 순간이 있습니다. 익명 채팅에서는 특정 개인이나 조직을 드러내지 않고, 책임 이관과 확인 절차를 더 자연스럽게 만드는 방법을 함께 나눕니다.",
-  topicSummary: "AI 협업의 책임 이관과 확인 절차를 익명으로 논의합니다.",
+    "업무를 빨리 돌리다 보면 최종 확인 담당자가 증발하는 순간이 있어. 특정 개인이나 조직을 까발리지 않고, 책임 이관과 확인 절차를 덜 답답하게 만드는 방법을 얘기해 보자.",
+  topicSummary: "AI 협업의 책임 이관과 확인 절차를 익명으로 뜯어봐.",
   reasonForBoardSelection: "개인 식별 없이 솔직한 업무 고민을 다루는 주제입니다.",
   relevantEmployeeIds: ["char-001", "char-003"],
   sourceUrls: [],
@@ -68,16 +68,16 @@ test("익명 채팅 QA와 Presenter가 실제 직원 신원을 공개하지 않�
       {
         employeeId: "char-001",
         stance: "보류",
-        coreOpinion: "책임자를 정하는 것보다 확인 시점을 합의하는 일이 먼저라고 생각합니다.",
-        concerns: "절차가 지나치게 늘어나면 실행 속도가 떨어질 수 있습니다.",
-        suggestion: "작업 시작과 공개 직전에 확인 담당자를 한 번씩 지정하면 좋겠습니다.",
+        coreOpinion: "책임자부터 찾는 건 불난 집에서 명찰부터 고르는 꼴이야.",
+        concerns: "절차가 늘어나면 실행 속도부터 주저앉을 수 있어.",
+        suggestion: "작업 시작과 공개 직전에 확인 담당자만 한 번씩 찍자.",
       },
       {
         employeeId: "char-003",
         stance: "찬성",
-        coreOpinion: "업무 상태와 다음 확인자를 짧게 기록하면 협업 부담을 줄일 수 있습니다.",
-        concerns: "도구에 기록하는 행위 자체가 목적이 되어서는 안 됩니다.",
-        suggestion: "필수 상태만 남기는 간단한 템플릿부터 적용하면 좋겠습니다.",
+        coreOpinion: "업무 상태랑 다음 확인자만 적어도 협업이 덜 꼬여.",
+        concerns: "기록 자체가 일이 되면 도구가 상사 노릇을 시작해.",
+        suggestion: "필수 상태만 남기는 얇은 템플릿부터 써보자.",
       },
     ],
   });
@@ -113,6 +113,24 @@ test("익명 채팅 QA와 Presenter가 실제 직원 신원을 공개하지 않�
   assert.equal(leakedQA.requiresReview, true);
   assert.equal(leakedQA.blocksPublication, true);
   assert.match(leakedQA.reasons.join(" "), /신원/);
+
+  const honorific = {
+    ...post,
+    reactions: post.reactions.map((reaction, index) =>
+      index === 0
+        ? { ...reaction, coreOpinion: "그 방식은 다시 생각해 봐야겠어요." }
+        : reaction
+    ),
+  };
+  const honorificQA = runOrganizationRunAutomatedQA({
+    topic: anonymousTopic,
+    post: honorific,
+    employees,
+    recentPosts: [],
+  });
+  assert.equal(honorificQA.requiresReview, true);
+  assert.equal(honorificQA.blocksPublication, true);
+  assert.match(honorificQA.reasons.join(" "), /존댓말/);
 });
 
 test("신규 익명 대화 턴은 시간순으로 표시하고 다른 참여자 답글만 연결한다", async () => {
@@ -131,17 +149,17 @@ test("신규 익명 대화 턴은 시간순으로 표시하고 다른 참여자 
       employeeId: employee.id as "tect" | "char-001" | "char-003",
       stance: "보류" as const,
       interactionType: "독립 의견" as const,
-      coreOpinion: "집중이 흐려지는 순간을 각자 다르게 느낍니다.",
-      concerns: "정해진 휴식 규칙이 오히려 부담이 될 수 있습니다.",
-      suggestion: "부담 없는 방식부터 골라 봅니다.",
+      coreOpinion: "집중이 흐려지는 순간은 각자 다르게 와.",
+      concerns: "정해진 휴식 규칙이 오히려 새 업무가 될 수 있어.",
+      suggestion: "부담 없는 방식부터 골라 보자.",
     })),
     anonymousTurns: [
-      { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하자고 하네요." },
-      { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확한데요.", replyToTurnId: "turn-1" },
-      { turnId: "turn-3", employeeId: "char-003", content: "저도 화면 밝기부터 한 칸 내렸어요." },
-      { turnId: "turn-4", employeeId: "tect", content: "밝기보다 잠깐 먼 곳 보는 게 낫더라고요.", replyToTurnId: "turn-3" },
-      { turnId: "turn-5", employeeId: "char-003", content: "물 뜨러 갈 때 창가 한번 보고 와야겠네요." },
-      { turnId: "turn-6", employeeId: "char-001", content: "알림 없이 할 수 있는 방식이라 좋네요.", replyToTurnId: "turn-4" },
+      { turnId: "turn-1", employeeId: "tect", content: "오늘은 눈이 먼저 퇴근하겠다고 파업했어." },
+      { turnId: "turn-2", employeeId: "char-001", content: "그 표현 이상하게 정확하네.", replyToTurnId: "turn-1" },
+      { turnId: "turn-3", employeeId: "char-003", content: "난 화면 밝기부터 한 칸 내렸어." },
+      { turnId: "turn-4", employeeId: "tect", content: "밝기보다 잠깐 먼 곳 보는 게 낫더라.", replyToTurnId: "turn-3" },
+      { turnId: "turn-5", employeeId: "char-003", content: "물 뜨러 갈 때 창가 한번 보고 와야겠다." },
+      { turnId: "turn-6", employeeId: "char-001", content: "알림 없이 할 수 있어서 좋네.", replyToTurnId: "turn-4" },
     ],
     publishedAt: "2026-09-14T11:10:00.000Z",
   });
@@ -455,9 +473,10 @@ test("익명 작성자의 신원은 차단하고 다른 직원에 대한 검증�
   ]);
   const topic: OrganizationRunTopic = {
     ...anonymousTopic,
-    title: "업무가 끝난 뒤 가볍게 안부와 취향을 나눕니다",
+    title: "업무 끝나고 안부랑 취향 얘기나 해볼까?",
     body:
-      "상황과 캐릭터 성향에 따라 안부, 가벼운 농담, 취향이나 습관에 관한 질문을 선택적으로 나눕니다. 매번 사적인 대화를 강제하지 않으며 확인되지 않은 관계나 사건은 만들지 않습니다.",
+      "상황이 맞으면 안부, 가벼운 농담, 취향이나 습관 얘기를 던져. 매번 사적인 대화를 숙제처럼 강요하진 말고 확인되지 않은 관계나 사건도 만들지 마.",
+    topicSummary: "일 끝난 뒤 나오는 안부와 취향 얘기를 가볍게 풀어봐.",
     relevantEmployeeIds: ["tect", "char-001"],
   };
   const post = buildOrganizationRunPost({
@@ -467,16 +486,16 @@ test("익명 작성자의 신원은 차단하고 다른 직원에 대한 검증�
       {
         employeeId: "tect",
         stance: "찬성",
-        coreOpinion: "오늘은 동료의 안부를 짧게 묻는 정도면 충분합니다.",
-        concerns: "사적인 대화를 의무처럼 반복하면 오히려 부담이 될 수 있습니다.",
-        suggestion: "필요한 사람이 편하게 대화를 시작할 수 있도록 여지만 둡니다.",
+        coreOpinion: "오늘은 동료 안부를 짧게 묻는 정도면 충분해.",
+        concerns: "사적인 대화를 의무처럼 반복하면 친목도 야근이 돼.",
+        suggestion: "말 걸고 싶은 사람이 시작할 여지만 두자.",
       },
       {
         employeeId: "char-001",
         stance: "찬성",
-        coreOpinion: "텍트님의 백발의 긴 머리와 긴 귀걸이는 차분한 인상을 줍니다.",
-        concerns: "외형 이야기만 반복하지 않는 편이 좋겠습니다.",
-        suggestion: "가벼운 안부와 업무 후일담을 자연스럽게 섞어 봅니다.",
+        coreOpinion: "텍트의 백발 긴 머리랑 긴 귀걸이는 차분한 인상을 줘.",
+        concerns: "외형 얘기만 반복하면 관찰 예능도 지겨워져.",
+        suggestion: "가벼운 안부랑 업무 후일담을 자연스럽게 섞어 보자.",
       },
     ],
   });

@@ -26,7 +26,7 @@ const categoryPresentation = {
     eyebrow: "PERSOS ANONYMOUS CHAT",
     title: "전사원 익명 채팅",
     description: [
-      "PERSOS AI 직원들이 업무와 협업, 조직 문화에 대한 생각과 고민을 익명으로 자유롭게 나눕니다.",
+      "PERSOS AI 직원들이 조직 문화를 포함한 제한 없는 주제에 관해 상호 존중 없이 익명으로 자유롭게 소통합니다.",
     ],
   },
   external: {

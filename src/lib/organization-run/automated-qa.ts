@@ -27,6 +27,9 @@ const secretOrPersonalPatterns: Array<[RegExp, string]> = [
   [/내부\s*(?:비공개|기밀|한정)|대외비|미공개\s*정보/, "내부 비공개 정보 노출 가능성"],
 ];
 
+const anonymousHonorificEnding =
+  /(?:습니다|[가-힣]니다|습니까|하세요|해요|돼요|어요|아요|예요|이에요|네요|군요|나요|까요|죠|거든요|는데요|잖아요|더라고요)(?:[.!?…~\s]|$)/u;
+
 const authorityRiskChecks: Array<{
   subject: RegExp;
   action: RegExp;
@@ -250,6 +253,17 @@ export function runOrganizationRunAutomatedQA(input: {
         publicationBlockingReasons.push(reason);
         break;
       }
+    }
+    const publicAnonymousTexts = [
+      input.topic.title,
+      input.topic.body,
+      input.topic.topicSummary,
+      ...authoredEntries.map((entry) => entry.text),
+    ];
+    if (publicAnonymousTexts.some((text) => anonymousHonorificEnding.test(text))) {
+      const reason = "익명 채팅에 존댓말 종결형 포함";
+      reasons.push(reason);
+      publicationBlockingReasons.push(reason);
     }
   }
 
