@@ -41,7 +41,8 @@ export interface OrganizationRunGenerator {
 
 export interface OrganizationRunPublisher {
   listPosts(
-    board?: Exclude<EmployeeReactionBoard, "investor-demo">
+    board?: Exclude<EmployeeReactionBoard, "investor-demo">,
+    limit?: number
   ): Promise<EmployeeReactionPost[]>;
   listPostsByEmployeeId?(employeeId: string): Promise<EmployeeReactionPost[]>;
   getPost(slug: string): Promise<EmployeeReactionPost | undefined>;

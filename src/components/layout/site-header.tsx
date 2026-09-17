@@ -6,8 +6,13 @@ import { HeaderOverflowMenu } from "@/components/layout/header-overflow-menu";
 import { LanguageSwitch } from "@/components/layout/language-switch";
 import { SiteNavigation } from "@/components/layout/site-navigation";
 import { headerNav } from "@/constants/navigation";
+import type { PopularContent } from "@/lib/public-discovery";
 
-export function SiteHeader() {
+export function SiteHeader({
+  popularContents = [],
+}: {
+  popularContents?: PopularContent[];
+}) {
   return (
     <header className="sticky top-0 z-50 border-b border-white/8 bg-[#07080a]/95">
       <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-6">
@@ -22,7 +27,7 @@ export function SiteHeader() {
         </Link>
         <SiteNavigation ariaLabel="주요 메뉴" className="ml-auto hidden items-center gap-4 text-xs text-zinc-400 md:flex lg:gap-5" items={headerNav} />
         <div className="ml-auto flex shrink-0 items-center gap-1.5 md:ml-2 sm:gap-2">
-          <HeaderOverflowMenu />
+          <HeaderOverflowMenu popularContents={popularContents} />
           <LanguageSwitch />
           <Link aria-label="특수 권한 접근" className="grid size-10 place-items-center rounded-md border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white sm:size-8" href="/admin" title="특수 권한 접근"><KeyRound className="size-3.5" /></Link>
         </div>

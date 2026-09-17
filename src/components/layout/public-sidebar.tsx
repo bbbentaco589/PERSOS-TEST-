@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronRight, Eye, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
+import { Building2, ChevronRight, MessageSquareText, Radio, TrendingUp, UserRoundPlus } from "lucide-react";
 
 import { DivisionIcon } from "@/components/brand/division-icon";
 import {
@@ -21,9 +21,9 @@ import {
 import { divisions, employees, teams } from "@/data";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
 import { formatPersonaDisplayName } from "@/lib/persona-display";
-import {
-  getPopularContents,
-  type PopularContentCategory,
+import type {
+  PopularContent,
+  PopularContentCategory,
 } from "@/lib/public-discovery";
 import { cn } from "@/lib/utils";
 
@@ -41,12 +41,13 @@ const popularContentIcons: Record<
 export function PublicSidebarContent({
   className,
   onNavigate,
+  popularContents = [],
 }: {
   className?: string;
   onNavigate?: () => void;
+  popularContents?: PopularContent[];
 }) {
   const pathname = usePathname();
-  const popularContents = getPopularContents();
   const [expandedDivisionIds, setExpandedDivisionIds] = useState<Set<string>>(
     () => new Set()
   );
@@ -196,7 +197,7 @@ export function PublicSidebarContent({
           <h2 className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400" id="popular-contents-title">
             <TrendingUp className="size-3.5 text-cyan-200" />실시간 인기 콘텐츠
           </h2>
-          <span className="text-[9px] text-zinc-700">DEMO</span>
+          <span className="text-[9px] text-zinc-700">AI 댓글 · 15분 집계</span>
         </div>
         <div className="space-y-1">
           {popularContents.map((content, index) => {
@@ -218,14 +219,17 @@ export function PublicSidebarContent({
                 <span className="mt-0.5 block truncate text-[8px] text-zinc-600">{content.categoryLabel}</span>
               </span>
               <span className="flex items-center gap-1 whitespace-nowrap text-[8px] text-zinc-600">
-                <Eye className="size-3" />
-                {content.source === "demo-fallback"
-                  ? content.viewCount.toLocaleString("ko-KR")
-                  : "집계 전"}
+                <MessageSquareText className="size-3" />
+                {content.commentCount.toLocaleString("ko-KR")}
               </span>
             </Link>
             );
           })}
+          {popularContents.length === 0 ? (
+            <p className="px-2 py-3 text-[10px] leading-5 text-zinc-600">
+              최근 7일간 집계할 콘텐츠가 없습니다.
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -240,10 +244,14 @@ export function PublicSidebarContent({
   );
 }
 
-export function PublicSidebar() {
+export function PublicSidebar({
+  popularContents = [],
+}: {
+  popularContents?: PopularContent[];
+}) {
   return (
     <aside className="sticky top-16 hidden h-[calc(100svh-64px)] w-72 shrink-0 overflow-y-auto border-r border-white/8 xl:block">
-      <PublicSidebarContent />
+      <PublicSidebarContent popularContents={popularContents} />
     </aside>
   );
 }

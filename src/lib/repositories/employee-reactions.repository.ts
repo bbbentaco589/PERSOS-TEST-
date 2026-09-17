@@ -18,12 +18,13 @@ function clonePost(post: EmployeeReactionPost): EmployeeReactionPost {
 }
 
 async function listDynamicPosts(
-  board?: Exclude<EmployeeReactionBoard, "investor-demo">
+  board?: Exclude<EmployeeReactionBoard, "investor-demo">,
+  limit?: number
 ) {
   const publisher = getOrganizationRunPublisher();
   if (!publisher) return [];
   try {
-    return await publisher.listPosts(board);
+    return await publisher.listPosts(board, limit);
   } catch (error) {
     console.error(
       "[Employee reactions] KV read failed:",
@@ -58,9 +59,10 @@ function participatesInPost(post: EmployeeReactionPost, employeeId: string) {
 }
 
 export async function listEmployeeReactionPosts(
-  board?: Exclude<EmployeeReactionBoard, "investor-demo">
+  board?: Exclude<EmployeeReactionBoard, "investor-demo">,
+  dynamicLimit?: number
 ) {
-  const dynamicPosts = await listDynamicPosts(board);
+  const dynamicPosts = await listDynamicPosts(board, dynamicLimit);
   return mergeEmployeeReactionPosts(
     employeeReactionPosts,
     dynamicPosts,

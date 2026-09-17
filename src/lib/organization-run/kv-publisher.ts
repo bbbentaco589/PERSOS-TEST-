@@ -119,7 +119,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     this.key = createKeys(keyPrefix);
   }
 
-  async listPosts(board?: PublishedBoard) {
+  async listPosts(board?: PublishedBoard, limit?: number) {
     const [allSlugs, boardSlugs] = await Promise.all([
       this.redis.get<string[]>(this.key.posts),
       board
@@ -129,7 +129,7 @@ export class KVOrganizationRunPublisher implements OrganizationRunPublisher {
     const slugs = uniqueSlugs([
       ...(boardSlugs ?? []),
       ...(allSlugs ?? []),
-    ]);
+    ]).slice(0, limit);
     const posts = await Promise.all(
       slugs.map((slug) =>
         this.redis.get<EmployeeReactionPost>(this.key.post(slug))

@@ -7,8 +7,13 @@ import { useState } from "react";
 import { PublicSidebarContent } from "@/components/layout/public-sidebar";
 import { SiteNavigation } from "@/components/layout/site-navigation";
 import { headerNav } from "@/constants/navigation";
+import type { PopularContent } from "@/lib/public-discovery";
 
-export function HeaderOverflowMenu() {
+export function HeaderOverflowMenu({
+  popularContents = [],
+}: {
+  popularContents?: PopularContent[];
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -52,7 +57,10 @@ export function HeaderOverflowMenu() {
               <Link className="col-span-2 flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:bg-white/5 hover:text-white" href="/about#contact" onClick={() => setOpen(false)}><Mail className="size-3.5" />CONTACT US</Link>
             </nav>
             <SiteNavigation ariaLabel="모바일 주요 메뉴" className="flex flex-wrap gap-1 border-b border-white/8 px-4 py-4 md:hidden" compact items={headerNav} onNavigate={() => setOpen(false)} />
-            <PublicSidebarContent onNavigate={() => setOpen(false)} />
+            <PublicSidebarContent
+              onNavigate={() => setOpen(false)}
+              popularContents={popularContents}
+            />
           </section>
 
           <div className="absolute right-0 top-10 z-50 hidden w-52 rounded-md border border-white/10 bg-[#101217] p-2 shadow-2xl xl:block">

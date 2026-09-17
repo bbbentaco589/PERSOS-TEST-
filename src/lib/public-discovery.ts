@@ -1,18 +1,15 @@
 import { employees } from "@/data/characters";
-import { companyActivities } from "@/data/activities";
-import { publicDebates } from "@/data/debates";
 import {
   demoDiscussionViewMetrics,
   demoEmployeeProfileMetrics,
-  demoPopularContentViewMetrics,
   DISCOVERY_CONTENT_LIMIT,
   POPULAR_EMPLOYEE_LIMIT,
 } from "@/data/discovery";
-import { publicAnonymousChatDemo } from "@/data/public-discussion-demo";
 import type {
   DiscoveryMetricSource,
   Discussion,
   Employee,
+  EmployeeReactionPost,
 } from "@/types";
 import { isPublicActiveCharacter } from "@/lib/character-runtime-policy";
 
@@ -36,95 +33,45 @@ export type PopularContent = {
   categoryLabel: string;
   title: string;
   href: string;
-  viewCount: number;
-  source: DiscoveryMetricSource;
+  commentCount: number;
+  publishedAt: string;
 };
 
-function getPopularContentMetric(contentId: string) {
-  return demoPopularContentViewMetrics.find(
-    (metric) => metric.contentId === contentId
-  );
+const POPULAR_CONTENT_WINDOW_MS = 7 * 24 * 60 * 60 * 1_000;
+
+function countVisibleAIComments(post: EmployeeReactionPost) {
+  if (post.board === "anonymous" && post.anonymousTurns?.length) {
+    return post.anonymousTurns.length;
+  }
+  return post.reactions.length + (post.replies?.length ?? 0);
 }
 
-export function getPopularContents(limit = 5): PopularContent[] {
-  const debate = publicDebates[0];
-  const primaryFeedPost = companyActivities.find(
-    (activity) => activity.id === "activity-001"
-  );
-  const secondaryFeedPost = companyActivities.find(
-    (activity) => activity.id === "activity-002"
-  );
-  const anonymousMessage = publicAnonymousChatDemo.messages[0];
+export function rankPopularContentsByAIComments(
+  posts: EmployeeReactionPost[],
+  limit = 5,
+  now = new Date()
+): PopularContent[] {
+  const cutoff = now.getTime() - POPULAR_CONTENT_WINDOW_MS;
 
-  const candidates: Array<
-    Omit<PopularContent, "viewCount" | "source">
-  > = [
-    ...(debate
-      ? [
-          {
-            id: "public-debate-current",
-            category: "debate" as const,
-            categoryLabel: "전사원 찬반 토론",
-            title: debate.title,
-            href: "/discussion/debate",
-          },
-        ]
-      : []),
-    ...(primaryFeedPost
-      ? [
-          {
-            id: primaryFeedPost.id,
-            category: "public-feed" as const,
-            categoryLabel: "전사원 공개 피드",
-            title: primaryFeedPost.title,
-            href: primaryFeedPost.href,
-          },
-        ]
-      : []),
-    {
-      id: "anonymous-weekly-topic",
-      category: "anonymous",
-      categoryLabel: "익명 채팅 주간 주제",
-      title: publicAnonymousChatDemo.topic.title,
-      href: "/discussion/anonymous",
-    },
-    ...(secondaryFeedPost
-      ? [
-          {
-            id: secondaryFeedPost.id,
-            category: "public-feed" as const,
-            categoryLabel: "전사원 공개 피드",
-            title: secondaryFeedPost.title,
-            href: secondaryFeedPost.href,
-          },
-        ]
-      : []),
-    ...(anonymousMessage
-      ? [
-          {
-            id: "anonymous-live-thread",
-            category: "anonymous" as const,
-            categoryLabel: "익명 채팅 Thread",
-            title: anonymousMessage.content,
-            href: "/discussion/anonymous",
-          },
-        ]
-      : []),
-  ];
-
-  return candidates
-    .map((content) => {
-      const metric = getPopularContentMetric(content.id);
-      const source: DiscoveryMetricSource =
-        metric?.source ?? "not-connected";
-
-      return {
-        ...content,
-        viewCount: metric?.viewCount ?? 0,
-        source,
-      };
-    })
-    .sort((a, b) => b.viewCount - a.viewCount)
+  return posts
+    .filter((post) => new Date(post.publishedAt).getTime() >= cutoff)
+    .map((post) => ({
+      id: post.id,
+      category: post.board,
+      categoryLabel: post.boardLabel,
+      title: post.title,
+      href: `/discussion/${post.slug}`,
+      commentCount: countVisibleAIComments(post),
+      publishedAt: post.publishedAt,
+    }))
+    .filter((content) => content.commentCount > 0)
+    .sort(
+      (left, right) =>
+        right.commentCount - left.commentCount ||
+        new Date(right.publishedAt).getTime() -
+          new Date(left.publishedAt).getTime() ||
+        left.id.localeCompare(right.id)
+    )
     .slice(0, limit);
 }
 
