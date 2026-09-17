@@ -104,7 +104,16 @@ export function PublicSidebarContent({
 
       <section aria-labelledby="organization-directory-title">
         <h2 className="mb-3" id="organization-directory-title">
-          <div className={cn("flex w-fit items-center gap-2 text-[11px] font-semibold", pathname.startsWith("/departments/") || pathname === "/division-feed" ? "text-white" : "text-muted-foreground")}>
+          <div
+            className={cn(
+              "flex w-fit items-center gap-2 text-[11px]",
+              pathname.startsWith("/departments/") ||
+                pathname === "/division-feed" ||
+                expandedDivisionIds.size > 0
+                ? "font-bold text-white"
+                : "font-semibold text-muted-foreground"
+            )}
+          >
             <span className="grid size-4 place-items-center bg-[#07080a]"><Building2 className="size-3.5" /></span>
             사업부별 페르소나
           </div>
